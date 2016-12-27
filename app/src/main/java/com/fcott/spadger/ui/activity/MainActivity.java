@@ -8,8 +8,12 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.fcott.spadger.R;
+import com.fcott.spadger.model.bean.MenuBean;
 import com.fcott.spadger.model.http.MainPageService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
+import com.fcott.spadger.utils.GsonUtil;
+import com.fcott.spadger.utils.JsoupUtil;
+import com.pili.pldroid.player.AVOptions;
 
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -27,12 +31,16 @@ public class MainActivity extends AppCompatActivity {
         tv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this,WebviewActivity.class));
+                Intent intent = new Intent(MainActivity.this, PLVideoViewActivity.class);
+                intent.putExtra("videoPath", "");
+                intent.putExtra("mediaCodec", AVOptions.MEDIA_CODEC_AUTO);
+                intent.putExtra("liveStreaming", 0);
+                startActivity(intent);
             }
         });
 
         RetrofitUtils.getInstance().create1(MainPageService.class)
-                .getVideo("http://sd.52avhd.com:9888/rh/餌食牝 稲垣紗栄子/SD/playlist.m3u8")
+                .getMainPage("")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<String>() {
@@ -40,7 +48,6 @@ public class MainActivity extends AppCompatActivity {
                     public void onCompleted() {
                         Log.w("response","completed");
                     }
-
                     @Override
                     public void onError(Throwable e) {
                         Log.w("response",e.toString());
@@ -50,15 +57,17 @@ public class MainActivity extends AppCompatActivity {
                     public void onNext(String s) {
 //                        Log.w("response",s.toString().split("'")[1]);
 
-//                        JsoupUtil.parseImagsTitle(s);
+                        MenuBean menuBean = JsoupUtil.parseMenu(s);
 
 //                        JsoupUtil.parseVideoList(s);
 
 //                        JsoupUtil.parseVideoDetial(s);
 
-                        tv.setText(s);
-                        Log.w("aaa",s);
+//                        tv.setText(s);
+//                        Log.w("aaa",s);
                     }
                 });
     }
+
+
 }

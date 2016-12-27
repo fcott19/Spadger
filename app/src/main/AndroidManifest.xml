@@ -7,6 +7,8 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"
@@ -24,17 +26,9 @@
         <activity
             android:name=".ui.activity.WebviewActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"></activity>
-        <activity
-            android:name="com.tencent.smtt.sdk.VideoActivity"
-            android:alwaysRetainTaskState="true"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            android:exported="false"
-            android:launchMode="singleTask">
-            <intent-filter>
-                <action android:name="com.tencent.smtt.tbs.video.PLAY" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
+        <activity android:name=".ui.activity.PLVideoViewActivity"
+            android:theme="@style/AppThemeFullscreen"
+            android:configChanges="keyboardHidden|orientation|screenSize"></activity>
     </application>
 
 </manifest>
