@@ -5,6 +5,8 @@ import android.util.Log;
 
 import com.fcott.spadger.model.bean.ItemBean;
 import com.fcott.spadger.model.bean.MenuBean;
+import com.fcott.spadger.model.bean.VedioListBean;
+import com.fcott.spadger.model.bean.VedioListItemBean;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -81,15 +83,18 @@ public class JsoupUtil {
         return menuBean;
     }
 
-    public static void parseVideoList(String response){
-        Log.w("aaa","begin");
+    public static VedioListBean parseVideoList(String response){
+        VedioListBean vedioListBean = new VedioListBean();
 
         Document document = Jsoup.parse(response);
         Elements elements = document.getElementsByClass("indexvod").select("li");
 
         for(Element e:elements){
-            Log.w("aaa",e.select("a").attr("href")+"--"+e.select("a").attr("title")+"--"+e.select("img").attr("src")+"--"+e.select("span").text());
+//            Log.w("aaa",e.select("a").attr("href")+"--"+e.select("a").attr("title")+"--"+e.select("img").attr("src")+"--"+e.select("span").text());
+            vedioListBean.getVedioList().add(new VedioListItemBean(e.select("a").attr("title"),e.select("a").attr("href")
+                    ,e.select("img").attr("src"),e.select("span").text()));
         }
+        return vedioListBean;
     }
 
     public static void parseVideoDetial(String response){
