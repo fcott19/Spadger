@@ -1,4 +1,4 @@
-package com.fcott.spadger.utils;
+package com.fcott.spadger.utils.netstatus;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

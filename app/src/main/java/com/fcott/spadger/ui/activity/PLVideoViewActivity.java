@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 import com.fcott.spadger.R;
 import com.fcott.spadger.ui.widget.MediaController;
-import com.fcott.spadger.utils.NetWorkUtil;
+import com.fcott.spadger.utils.netstatus.NetWorkUtil;
 import com.pili.pldroid.player.AVOptions;
 import com.pili.pldroid.player.PLMediaPlayer;
 import com.pili.pldroid.player.widget.PLVideoView;
