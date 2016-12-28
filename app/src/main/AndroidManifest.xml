@@ -33,7 +33,8 @@
             android:name=".ui.activity.PLVideoViewActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/AppThemeFullscreen" />
-        <activity android:name=".ui.activity.VedioExhibitionActivity"></activity>
+        <activity android:name=".ui.activity.VedioExhibitionActivity" />
+        <activity android:name=".ui.activity.NovelExhibitionActivity"></activity>
     </application>
 
 </manifest>

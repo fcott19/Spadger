@@ -90,20 +90,20 @@ public class JsoupUtil {
         Elements elements = document.getElementsByClass("indexvod").select("li");
 
         for(Element e:elements){
-//            Log.w("aaa",e.select("a").attr("href")+"--"+e.select("a").attr("title")+"--"+e.select("img").attr("src")+"--"+e.select("span").text());
+            Log.w("aaa",e.select("a").attr("href")+"--"+e.select("a").attr("title")+"--"+e.select("img").attr("src")+"--"+e.select("span").text());
             vedioListBean.getVedioList().add(new VedioListItemBean(e.select("a").attr("title"),e.select("a").attr("href")
                     ,e.select("img").attr("src"),e.select("span").text()));
         }
         return vedioListBean;
     }
 
-    public static void parseVideoDetial(String response){
+    public static String parseVideoDetial(String response){
         Log.w("aaa","begin");
 
         Document document = Jsoup.parse(response);
         Elements elements = document.getElementsByClass("player").select("script");
 
-        Log.w("aaa",elements.get(0).data());
+        return elements.get(0).data();
     }
 
 

@@ -5,26 +5,22 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.util.Log;
 
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.bean.ItemBean;
-import com.fcott.spadger.ui.activity.PLVideoViewActivity;
+import com.fcott.spadger.ui.activity.NovelExhibitionActivity;
 import com.fcott.spadger.ui.activity.VedioExhibitionActivity;
 import com.fcott.spadger.ui.adapter.MenuAdapter;
 import com.fcott.spadger.ui.adapter.baseadapter.OnItemClickListeners;
 import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
 import com.fcott.spadger.utils.GsonUtil;
 import com.fcott.spadger.utils.LogUtil;
-import com.fcott.spadger.utils.ParseUtil;
-import com.pili.pldroid.player.AVOptions;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 import butterknife.Bind;
 
-public class NovelFragment extends BaseFragment {
+public class MenuFragment extends BaseFragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private static final String ARG_PARAM3 = "param3";
@@ -43,12 +39,12 @@ public class NovelFragment extends BaseFragment {
     private ArrayList<ItemBean> newData = new ArrayList<>();//新更新的数据
     private String TAG = "";//类型标志
 
-    public NovelFragment() {
+    public MenuFragment() {
         // Required empty public constructor
     }
 
-    public static NovelFragment newInstance(ArrayList<ItemBean> menuList,ArrayList<ItemBean> newList,String tag) {
-        NovelFragment fragment = new NovelFragment();
+    public static MenuFragment newInstance(ArrayList<ItemBean> menuList, ArrayList<ItemBean> newList, String tag) {
+        MenuFragment fragment = new MenuFragment();
         Bundle args = new Bundle();
         args.putParcelableArrayList(ARG_PARAM1,menuList);
         args.putParcelableArrayList(ARG_PARAM2,newList);
@@ -79,9 +75,9 @@ public class NovelFragment extends BaseFragment {
                 if(TAG.equals(VEDIO)){//电影
                     intent = new Intent(baseActivity, VedioExhibitionActivity.class);
                 }else if(TAG.equals(PICTURE)){//图片
-                    intent = new Intent(baseActivity, VedioExhibitionActivity.class);
+                    intent = new Intent(baseActivity, NovelExhibitionActivity.class);
                 }else if(TAG.equals(NOVEL)){//小说
-                    intent = new Intent(baseActivity, VedioExhibitionActivity.class);
+                    intent = new Intent(baseActivity, NovelExhibitionActivity.class);
                 }
                 Bundle bundle = new Bundle();
                 bundle.putString(VedioExhibitionActivity.TITLE,data.getTitle());

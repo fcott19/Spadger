@@ -9,5 +9,6 @@
     <color name="colorTextGrey">#999999</color>
     <color name="colorWhite">#FFFFFF</color>
     <color name="background_light">#fafafa</color> <!-- grey 50 -->
-    <color name="background_press">#c7c7c7</color> <!-- grey 50 -->
+    <color name="background_press">#c7c7c7</color>
+    <color name="background_tran">#66666666</color>
 </resources>

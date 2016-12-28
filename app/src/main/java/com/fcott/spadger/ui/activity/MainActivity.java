@@ -11,7 +11,7 @@ import com.fcott.spadger.model.bean.MenuBean;
 import com.fcott.spadger.model.http.MainPageService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
 import com.fcott.spadger.ui.adapter.ViewPagerAdapter;
-import com.fcott.spadger.ui.fragment.NovelFragment;
+import com.fcott.spadger.ui.fragment.MenuFragment;
 import com.fcott.spadger.utils.JsoupUtil;
 
 import java.util.ArrayList;
@@ -73,9 +73,9 @@ public class MainActivity extends BaseActivity {
         }
         titles = Arrays.asList(getResources().getStringArray(R.array.news));
         fragmentList = new ArrayList<>();
-        fragmentList.add(NovelFragment.newInstance(menuBean.getPicList(),menuBean.getNewpicList(),NovelFragment.PICTURE));
-        fragmentList.add(NovelFragment.newInstance(menuBean.getNovelList(),menuBean.getNewNovelList(),NovelFragment.NOVEL));
-        fragmentList.add(NovelFragment.newInstance(menuBean.getVedioList(),menuBean.getNewVedioList(),NovelFragment.VEDIO));
+        fragmentList.add(MenuFragment.newInstance(menuBean.getPicList(),menuBean.getNewpicList(), MenuFragment.PICTURE));
+        fragmentList.add(MenuFragment.newInstance(menuBean.getNovelList(),menuBean.getNewNovelList(), MenuFragment.NOVEL));
+        fragmentList.add(MenuFragment.newInstance(menuBean.getVedioList(),menuBean.getNewVedioList(), MenuFragment.VEDIO));
 
         pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(),fragmentList,titles);
         vp_news.setAdapter(pagerAdapter);
