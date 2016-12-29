@@ -6,16 +6,16 @@ import java.util.ArrayList;
  * Created by fcott on 2016/12/27.
  */
 
-public class VedioListBean {
-    private ArrayList<VedioListItemBean> vedioList = new ArrayList<>();
+public class NovelListBean {
+    private ArrayList<NovelListItemBean> novelList = new ArrayList<>();
     private PageControlBean pageControlBean;
 
-    public ArrayList<VedioListItemBean> getVedioList() {
-        return vedioList;
+    public ArrayList<NovelListItemBean> getNovelList() {
+        return novelList;
     }
 
-    public void setVedioList(ArrayList<VedioListItemBean> vedioList) {
-        this.vedioList = vedioList;
+    public void setNovelList(ArrayList<NovelListItemBean> novelList) {
+        this.novelList = novelList;
     }
 
     public PageControlBean getPageControlBean() {
@@ -25,5 +25,4 @@ public class VedioListBean {
     public void setPageControlBean(PageControlBean pageControlBean) {
         this.pageControlBean = pageControlBean;
     }
-
 }

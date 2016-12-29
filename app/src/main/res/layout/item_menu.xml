@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:background="@color/colorWhite">
     <TextView
-        android:background="@drawable/btn_menu"
+        android:background="@drawable/selector_btn_bg"
         android:id="@+id/tv_menu"
         android:padding="9dp"
         android:layout_margin="1dp"

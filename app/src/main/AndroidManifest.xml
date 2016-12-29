@@ -27,26 +27,30 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.activity.WebviewActivity"
+            android:name=".ui.activity.NovelDetialActivity"
             android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity
             android:name=".ui.activity.PLVideoViewActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/AppThemeFullscreen" />
         <activity android:name=".ui.activity.VedioExhibitionActivity" />
-        <activity android:name=".ui.activity.NovelExhibitionActivity"></activity>
+        <activity android:name=".ui.activity.NovelExhibitionActivity" />
         <activity
             android:name="com.tencent.smtt.sdk.VideoActivity"
             android:alwaysRetainTaskState="true"
-            android:hardwareAccelerated="true"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="false"
+            android:hardwareAccelerated="true"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="com.tencent.smtt.tbs.video.PLAY" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity android:name=".ui.activity.PictureDetailActivity"></activity>
+        <activity android:name=".ui.activity.PictureSinglelActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
     </application>
 
 </manifest>

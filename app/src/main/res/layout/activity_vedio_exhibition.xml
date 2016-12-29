@@ -4,10 +4,63 @@
     android:id="@+id/activity_vedio_exhibition"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorWhite"
     tools:context="com.fcott.spadger.ui.activity.VedioExhibitionActivity">
+    <LinearLayout
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:layout_margin="10dp"
+        android:id="@+id/rl_pagecontrol"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="40dp">
+        <TextView
+            android:background="@drawable/selector_btn_bg2"
+            android:id="@+id/tv_first_page"
+            android:gravity="center"
+            android:text="首页"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent" />
+        <TextView
+            android:background="@drawable/selector_btn_bg2"
+            android:id="@+id/tv_pre_page"
+            android:gravity="center"
+            android:text="上一页"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent" />
+        <EditText
+            android:inputType="number"
+            android:imeOptions="actionGo"
+            android:id="@+id/et_page_number"
+            android:gravity="center"
+            android:text="1"
+            android:background="@null"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent" />
+        <TextView
+            android:background="@drawable/selector_btn_bg2"
+            android:id="@+id/tv_next_page"
+            android:gravity="center"
+            android:text="下一页"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent" />
+        <TextView
+            android:background="@drawable/selector_btn_bg2"
+            android:id="@+id/tv_last_page"
+            android:gravity="center"
+            android:text="尾页"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent" />
+    </LinearLayout>
     <android.support.v7.widget.RecyclerView
+        android:layout_below="@+id/rl_pagecontrol"
         android:id="@+id/rv_vedio_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="match_parent"/>
 
 </RelativeLayout>

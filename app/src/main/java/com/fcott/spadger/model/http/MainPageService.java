@@ -19,5 +19,5 @@ public interface MainPageService {
     Observable<String> getNextUrl();
 
     @GET
-    Observable<String> getVideo(@Url String url);
+    Observable<String> getData(@Url String url);
 }

@@ -4,14 +4,14 @@ package com.fcott.spadger.utils;
  * Created by fcott on 2016/12/29.
  */
 
-public class Native {
+public class NativeUtil {
     /**
      * prefix of ascii string of native character
      */
     private static String PREFIX = "\\u";
 
     /**
-     * Native to ascii string. It's same as execut native2ascii.exe.
+     * NativeUtil to ascii string. It's same as execut native2ascii.exe.
      *
      * @param str native string
      * @return ascii string
@@ -26,7 +26,7 @@ public class Native {
     }
 
     /**
-     * Native character to ascii string.
+     * NativeUtil character to ascii string.
      *
      * @param c native character
      * @return ascii string

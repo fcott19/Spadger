@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.Window;
 
 import com.fcott.spadger.App;
+import com.fcott.spadger.R;
 import com.fcott.spadger.ui.widget.loading.VaryViewHelperController;
 import com.fcott.spadger.utils.netstatus.NetChangeObserver;
 import com.fcott.spadger.utils.netstatus.NetStateReceiver;
@@ -123,6 +124,17 @@ public abstract class BaseActivity extends AppCompatActivity implements MvpView 
 
         if (toggle) {
             mVaryViewHelperController.showLoading(msg);
+        } else {
+            mVaryViewHelperController.restore();
+        }
+    }
+    protected void toggleShowLoading(boolean toggle) {
+        if (null == mVaryViewHelperController) {
+            throw new IllegalArgumentException("You must return a right target view for loading");
+        }
+
+        if (toggle) {
+            mVaryViewHelperController.showLoading(getResources().getString(R.string.load_loading_tip));
         } else {
             mVaryViewHelperController.restore();
         }
