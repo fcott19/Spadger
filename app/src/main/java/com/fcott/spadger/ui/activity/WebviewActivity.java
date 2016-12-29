@@ -33,7 +33,7 @@ public class WebviewActivity extends AppCompatActivity {
         initView();
 
         if(TbsVideo.canUseTbsPlayer(this)){
-            TbsVideo.openVideo(this,"http://hd.52avhd.com:9889/rh/%E7%AF%A0%E7%94%B0%E3%81%82%E3%82%86%E3%81%BF%E3%83%99%E3%82%B9%E3%83%88%20Part2/SD/out006.ts");
+            TbsVideo.openVideo(this,"http://hd.52avhd.com:9888/rh/%E4%BB%96%E4%BA%BA%E5%A6%BB%E5%91%B3%20%E5%B0%8F%E5%B6%8B%E3%81%B2%E3%82%88%E3%82%8A/SD/playlist.m3u8");
         }
     }
 

@@ -13,6 +13,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -102,8 +103,18 @@ public class JsoupUtil {
 
         Document document = Jsoup.parse(response);
         Elements elements = document.getElementsByClass("player").select("script");
+        String string = elements.get(0).data();
+        int index1 = string.indexOf("http");
+        int index2 = string.indexOf("m3u8");
 
-        return elements.get(0).data();
+        String realUrl = "";
+        try {
+            realUrl = ParseUtil.parseUrl(Native.ascii2Native(string.substring(index1,index2)+"m3u8").replace("\\",""));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        LogUtil.log(realUrl);
+        return realUrl;
     }
 
 

@@ -21,6 +21,7 @@ import com.fcott.spadger.utils.JsoupUtil;
 import com.fcott.spadger.utils.LogUtil;
 import com.fcott.spadger.utils.ParseUtil;
 import com.pili.pldroid.player.AVOptions;
+import com.tencent.smtt.sdk.TbsVideo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,20 +60,18 @@ public class VedioExhibitionActivity extends BaseActivity {
         ACache mCache = ACache.get(VedioExhibitionActivity.this.getApplicationContext());
         String value = mCache.getAsString(ACACHE_TAG + url);//取出缓存
 
-        if (!TextUtils.isEmpty(value)) {
-            adapter.setNewData(JsoupUtil.parseVideoList(value).getVedioList());
-        }
-
         //menu列表展示
-        adapter = new VedioListAdapter(VedioExhibitionActivity.this,new ArrayList<VedioListItemBean>(),false);
+        adapter = new VedioListAdapter(VedioExhibitionActivity.this, new ArrayList<VedioListItemBean>(), false);
+        //显示缓存
+        if (!TextUtils.isEmpty(value)) {
+            ArrayList arrayList = JsoupUtil.parseVideoList(value).getVedioList();
+            if (!arrayList.isEmpty()) {
+                adapter.setNewData(arrayList);
+            }
+        }
         adapter.setOnItemClickListener(new OnItemClickListeners<VedioListItemBean>() {
             @Override
             public void onItemClick(ViewHolder viewHolder, VedioListItemBean data, int position) {
-//                Intent intent = new Intent(VedioExhibitionActivity.this,PLVideoViewActivity.class);
-//                intent.putExtra("videoPath","");
-//                intent.putExtra("liveStreaming",0);
-//                intent.putExtra("mediaCodec", AVOptions.MEDIA_CODEC_SW_DECODE);
-//                startActivity(intent);
                 RetrofitUtils.getInstance().create1(MainPageService.class)
                         .getVideo(data.getUrl())
                         .subscribeOn(Schedulers.io())
@@ -80,16 +79,19 @@ public class VedioExhibitionActivity extends BaseActivity {
                         .subscribe(new Subscriber<String>() {
                             @Override
                             public void onCompleted() {
-                                Log.w("response","completed");
+                                Log.w("response", "completed");
                             }
+
                             @Override
                             public void onError(Throwable e) {
-                                Log.w("response",e.toString());
+                                Log.w("response", e.toString());
                             }
 
                             @Override
                             public void onNext(String s) {
-                                LogUtil.log(JsoupUtil.parseVideoDetial(s));
+                                if(TbsVideo.canUseTbsPlayer(VedioExhibitionActivity.this)){
+                                    TbsVideo.openVideo(VedioExhibitionActivity.this,JsoupUtil.parseVideoDetial(s));
+                                }
                             }
                         });
             }
@@ -107,11 +109,12 @@ public class VedioExhibitionActivity extends BaseActivity {
                 .subscribe(new Subscriber<String>() {
                     @Override
                     public void onCompleted() {
-                        Log.w("response","completed");
+                        Log.w("response", "completed");
                     }
+
                     @Override
                     public void onError(Throwable e) {
-                        Log.w("response",e.toString());
+                        Log.w("response", e.toString());
                     }
 
                     @Override

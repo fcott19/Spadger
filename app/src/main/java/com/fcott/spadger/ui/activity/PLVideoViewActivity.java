@@ -75,7 +75,7 @@ public class PLVideoViewActivity extends VideoPlayerBaseActivity {
         mIsLiveStreaming = getIntent().getIntExtra("liveStreaming", 1);//直播/点播
 
         // 1 -> hw codec enable, 0 -> disable [recommended]
-        int codec = getIntent().getIntExtra("mediaCodec", AVOptions.MEDIA_CODEC_SW_DECODE);//解码方式
+        int codec = getIntent().getIntExtra("mediaCodec", AVOptions.MEDIA_CODEC_AUTO);//解码方式
         setOptions(codec);
 
         // Set some listeners
