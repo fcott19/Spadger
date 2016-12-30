@@ -17,6 +17,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:nestedScrollingEnabled="false"/>
+    <View
+        android:layout_margin="5dp"
+        android:background="@color/colorPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"/>
+    <TextView
+        android:paddingBottom="10dp"
+        android:id="@+id/tv_title"
+        android:gravity="center"
+        android:text="最新资讯"
+        android:textStyle="bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
     <android.support.v7.widget.RecyclerView
         android:id="@+id/type_item_newInfo"
         android:layout_width="match_parent"

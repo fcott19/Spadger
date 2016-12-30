@@ -105,7 +105,7 @@ public class VedioExhibitionActivity extends BaseActivity {
     @Override
     protected void initViews() {
         //列表适配器
-        adapter = new VedioListAdapter(VedioExhibitionActivity.this, new ArrayList<VedioListItemBean>(), false);
+        adapter = new VedioListAdapter(VedioExhibitionActivity.this, new ArrayList<VedioListItemBean>(), false);//
         adapter.setOnItemClickListener(new OnItemClickListeners<VedioListItemBean>() {
             @Override
             public void onItemClick(ViewHolder viewHolder, VedioListItemBean data, int position) {
@@ -154,6 +154,9 @@ public class VedioExhibitionActivity extends BaseActivity {
                             v.getApplicationWindowToken(), 0);
                 }
                 goPage();
+                //etPageNumber失去焦点，隐藏光标
+                etPageNumber.clearFocus();
+                etPageNumber.setFocusable(false);
                 return true;
             }
         });
@@ -204,9 +207,6 @@ public class VedioExhibitionActivity extends BaseActivity {
                 adapter.setNewData(arrayList);
                 //设置当前页数
                 etPageNumber.setText(vedioListBean.getPageControlBean().getCurrentPage());
-                //etPageNumber失去焦点，隐藏光标
-                etPageNumber.clearFocus();
-                etPageNumber.setFocusable(false);
             }
         } else {
             toggleShowLoading(true);
@@ -238,9 +238,6 @@ public class VedioExhibitionActivity extends BaseActivity {
                         adapter.setNewData(vedioListBean.getVedioList());
                         //设置当前页数
                         etPageNumber.setText(vedioListBean.getPageControlBean().getCurrentPage());
-                        //etPageNumber失去焦点，隐藏光标
-                        etPageNumber.clearFocus();
-                        etPageNumber.setFocusable(false);
                     }
                 });
     }

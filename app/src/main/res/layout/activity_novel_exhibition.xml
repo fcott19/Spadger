@@ -64,6 +64,7 @@
             android:layout_height="match_parent" />
     </LinearLayout>
     <android.support.v7.widget.RecyclerView
+        android:nestedScrollingEnabled="false"
         android:layout_below="@+id/rl_pagecontrol"
         android:id="@+id/rv_vedio_list"
         android:layout_width="match_parent"

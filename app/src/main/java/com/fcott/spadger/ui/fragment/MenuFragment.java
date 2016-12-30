@@ -6,6 +6,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.bean.ItemBean;
@@ -49,6 +50,8 @@ public class MenuFragment extends BaseFragment {
     public RecyclerView mRvMenu;
     @Bind(R.id.type_item_newInfo)
     public RecyclerView mRvNewInfo;
+    @Bind(R.id.tv_title)
+    public TextView tvTitle;
 
     MenuAdapter menuAdapter = null;//菜单选择Adapter
     MenuAdapter newInfoAdapter = null;//新更新信息Adapter
@@ -81,6 +84,14 @@ public class MenuFragment extends BaseFragment {
             menuData = getArguments().getParcelableArrayList(ARG_PARAM1);
             newData = getArguments().getParcelableArrayList(ARG_PARAM2);
             TAG = getArguments().getString(ARG_PARAM3);
+        }
+        //设置标题
+        if (TAG.equals(VEDIO)) {
+            tvTitle.setText(getResources().getString(R.string.new_video));
+        } else if (TAG.equals(PICTURE)) {
+            tvTitle.setText(getResources().getString(R.string.new_picture));
+        } else if (TAG.equals(NOVEL)) {
+            tvTitle.setText(getResources().getString(R.string.new_novel));
         }
         //menu列表展示
         menuAdapter = new MenuAdapter(baseActivity, menuData, false);

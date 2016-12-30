@@ -8,6 +8,9 @@
     <string name="input_error">输入错误</string>
     <string name="already_first">已经是第一页</string>
     <string name="already_last">已经是最后一页</string>
+    <string name="new_video">最新电影</string>
+    <string name="new_picture">最新图片</string>
+    <string name="new_novel">最新小说</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
