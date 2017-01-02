@@ -15,7 +15,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
  */
 public class RetrofitUtils {
 
-    private static final int DEFAULT_TIMEOUT = 10;
+    private static final int DEFAULT_TIMEOUT = 20;
 
     public static RetrofitUtils getInstance() {
         return SingletonHolder.INSTANCE;

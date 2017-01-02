@@ -3,6 +3,8 @@ package com.fcott.spadger;
 import android.app.Activity;
 import android.app.Application;
 
+import com.hly.easyretrofit.retrofit.NetWorkRequest;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +21,7 @@ public class App extends Application {
         super.onCreate();
         instance = this;
         activityList = new ArrayList<>();
+        NetWorkRequest.getInstance().init(this, "http://test.kuaikuaikeji.com/kas/");
     }
 
     public static App getInstance(){

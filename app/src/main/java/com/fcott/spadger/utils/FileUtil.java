@@ -12,9 +12,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
+import java.net.SocketTimeoutException;
 
 import okhttp3.ResponseBody;
 
@@ -67,6 +70,86 @@ public class FileUtil {
             return false;
         }
 
+    }
+
+    public static boolean writeInputStreamToDisk(InputStream inputStream , String downloadName) {
+        String path = getDefaultMapDirectory()+downloadName;
+
+        File futureFile = new File(path);
+        OutputStream outputStream = null;
+        try {
+            try {
+                byte[] fileReader = new byte[1024 * 1024];
+                outputStream = new FileOutputStream(futureFile);
+
+                while (true) {
+                    int read = inputStream.read(fileReader);
+
+                    if (read == -1) {
+                        break;
+                    }
+                    outputStream.write(fileReader, 0, read);
+                }
+
+                outputStream.flush();
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            } finally {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            }
+        } catch (IOException e) {
+            return false;
+        }
+
+    }
+
+    public static boolean writeToFile(ResponseBody body, String downloadName) {
+        String path = getDefaultMapDirectory()+downloadName;
+        try {
+            File futureStudioIconFile = new File(path);
+
+            if (!futureStudioIconFile.exists()) {
+                futureStudioIconFile.createNewFile();
+            }
+
+            RandomAccessFile oSavedFile = new RandomAccessFile(futureStudioIconFile, "rw");
+
+            oSavedFile.seek(futureStudioIconFile.length());
+
+            InputStream inputStream = null;
+
+            try {
+                byte[] fileReader = new byte[4096];
+
+                inputStream = body.byteStream();
+
+                while (true) {
+                    int read = inputStream.read(fileReader);
+
+                    if (read == -1) {
+                        break;
+                    }
+                    oSavedFile.write(fileReader, 0, read);
+                }
+                return true;
+            } finally {
+
+                oSavedFile.close();
+
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+            }
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     public static boolean fileExists(String path){
