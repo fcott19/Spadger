@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -63,14 +64,6 @@ public class PictureSinglelActivity extends BaseActivity {
         });
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Intent intent = new Intent();
-        intent.putExtra("position", position); //将计算的值回传回去
-        setResult(2, intent);
-    }
-
     class SamplePagerAdapter extends PagerAdapter {
 
         @Override
@@ -99,5 +92,16 @@ public class PictureSinglelActivity extends BaseActivity {
             return view == object;
         }
 
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == event.KEYCODE_BACK){
+            Intent intent = new Intent();
+            intent.putExtra("position", position); //将计算的值回传回去
+            setResult(2, intent);
+            finish();
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }
