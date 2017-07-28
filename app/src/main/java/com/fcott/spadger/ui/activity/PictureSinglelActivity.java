@@ -1,7 +1,9 @@
 package com.fcott.spadger.ui.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -43,6 +45,30 @@ public class PictureSinglelActivity extends BaseActivity {
     protected void initViews() {
         viewPager.setAdapter(new SamplePagerAdapter());
         viewPager.setCurrentItem(position);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int p) {
+                position = p;
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Intent intent = new Intent();
+        intent.putExtra("position", position); //将计算的值回传回去
+        setResult(2, intent);
     }
 
     class SamplePagerAdapter extends PagerAdapter {
@@ -55,7 +81,7 @@ public class PictureSinglelActivity extends BaseActivity {
         @Override
         public View instantiateItem(ViewGroup container, int position) {
             PhotoView photoView = new PhotoView(container.getContext());
-            ImageLoader.getInstance().load(mContext,imagCollectionBeenList.get(position),photoView);
+            ImageLoader.getInstance().load(mContext, imagCollectionBeenList.get(position), photoView);
 
             // Now just add PhotoView to ViewPager and return it
             container.addView(photoView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);

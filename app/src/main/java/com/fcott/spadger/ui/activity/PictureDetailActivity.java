@@ -1,7 +1,6 @@
 package com.fcott.spadger.ui.activity;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -9,7 +8,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 
-import com.bumptech.glide.Glide;
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.http.MainPageService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
@@ -17,9 +15,7 @@ import com.fcott.spadger.ui.adapter.PictureAdapter;
 import com.fcott.spadger.ui.adapter.baseadapter.OnItemClickListeners;
 import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
 import com.fcott.spadger.utils.ACache;
-import com.fcott.spadger.utils.GsonUtil;
 import com.fcott.spadger.utils.JsoupUtil;
-import com.fcott.spadger.utils.LogUtil;
 import com.fcott.spadger.utils.glideutils.ImageLoader;
 
 import java.util.ArrayList;
@@ -61,16 +57,17 @@ public class PictureDetailActivity extends BaseActivity {
 
     @Override
     protected void initViews() {
-        adapter = new PictureAdapter(PictureDetailActivity.this,new ArrayList<String>(),false);
+        adapter = new PictureAdapter(PictureDetailActivity.this, new ArrayList<String>(), false);
         adapter.setOnItemClickListener(new OnItemClickListeners<String>() {
             @Override
             public void onItemClick(ViewHolder viewHolder, String data, int position) {
-                Intent intent = new Intent(PictureDetailActivity.this,PictureSinglelActivity.class);
+                Intent intent = new Intent(PictureDetailActivity.this, PictureSinglelActivity.class);
                 Bundle bundle = new Bundle();
-                bundle.putStringArrayList(PictureSinglelActivity.URL_TAG,dataList);
-                bundle.putInt(PictureSinglelActivity.POSITION_TAG,position);
+                bundle.putStringArrayList(PictureSinglelActivity.URL_TAG, dataList);
+                bundle.putInt(PictureSinglelActivity.POSITION_TAG, position);
                 intent.putExtras(bundle);
-                startActivity(intent);
+//                startActivity(intent);
+                startActivityForResult(intent, 0);
             }
         });
         final LinearLayoutManager layoutManager = new LinearLayoutManager(PictureDetailActivity.this);
@@ -79,6 +76,16 @@ public class PictureDetailActivity extends BaseActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
         requestData(url);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == 2) {
+            if (requestCode == 0) {
+                recyclerView.scrollToPosition(data.getIntExtra("position", 0));
+            }
+        }
     }
 
     //请求数据，更新界面
@@ -116,8 +123,8 @@ public class PictureDetailActivity extends BaseActivity {
                     @Override
                     public void onNext(String s) {
                         dataList = JsoupUtil.parsePictureDetial(s);
-                        for(String string:dataList){
-                            ImageLoader.getInstance().preLoad(PictureDetailActivity.this,string);
+                        for (String string : dataList) {
+                            ImageLoader.getInstance().preLoad(PictureDetailActivity.this, string);
                         }
                         adapter.setNewData(dataList);
                     }
