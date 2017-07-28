@@ -2,29 +2,20 @@ package com.fcott.spadger.utils.glideutils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.FutureTarget;
 import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.PreloadTarget;
 import com.bumptech.glide.request.target.Target;
 import com.fcott.spadger.R;
-
-import java.io.File;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Created by fcott on 2016/9/19.
  */
 public class ImageLoader {
-    final PreloadTarget<Bitmap> target = PreloadTarget.obtain(500, 400);
     public static ImageLoader getInstance(){
         return SingleHolder.INSTANCE;
     }
@@ -90,27 +81,7 @@ public class ImageLoader {
                 .load(url)
                 .asBitmap()
                 .diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                .listener(errorListener)
-                .into(target);
-    }
-
-    public File downloadOriginalImage(Context context,String url) {
-        if (TextUtils.isEmpty(url)) {
-            return null;
-        }
-        FutureTarget<File> future = Glide.with(context)
-                .load(url)
-                .downloadOnly(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL);
-        try {
-            return future.get(3L, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
+                .preload();
     }
 
     //设置错误监听

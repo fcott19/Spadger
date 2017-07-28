@@ -2,7 +2,6 @@ package com.fcott.spadger.ui.activity;
 
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -42,10 +41,6 @@ public class PictureSinglelActivity extends BaseActivity {
 
     @Override
     protected void initViews() {
-//        ImageLoader.getInstance().load(mContext,url,photoView,700,1050);
-//        photoView.canZoom();
-//        PhotoViewAttacher attacher = new PhotoViewAttacher(photoView);
-//        attacher.update();
         viewPager.setAdapter(new SamplePagerAdapter());
         viewPager.setCurrentItem(position);
     }
