@@ -1,1 +1,1 @@
-include ':app', ':EasyRetrofit'
+include ':app'
