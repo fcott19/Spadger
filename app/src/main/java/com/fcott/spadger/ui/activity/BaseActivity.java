@@ -60,13 +60,11 @@ public abstract class BaseActivity extends AppCompatActivity implements MvpView 
             mNetChangeObserver = new NetChangeObserver() {
                 @Override
                 public void onNetConnected(NetUtils.NetType type) {
-                    super.onNetConnected(type);
                     onNetworkConnected(type);
                 }
 
                 @Override
                 public void onNetDisConnect() {
-                    super.onNetDisConnect();
                     onNetworkDisConnected();
                 }
             };

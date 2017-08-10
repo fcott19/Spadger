@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Handler;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -18,6 +19,13 @@ public class NetStateReceiver extends BroadcastReceiver {
     private static NetUtils.NetType mNetType;
     private static ArrayList<NetChangeObserver> mNetChangeObservers = new ArrayList<NetChangeObserver>();
     private static BroadcastReceiver mBroadcastReceiver;
+    private Handler handler = new Handler();
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            notifyObserver();
+        }
+    };
 
     private static BroadcastReceiver getReceiver() {
         if (null == mBroadcastReceiver) {
@@ -34,15 +42,15 @@ public class NetStateReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         mBroadcastReceiver = NetStateReceiver.this;
         if (intent.getAction().equalsIgnoreCase(ANDROID_NET_CHANGE_ACTION) || intent.getAction().equalsIgnoreCase(CUSTOM_ANDROID_NET_CHANGE_ACTION)) {
+            handler.removeCallbacks(runnable);
             if (!NetUtils.isNetworkAvailable(context)) {
-                Log.w(TAG, "<--- network disconnected --->");
                 isNetAvailable = false;
+                handler.postDelayed(runnable,1500);
             } else {
-                Log.w(TAG, "<--- network connected --->");
                 isNetAvailable = true;
                 mNetType = NetUtils.getAPNType(context);
+                handler.postDelayed(runnable,500);
             }
-            notifyObserver();
         }
     }
 
