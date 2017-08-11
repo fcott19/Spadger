@@ -12,6 +12,10 @@
     <string name="new_picture">最新图片</string>
     <string name="new_novel">最新小说</string>
 
+    <string name="channel">A</string>
+    <string name="actor">B</string>
+    <string name="clazz">C</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

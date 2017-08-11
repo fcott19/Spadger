@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.fcott.spadger.R;
-import com.fcott.spadger.model.http.LookMovie;
+import com.fcott.spadger.model.http.LookMovieService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
 import com.fcott.spadger.utils.LogUtil;
 
@@ -47,7 +47,7 @@ public class TestActivity extends BaseActivity {
 
     @Override
     protected void initViews() {
-//        RetrofitUtils.getInstance().create1(LookMovie.class)
+//        RetrofitUtils.getInstance().create1(LookMovieService.class)
 //                .getMainPage("/Movie/MovieList/46/橘优花/5")
 //                .subscribeOn(Schedulers.io())
 //                .observeOn(AndroidSchedulers.mainThread())
@@ -84,11 +84,15 @@ public class TestActivity extends BaseActivity {
                 .build();
 
         RequestBody loginBody = new FormBody.Builder()
-                .add("Token","92078D472E314AE2948150ED1FFC80D4")
+                .add("Token","7B7572EECF394DCF9F74177BA90D402A")
                 .build();
 
-        RetrofitUtils.getInstance().create1(LookMovie.class)
-                .rquestMovieAd(body2)
+        RequestBody playBody = new FormBody.Builder()
+                .add("MovieID","5039978")
+                .build();
+
+        RetrofitUtils.getInstance().create1(LookMovieService.class)
+                .login(loginBody)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<String>() {
