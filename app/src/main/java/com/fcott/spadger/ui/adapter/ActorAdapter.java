@@ -5,6 +5,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.fcott.spadger.App;
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.bean.ActorBean;
@@ -29,10 +31,6 @@ public class ActorAdapter extends BaseAdapter<ActorBean.MessageBean.DataBean> {
     @Override
     protected void convert(ViewHolder holder, ActorBean.MessageBean.DataBean data) {
 //        ImageView imageView = (ImageView)holder.getView(R.id.iv_actor);
-//        Glide.with(context)
-//                .load(data.getPic())
-//                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
-//                .into(imageView);
 
         TextView title = holder.getView(R.id.tv_title);
         TextView date = holder.getView(R.id.tv_date);
@@ -40,8 +38,12 @@ public class ActorAdapter extends BaseAdapter<ActorBean.MessageBean.DataBean> {
 
         title.setText(data.getName());
         date.setVisibility(View.GONE);
-        ImageLoader.getInstance().load(App.getInstance(),
-                data.getPic(), cover);
+//        ImageLoader.getInstance().load(App.getInstance(),
+//                data.getPic(), cover);
+        Glide.with(context)
+                .load(data.getPic())
+                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                .into(cover);
     }
 
     @Override

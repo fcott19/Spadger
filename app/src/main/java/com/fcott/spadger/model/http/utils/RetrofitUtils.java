@@ -1,5 +1,7 @@
 package com.fcott.spadger.model.http.utils;
 
+import com.fcott.spadger.App;
+
 import java.lang.reflect.Field;
 import java.util.concurrent.TimeUnit;
 
@@ -78,6 +80,7 @@ public class RetrofitUtils {
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         builder.addInterceptor(loggingInterceptor);
+        builder.cookieJar(new CookieManger(App.getInstance().getApplicationContext()));
         return builder.build();
     }
 }

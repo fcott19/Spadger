@@ -6,6 +6,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
 
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.bean.ActorBean;
@@ -14,6 +15,7 @@ import com.fcott.spadger.model.http.utils.RetrofitUtils;
 import com.fcott.spadger.ui.adapter.ActorAdapter;
 import com.fcott.spadger.ui.adapter.baseadapter.OnItemClickListeners;
 import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
+import com.fcott.spadger.utils.glideutils.ImageLoader;
 
 import java.util.ArrayList;
 
@@ -32,8 +34,15 @@ public class ActorActivity extends BaseActivity {
     private int maxIndex;
     private ActorAdapter actorAdapter;
 
+    @Bind(R.id.contain)
+    View contain;
     @Bind(R.id.rcy_actor)
     public RecyclerView recyclerView;
+
+    @Override
+    protected View getLoadingTargetView() {
+        return contain;
+    }
 
     @Override
     protected int getContentViewLayoutID() {
@@ -49,10 +58,11 @@ public class ActorActivity extends BaseActivity {
     protected void initViews() {
 
         RequestBody body = new FormBody.Builder()
-                .add("PageIndex",String.valueOf(pageIndex))
-                .add("PageSize",String.valueOf(pageSize))
+                .add("PageIndex", String.valueOf(pageIndex))
+                .add("PageSize", String.valueOf(pageSize))
                 .build();
 
+        toggleShowLoading(true);
         RetrofitUtils.getInstance().create(LookMovieService.class)
                 .requestActor(body)
                 .subscribeOn(Schedulers.io())
@@ -60,15 +70,20 @@ public class ActorActivity extends BaseActivity {
                 .subscribe(new Subscriber<ActorBean>() {
                     @Override
                     public void onCompleted() {
-                        Log.w("response","completed");
+                        Log.w("response", "completed");
+                        toggleShowLoading(false);
                     }
+
                     @Override
                     public void onError(Throwable e) {
-                        Log.w("response",e.toString());
+                        Log.w("response", e.toString());
                     }
 
                     @Override
                     public void onNext(ActorBean bean) {
+                        for (ActorBean.MessageBean.DataBean bean1 : bean.getMessage().getData()) {
+                            ImageLoader.getInstance().preLoad(ActorActivity.this, bean1.getPic());
+                        }
                         actorAdapter.setNewData(bean.getMessage().getData());
                     }
                 });
@@ -78,15 +93,15 @@ public class ActorActivity extends BaseActivity {
             @Override
             public void onItemClick(ViewHolder viewHolder, ActorBean.MessageBean.DataBean data, int position) {
                 Intent intent = new Intent();
-                intent.setClass(ActorActivity.this,MovieListActivity.class);
+                intent.setClass(ActorActivity.this, MovieListActivity.class);
                 Bundle bundle = new Bundle();
-                bundle.putString("NAME",data.getName());
+                bundle.putString("NAME", data.getName());
                 intent.putExtras(bundle);
                 startActivity(intent);
             }
         });
 
-        final LinearLayoutManager layoutManager = new GridLayoutManager(ActorActivity.this,2);
+        final LinearLayoutManager layoutManager = new GridLayoutManager(ActorActivity.this, 2);
         layoutManager.setAutoMeasureEnabled(true);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(actorAdapter);

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.fcott.spadger.R;
+import com.fcott.spadger.model.bean.LoginBean;
 import com.fcott.spadger.model.http.LookMovieService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
 import com.fcott.spadger.utils.LogUtil;
@@ -95,7 +96,7 @@ public class TestActivity extends BaseActivity {
                 .login(loginBody)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<String>() {
+                .subscribe(new Subscriber<LoginBean>() {
                     @Override
                     public void onCompleted() {
                         Log.w("response","completed");
@@ -106,8 +107,8 @@ public class TestActivity extends BaseActivity {
                     }
 
                     @Override
-                    public void onNext(String s) {
-                        LogUtil.log(TAG,s);
+                    public void onNext(LoginBean s) {
+
                     }
                 });
 

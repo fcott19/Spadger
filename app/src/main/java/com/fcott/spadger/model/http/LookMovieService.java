@@ -1,7 +1,9 @@
 package com.fcott.spadger.model.http;
 
 import com.fcott.spadger.model.bean.ActorBean;
+import com.fcott.spadger.model.bean.LoginBean;
 import com.fcott.spadger.model.bean.MovieBean;
+import com.fcott.spadger.model.bean.MoviePlayBean;
 
 import okhttp3.RequestBody;
 import retrofit2.http.Body;
@@ -21,7 +23,7 @@ public interface LookMovieService {
     Observable<String> getMainPage(@Url String url);
 
     @POST("/User/Login")
-    Observable<String> login(@Body RequestBody requestBody);
+    Observable<LoginBean> login(@Body RequestBody requestBody);
 
     @POST("/Movie/GetMovies")
     Observable<MovieBean> requestMovie(@Body RequestBody requestBody);
@@ -36,7 +38,7 @@ public interface LookMovieService {
     Observable<String> requestMovieAd(@Body RequestBody requestBody);
 
     @POST("/Movie/Play")
-    Observable<String> moviePlay(@Body RequestBody requestBody);
+    Observable<MoviePlayBean> moviePlay(@Body RequestBody requestBody);
 
     @POST("/Movie/GetMovieInfo")
     Observable<String> requestMovieInfo(@Body RequestBody requestBody);

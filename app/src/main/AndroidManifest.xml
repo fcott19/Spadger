@@ -44,18 +44,20 @@
             android:name=".ui.activity.PictureSinglelActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity android:name=".ui.activity.MainActivity" />
-        <activity android:name=".ui.activity.TestActivity">
+        <activity android:name=".ui.activity.TestActivity" />
+        <activity android:name=".ui.activity.LookMovieActivity">
 
         </activity>
-        <activity android:name=".ui.activity.LookMovieActivity">
+        <activity android:name=".ui.activity.ActorActivity" />
+        <activity android:name=".ui.activity.MovieListActivity" />
+        <activity android:name=".ui.activity.MovieDetialActivity" />
+        <activity android:name=".ui.activity.TokenCheckActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.activity.ActorActivity"></activity>
-        <activity android:name=".ui.activity.MovieListActivity"></activity>
     </application>
 
 </manifest>

@@ -1,5 +1,8 @@
 package com.fcott.spadger.model.bean;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.List;
 
 /**
@@ -77,7 +80,7 @@ public class MovieBean {
             this.Movies = Movies;
         }
 
-        public static class MoviesBean {
+        public static class MoviesBean implements Parcelable{
             /**
              * MovieID : 5037666
              * Name : 女子校生緊縛懷孕餵養 上原亜衣
@@ -93,6 +96,42 @@ public class MovieBean {
             private String CreateTime;
             private String Img;
             private String CoverImg;
+
+            protected MoviesBean(Parcel in) {
+                MovieID = in.readString();
+                Name = in.readString();
+                Description = in.readString();
+                CreateTime = in.readString();
+                Img = in.readString();
+                CoverImg = in.readString();
+            }
+
+            @Override
+            public void writeToParcel(Parcel dest, int flags) {
+                dest.writeString(MovieID);
+                dest.writeString(Name);
+                dest.writeString(Description);
+                dest.writeString(CreateTime);
+                dest.writeString(Img);
+                dest.writeString(CoverImg);
+            }
+
+            @Override
+            public int describeContents() {
+                return 0;
+            }
+
+            public static final Creator<MoviesBean> CREATOR = new Creator<MoviesBean>() {
+                @Override
+                public MoviesBean createFromParcel(Parcel in) {
+                    return new MoviesBean(in);
+                }
+
+                @Override
+                public MoviesBean[] newArray(int size) {
+                    return new MoviesBean[size];
+                }
+            };
 
             public String getMovieID() {
                 return MovieID;

@@ -1,15 +1,23 @@
 package com.fcott.spadger.ui.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 import com.fcott.spadger.Config;
 import com.fcott.spadger.R;
+import com.fcott.spadger.model.bean.ActorBean;
 import com.fcott.spadger.model.bean.MovieBean;
 import com.fcott.spadger.model.http.LookMovieService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
 import com.fcott.spadger.ui.adapter.MovieListAdapter;
+import com.fcott.spadger.ui.adapter.baseadapter.OnItemClickListeners;
+import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
+import com.fcott.spadger.utils.GsonUtil;
+import com.fcott.spadger.utils.LogUtil;
+import com.fcott.spadger.utils.glideutils.ImageLoader;
 
 import java.util.ArrayList;
 
@@ -32,8 +40,15 @@ public class MovieListActivity extends BaseActivity {
     private RequestBody moviceBody;
     private MovieListAdapter movieListAdapter;
 
+    @Bind(R.id.contain)
+    View contain;
     @Bind(R.id.rcy_movie)
     RecyclerView recyclerView;
+
+    @Override
+    protected View getLoadingTargetView() {
+        return contain;
+    }
 
     @Override
     protected int getContentViewLayoutID() {
@@ -48,6 +63,7 @@ public class MovieListActivity extends BaseActivity {
 
     @Override
     protected void initViews() {
+        toggleShowLoading(true);
 
 //        if(!Config.noId.equals(channelId)){
 //            moviceBody = new FormBody.Builder()
@@ -74,7 +90,7 @@ public class MovieListActivity extends BaseActivity {
                 .subscribe(new Subscriber<MovieBean>() {
                     @Override
                     public void onCompleted() {
-
+                        toggleShowLoading(false);
                     }
                     @Override
                     public void onError(Throwable e) {
@@ -83,11 +99,24 @@ public class MovieListActivity extends BaseActivity {
 
                     @Override
                     public void onNext(MovieBean movieBean) {
+                        for (MovieBean.MessageBean.MoviesBean bean1 : movieBean.getMessage().getMovies()) {
+                            ImageLoader.getInstance().preLoad(MovieListActivity.this, bean1.getCoverImg());
+                        }
                         movieListAdapter.setNewData(movieBean.getMessage().getMovies());
                     }
                 });
 
         movieListAdapter = new MovieListAdapter(this,new ArrayList<MovieBean.MessageBean.MoviesBean>(),false);
+        movieListAdapter.setOnItemClickListener(new OnItemClickListeners<MovieBean.MessageBean.MoviesBean>() {
+            @Override
+            public void onItemClick(ViewHolder viewHolder, MovieBean.MessageBean.MoviesBean data, int position) {
+                Intent intent = new Intent(MovieListActivity.this,MovieDetialActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("DATA",data);
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+        });
         final LinearLayoutManager layoutManager = new LinearLayoutManager(MovieListActivity.this);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         layoutManager.setAutoMeasureEnabled(true);
