@@ -3,6 +3,7 @@ package com.fcott.spadger.model.http;
 import com.fcott.spadger.model.bean.ActorBean;
 import com.fcott.spadger.model.bean.LoginBean;
 import com.fcott.spadger.model.bean.MovieBean;
+import com.fcott.spadger.model.bean.MovieClassBean;
 import com.fcott.spadger.model.bean.MovieInfoBean;
 import com.fcott.spadger.model.bean.MoviePlayBean;
 
@@ -29,11 +30,14 @@ public interface LookMovieService {
     @POST("/Movie/GetMovies")
     Observable<MovieBean> requestMovie(@Body RequestBody requestBody);
 
+    @POST("/Movie/GetMovies")
+    Observable<String> requestMovieList(@Body RequestBody requestBody);
+
     @POST("/Movie/GetActor")
     Observable<ActorBean> requestActor(@Body RequestBody requestBody);
 
     @POST("/Movie/GetClass")
-    Observable<String> requestClass(@Body RequestBody requestBody);
+    Observable<MovieClassBean> requestClass(@Body RequestBody requestBody);
 
     @POST("/Movie/GetMovieInfoAD")
     Observable<String> requestMovieAd(@Body RequestBody requestBody);

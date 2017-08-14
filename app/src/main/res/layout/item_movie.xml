@@ -1,28 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="2dp"
-    android:orientation="vertical">
+    android:layout_margin="10dp">
     <ImageView
         android:id="@+id/img_cover"
         android:src="@mipmap/ic_launcher"
         android:scaleType="centerCrop"
         android:layout_width="match_parent"
         android:layout_height="290dp" />
-    <TextView
-        android:id="@+id/tv_descript"
-        android:lines="4"
-        android:layout_below="@+id/img_cover"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
     <LinearLayout
-        android:layout_above="@+id/tv_descript"
+        android:layout_gravity="bottom"
         android:background="@color/background_tran"
         android:padding="15dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="wrap_content">
         <TextView
             android:lines="1"
             android:textColor="@color/colorWhite"
@@ -32,4 +25,5 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>
-</RelativeLayout>
+
+</android.support.v7.widget.CardView>

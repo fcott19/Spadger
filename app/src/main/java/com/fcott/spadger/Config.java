@@ -12,5 +12,8 @@ public class Config {
     public static final String mosaicMoviceId = "3";
     public static final String cartoonMoviceId = "4";
     public static final String chineseMoviceId = "7";
-    public static final String noId = "-100";
+
+    public static final String typeChannel = "typeChannel";
+    public static final String typeClass = "typeClass";
+    public static final String typeActor = "typeActor";
 }

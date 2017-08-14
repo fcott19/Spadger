@@ -15,9 +15,7 @@ import com.fcott.spadger.model.bean.MoviePlayBean;
 import com.fcott.spadger.model.http.LookMovieService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
 import com.fcott.spadger.utils.GsonUtil;
-import com.fcott.spadger.utils.JsoupUtil;
 import com.fcott.spadger.utils.LogUtil;
-import com.fcott.spadger.utils.glideutils.ImageLoader;
 import com.tencent.smtt.sdk.TbsVideo;
 
 import java.util.List;
@@ -53,6 +51,8 @@ public class MovieDetialActivity extends BaseActivity {
     public ImageView ivActor;
     @Bind(R.id.iv_play)
     public ImageView ivPlay;
+    @Bind(R.id.iv_cut)
+    public ImageView ivCut;
     @Bind(R.id.nest)
     View view;
 
@@ -123,6 +123,10 @@ public class MovieDetialActivity extends BaseActivity {
                                 .load(messageBean.getImg())
                                 .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                                 .into(ivActor);
+                        Glide.with(MovieDetialActivity.this)
+                                .load(messageBean.getCutPicName())
+                                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                                .into(ivCut);
                     }
                 });
 

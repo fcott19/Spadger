@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/contain"
-    tools:context="com.fcott.spadger.ui.activity.MovieActorActivity">
+    tools:context="com.fcott.spadger.ui.activity.MovieClassActivity">
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rcy_actor"
         android:layout_width="match_parent"

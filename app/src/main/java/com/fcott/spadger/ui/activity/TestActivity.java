@@ -7,7 +7,6 @@ import com.fcott.spadger.R;
 import com.fcott.spadger.model.bean.LoginBean;
 import com.fcott.spadger.model.http.LookMovieService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
-import com.fcott.spadger.utils.LogUtil;
 
 import okhttp3.FormBody;
 import okhttp3.RequestBody;
@@ -34,8 +33,22 @@ public class TestActivity extends BaseActivity {
     ///Movie/MovieList/ + id + / +name + /5
     ///Movie/MovieList/46/橘优花/5
 
+    ///Movie/MovieList/2/巨乳/2
     //GetMovies=function(){var info=null;var URL="/Movie/GetMovies";$.ajax({url:URL,type:"post",dataType:"json",async:false,data:{PageIndex:objMovies.PageIndex,PageSize:objMovies.PageSize,Type:objMovies.Type,ID:objMovies.ID,Data:objMovies.Data},success:function(result){if(result.Result==1){info=result.Message;$.ajax({url:"/Movie/GetMovieInfoAD",type:"post",dataType:"json",async:false,data:{Type:"4"},success:function(result){if(result.Result==1){var item1="";for(var i=0;i<result.Message.length;i++){item1+="<div class=\"hdadvline\"><a href=\""+result.Message[0].LinkURL+"\"><img src=\""+result.Message[0].MediaURL+"\" /></a></div>";}
 
+//    moviceBody = new FormBody.Builder()
+//            .add("PageIndex","1")
+//                    .add("PageSize","20")
+//                    .add("Type","1")
+//                    .add("ID","-1")
+//                    .add("Data",actorName)
+//                    .build();
+
+//    RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+//    android:layout_width="match_parent"
+//    android:layout_height="wrap_content"
+//    android:padding="2dp"
+//    android:orientation="vertical"
     @Override
     protected int getContentViewLayoutID() {
         return R.layout.activity_test;

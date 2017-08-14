@@ -3,6 +3,8 @@ package com.fcott.spadger;
 import android.app.Activity;
 import android.app.Application;
 
+import com.fcott.spadger.utils.netstatus.NetStateReceiver;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,8 +19,15 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        NetStateReceiver.registerNetworkStateReceiver(this);
         instance = this;
         activityList = new ArrayList<>();
+    }
+
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+        NetStateReceiver.unRegisterNetworkStateReceiver(this);
     }
 
     public static App getInstance(){

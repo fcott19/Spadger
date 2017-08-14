@@ -10,9 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.fcott.spadger.ui.widget.loading.VaryViewHelperController;
-import com.fcott.spadger.utils.netstatus.NetChangeObserver;
-import com.fcott.spadger.utils.netstatus.NetStateReceiver;
-import com.fcott.spadger.utils.netstatus.NetUtils;
 import com.fcott.spadger.view.MvpView;
 
 import butterknife.ButterKnife;
@@ -26,8 +23,6 @@ public abstract class BaseFragment extends Fragment implements MvpView {
 
     //加载提示帮助类
     private VaryViewHelperController mVaryViewHelperController = null;
-     //联网状态
-    protected NetChangeObserver mNetChangeObserver = null;
 
     @Override
     public void onAttach(Context context) {
@@ -54,22 +49,6 @@ public abstract class BaseFragment extends Fragment implements MvpView {
         if (null != getLoadingTargetView()) {
             mVaryViewHelperController = new VaryViewHelperController(getLoadingTargetView());
         }
-        if(hasMonitorNetWork()){
-            NetStateReceiver.registerNetworkStateReceiver(baseActivity);
-            mNetChangeObserver = new NetChangeObserver() {
-                @Override
-                public void onNetConnected(NetUtils.NetType type) {
-                    onNetworkConnected(type);
-                }
-
-                @Override
-                public void onNetDisConnect() {
-                    onNetworkDisConnected();
-                }
-            };
-
-            NetStateReceiver.registerObserver(mNetChangeObserver);
-        }
 
         initViews();
     }
@@ -77,28 +56,12 @@ public abstract class BaseFragment extends Fragment implements MvpView {
     @Override
     public void onDestroy() {
         ButterKnife.unbind(this);
-        if(hasMonitorNetWork()){
-            NetStateReceiver.removeRegisterObserver(mNetChangeObserver);
-            NetStateReceiver.unRegisterNetworkStateReceiver(baseActivity);
-        }
         super.onDestroy();
     }
 
     //设置提醒占位视图
     protected View getLoadingTargetView(){
         return null;
-    }
-    //网络连接
-    protected void onNetworkConnected(NetUtils.NetType type){
-
-    }
-    //网络断开
-    protected void onNetworkDisConnected(){
-
-    }
-    //是否监听网络状态
-    protected boolean hasMonitorNetWork(){
-        return false;
     }
 
     public abstract int getFragmentLayoutID();
