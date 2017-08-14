@@ -1,5 +1,13 @@
 package com.fcott.spadger.utils;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
+import com.fcott.spadger.App;
+import com.fcott.spadger.Config;
+
+import java.util.Calendar;
+
 /**
  * Created by fcott on 2016/12/29.
  */
@@ -93,6 +101,24 @@ public class NativeUtil {
         tmp = str.substring(4, 6);
         code += Integer.parseInt(tmp, 16);
         return (char) code;
+    }
+
+    public static boolean needUpdate() {
+
+        Calendar c = Calendar.getInstance();
+        int mHour = c.get(Calendar.HOUR_OF_DAY);//时
+        int mDay = c.get(Calendar.DAY_OF_MONTH);// 获取当日期
+        SharedPreferences pref = App.getInstance().getSharedPreferences(Config.SP_TIME, Context.MODE_PRIVATE);
+        String time = pref.getString("time", "");//第二个参数为默认值
+        if(!time.equals(mDay+""+mHour)){
+            SharedPreferences.Editor sharedata = App.getInstance().getSharedPreferences(Config.SP_TIME, Context.MODE_PRIVATE).edit();
+            sharedata.putString("token", mDay+""+mHour);
+            sharedata.commit();
+            return true;
+        }else {
+            return false;
+        }
+
     }
 }
 

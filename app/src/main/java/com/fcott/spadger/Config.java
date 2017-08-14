@@ -7,6 +7,7 @@ public class Config {
     public static final boolean IS_DEBUG = true;
     public static final boolean NEED_LOG = true;//需要LOG
     public static final String SP_TOKEN = "SP_TOKEN";
+    public static final String SP_TIME = "SP_TIME";
 
     public static final String newMoviceId = "-1";
     public static final String mosaicMoviceId = "3";

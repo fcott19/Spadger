@@ -24,9 +24,12 @@ import com.fcott.spadger.ui.adapter.baseadapter.OnItemClickListeners;
 import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
 import com.fcott.spadger.utils.ACache;
 import com.fcott.spadger.utils.GsonUtil;
+import com.fcott.spadger.utils.NativeUtil;
 import com.fcott.spadger.utils.glideutils.ImageLoader;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.OnClick;
@@ -54,6 +57,7 @@ public class MovieListActivity extends BaseActivity {
     private MovieListAdapter movieListAdapter;
     private int currentPageIndex = 1;
     private Subscription subscription;
+    private Map<String,String> cacheTagMap = new HashMap<>();
 
     @Bind(R.id.contain)
     View contain;
@@ -70,6 +74,7 @@ public class MovieListActivity extends BaseActivity {
         switch (view.getId()) {
             case R.id.tv_first_page:
                 if (currentPageIndex != 1) {
+                    currentPageIndex = 1;
                     requestData(1);
                 } else {
                     Toast.makeText(MovieListActivity.this, getResources().getString(R.string.already_first), Toast.LENGTH_LONG).show();
@@ -93,6 +98,7 @@ public class MovieListActivity extends BaseActivity {
                 break;
             case R.id.tv_last_page:
                 if (currentPageIndex != movieBean.getMessage().getPageCount()) {
+                    currentPageIndex = movieBean.getMessage().getPageCount();
                     requestData(movieBean.getMessage().getPageCount());
                 } else {
                     Toast.makeText(MovieListActivity.this, getResources().getString(R.string.already_last), Toast.LENGTH_LONG).show();
@@ -236,45 +242,54 @@ public class MovieListActivity extends BaseActivity {
         if (!TextUtils.isEmpty(value) && hasUpdate) {
             MovieBean movieBean = GsonUtil.fromJson(value, MovieBean.class);
             movieListAdapter.setNewData(movieBean.getMessage().getMovies());
-        } else {
+        } else if(hasUpdate && NativeUtil.needUpdate()) {
             toggleShowLoading(true);
         }
 
-        subscription = RetrofitUtils.getInstance().create(LookMovieService.class)
-                .requestMovie(moviceBody)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<MovieBean>() {
-                    @Override
-                    public void onCompleted() {
-                        toggleShowLoading(false);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onNext(MovieBean bean) {
-
-                        movieBean = bean;
-                        //缓存
-                        ACache aCache = ACache.get(MovieListActivity.this.getApplicationContext());
-                        aCache.put(cacheTag, GsonUtil.toJson(bean));
-
-                        for (MovieBean.MessageBean.MoviesBean bean1 : bean.getMessage().getMovies()) {
-                            ImageLoader.getInstance().preLoad(MovieListActivity.this, bean1.getCoverImg());
+        if(NativeUtil.needUpdate()){
+            subscription = RetrofitUtils.getInstance().create(LookMovieService.class)
+                    .requestMovie(moviceBody)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Subscriber<MovieBean>() {
+                        @Override
+                        public void onCompleted() {
+                            toggleShowLoading(false);
                         }
-                        if (hasUpdate)
-                            movieListAdapter.setNewData(bean.getMessage().getMovies());
 
-//                        if (currentPage == currentPageIndex) {
-//                            int nextPage = currentPage + 1;
-//                            requestData(nextPage, false);
-//                        }
-                    }
-                });
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+
+                        @Override
+                        public void onNext(MovieBean bean) {
+
+                            movieBean = bean;
+                            //缓存
+                            ACache aCache = ACache.get(MovieListActivity.this.getApplicationContext());
+                            aCache.put(cacheTag, GsonUtil.toJson(bean));
+
+                            for (MovieBean.MessageBean.MoviesBean bean1 : bean.getMessage().getMovies()) {
+                                ImageLoader.getInstance().preLoad(MovieListActivity.this, bean1.getCoverImg());
+                            }
+                            if (hasUpdate)
+                                movieListAdapter.setNewData(bean.getMessage().getMovies());
+
+                            if (currentPage == currentPageIndex) {
+                                int nextPage = currentPage + 1;
+                                requestData(nextPage, false);
+                            }
+                        }
+                    });
+        }
+
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(subscription != null && !subscription.isUnsubscribed())
+            subscription.unsubscribe();
+    }
 }

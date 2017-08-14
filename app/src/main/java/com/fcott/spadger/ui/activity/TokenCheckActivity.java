@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -63,7 +62,7 @@ public class TokenCheckActivity extends BaseActivity{
         }
     }
 
-    public void login(View view) {
+    public void login(final View view) {
         toggleShowLoading(true);
         if (loginBody == null) {
             loginBody = new FormBody.Builder()
@@ -91,9 +90,11 @@ public class TokenCheckActivity extends BaseActivity{
 
                         LogUtil.log(TAG, GsonUtil.toJson(loginBean));
                         if (loginBean.getResult() == 1) {
-                            SharedPreferences.Editor sharedata = getSharedPreferences(Config.SP_TOKEN, Context.MODE_PRIVATE).edit();
-                            sharedata.putString("token", editText.getText().toString().trim());
-                            sharedata.commit();
+                            if(view != null){
+                                SharedPreferences.Editor sharedata = getSharedPreferences(Config.SP_TOKEN, Context.MODE_PRIVATE).edit();
+                                sharedata.putString("token", editText.getText().toString().trim());
+                                sharedata.commit();
+                            }
                             startActivity(new Intent(TokenCheckActivity.this, LookMovieActivity.class));
                             finish();
                         }else {
