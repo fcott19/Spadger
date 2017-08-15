@@ -11,6 +11,9 @@
     <string name="new_video">最新电影</string>
     <string name="new_picture">最新图片</string>
     <string name="new_novel">最新小说</string>
+    <string name="collection">收藏</string>
+    <string name="cancel_collection">取消收藏</string>
+    <string name="no_collection">没有收藏电影</string>
 
     <string name="channel">A</string>
     <string name="actor">B</string>

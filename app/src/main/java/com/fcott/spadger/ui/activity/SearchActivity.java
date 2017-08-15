@@ -2,6 +2,7 @@ package com.fcott.spadger.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
@@ -58,9 +59,20 @@ public class SearchActivity extends BaseActivity implements SearchView.OnQueryTe
     protected void getBundleExtras(Bundle bundle) {
 
     }
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return super.onSupportNavigateUp();
+    }
 
     @Override
     protected void initViews() {
+
+        ActionBar mActionBar=getSupportActionBar();
+        mActionBar.setHomeButtonEnabled(true);
+        mActionBar.setDisplayHomeAsUpEnabled(true);
+        mActionBar.setTitle("搜索");
+
         arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, tipList.toArray(new String[tipList.size()]));
         lv.setAdapter(arrayAdapter);
         lv.setTextFilterEnabled(true);

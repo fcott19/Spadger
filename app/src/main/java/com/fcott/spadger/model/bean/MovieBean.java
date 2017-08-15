@@ -97,6 +97,10 @@ public class MovieBean {
             private String Img;
             private String CoverImg;
 
+            public MoviesBean() {
+
+            }
+
             protected MoviesBean(Parcel in) {
                 MovieID = in.readString();
                 Name = in.readString();

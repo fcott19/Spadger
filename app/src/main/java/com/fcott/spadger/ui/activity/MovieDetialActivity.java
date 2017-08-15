@@ -1,8 +1,12 @@
 package com.fcott.spadger.ui.activity;
 
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.view.Menu;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,8 +18,7 @@ import com.fcott.spadger.model.bean.MovieInfoBean;
 import com.fcott.spadger.model.bean.MoviePlayBean;
 import com.fcott.spadger.model.http.LookMovieService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
-import com.fcott.spadger.utils.GsonUtil;
-import com.fcott.spadger.utils.LogUtil;
+import com.fcott.spadger.utils.db.DBManager;
 import com.tencent.smtt.sdk.TbsVideo;
 
 import java.util.List;
@@ -72,8 +75,18 @@ public class MovieDetialActivity extends BaseActivity {
     }
 
     @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return super.onSupportNavigateUp();
+    }
+
+    @Override
     protected void initViews() {
-        LogUtil.log(TAG, GsonUtil.toJson(moviesBean));
+
+        ActionBar mActionBar = getSupportActionBar();
+        mActionBar.setHomeButtonEnabled(true);
+        mActionBar.setDisplayHomeAsUpEnabled(true);
+        mActionBar.setTitle("电影详情");
 
         toggleShowLoading(true);
         tvTime.setText(moviesBean.getCreateTime());
@@ -84,14 +97,14 @@ public class MovieDetialActivity extends BaseActivity {
             public void onClick(View v) {
                 if (moviePlayBean != null && TbsVideo.canUseTbsPlayer(MovieDetialActivity.this)) {
                     TbsVideo.openVideo(MovieDetialActivity.this, moviePlayBean.getMessage());
-                }else {
-                    Toast.makeText(MovieDetialActivity.this,"未获取到播放地址",Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MovieDetialActivity.this, "未获取到播放地址", Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
         RequestBody playBody = new FormBody.Builder()
-                .add("MovieID",moviesBean.getMovieID())
+                .add("MovieID", moviesBean.getMovieID())
                 .build();
         RetrofitUtils.getInstance().create(LookMovieService.class)
                 .requestMovieInfo(playBody)
@@ -100,15 +113,17 @@ public class MovieDetialActivity extends BaseActivity {
                 .subscribe(new Subscriber<MovieInfoBean>() {
                     @Override
                     public void onCompleted() {
-                        toggleShowLoading(false);
+
                     }
+
                     @Override
                     public void onError(Throwable e) {
-
+                        toggleShowLoading(false);
                     }
 
                     @Override
                     public void onNext(MovieInfoBean movieInfoBean) {
+                        toggleShowLoading(false);
                         MovieInfoBean.MessageBean messageBean = movieInfoBean.getMessage();
                         tvActor.setText(makeActor(messageBean.getActor()));
                         tvChannel.setText(messageBean.getChannel().getName());
@@ -139,6 +154,7 @@ public class MovieDetialActivity extends BaseActivity {
                     public void onCompleted() {
 
                     }
+
                     @Override
                     public void onError(Throwable e) {
 
@@ -151,19 +167,51 @@ public class MovieDetialActivity extends BaseActivity {
                 });
     }
 
-    private String makeActor(List<MovieInfoBean.MessageBean.ActorBean> actorBeens){
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if(moviesBean == null)
+            return true;
+
+        getMenuInflater().inflate(R.menu.out_map_menu, menu);
+        final Switch switchShop = (Switch) menu.findItem(R.id.myswitch).getActionView().findViewById(R.id.switchForActionBar);
+        final DBManager dbManager = new DBManager(this);
+        if(dbManager.hasContainId(moviesBean.getMovieID())){
+            switchShop.setChecked(true);
+            switchShop.setText(getResources().getString(R.string.cancel_collection));
+        }
+        dbManager.closeDB();
+
+        switchShop.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton btn, boolean isChecked) {
+                DBManager dbManager = new DBManager(MovieDetialActivity.this);
+                if (isChecked) {
+                    switchShop.setText(getResources().getString(R.string.cancel_collection));
+                    dbManager.add(moviesBean);
+                } else {
+                    switchShop.setText(getResources().getString(R.string.collection));
+                    dbManager.deleteMovie(moviesBean.getMovieID());
+                }
+                dbManager.closeDB();
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    private String makeActor(List<MovieInfoBean.MessageBean.ActorBean> actorBeens) {
         StringBuffer stringBuffer = new StringBuffer();
-        for(int i = 0;i < actorBeens.size();i++){
-            if(i != 0)
+        for (int i = 0; i < actorBeens.size(); i++) {
+            if (i != 0)
                 stringBuffer.append(",");
             stringBuffer.append(actorBeens.get(i).getName());
         }
         return stringBuffer.toString();
     }
-    private String makeClass(List<MovieInfoBean.MessageBean.ClassBean> classBeen){
+
+    private String makeClass(List<MovieInfoBean.MessageBean.ClassBean> classBeen) {
         StringBuffer stringBuffer = new StringBuffer();
-        for(int i = 0;i < classBeen.size();i++){
-            if(i != 0)
+        for (int i = 0; i < classBeen.size(); i++) {
+            if (i != 0)
                 stringBuffer.append(",");
             stringBuffer.append(classBeen.get(i).getName());
         }

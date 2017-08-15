@@ -2,6 +2,7 @@ package com.fcott.spadger.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -20,16 +21,20 @@ import com.fcott.spadger.ui.widget.PageController;
 import com.fcott.spadger.utils.ACache;
 import com.fcott.spadger.utils.GsonUtil;
 import com.fcott.spadger.utils.NativeUtil;
+import com.fcott.spadger.utils.db.DBManager;
 import com.fcott.spadger.utils.glideutils.ImageLoader;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import okhttp3.FormBody;
 import okhttp3.RequestBody;
+import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -38,6 +43,8 @@ import rx.schedulers.Schedulers;
 
 public class MovieListActivity extends BaseActivity implements PageController.ObserverPageListener {
     public static final String TAG = MovieListActivity.class.getSimpleName();
+    public static final int NORMAL_CODE = 100;
+    public static final int COLLECTION_CODE = 99;
 
     private String type;
     private String channelId;
@@ -48,6 +55,7 @@ public class MovieListActivity extends BaseActivity implements PageController.Ob
     private RequestBody moviceBody;
     private MovieListAdapter movieListAdapter;
     private Subscription subscription;
+    private int requestCode = NORMAL_CODE;
 
     @Bind(R.id.contain)
     View contain;
@@ -77,18 +85,34 @@ public class MovieListActivity extends BaseActivity implements PageController.Ob
     }
 
     @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return super.onSupportNavigateUp();
+    }
+
+    @Override
     protected void initViews() {
+
+        ActionBar mActionBar = getSupportActionBar();
+        mActionBar.setHomeButtonEnabled(true);
+        mActionBar.setDisplayHomeAsUpEnabled(true);
+        mActionBar.setTitle("电影列表");
 
         pageController.setObserverPageListener(this);
         movieListAdapter = new MovieListAdapter(this, new ArrayList<MovieBean.MessageBean.MoviesBean>(), false);
         movieListAdapter.setOnItemClickListener(new OnItemClickListeners<MovieBean.MessageBean.MoviesBean>() {
             @Override
             public void onItemClick(ViewHolder viewHolder, MovieBean.MessageBean.MoviesBean data, int position) {
+                if (type.equals(Config.typeCollection)) {
+                    requestCode = COLLECTION_CODE;
+                }else {
+                    requestCode = NORMAL_CODE;
+                }
                 Intent intent = new Intent(MovieListActivity.this, MovieDetialActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("DATA", data);
                 intent.putExtras(bundle);
-                startActivity(intent);
+                startActivityForResult(intent,requestCode);
             }
         });
         final LinearLayoutManager layoutManager = new LinearLayoutManager(MovieListActivity.this);
@@ -99,6 +123,37 @@ public class MovieListActivity extends BaseActivity implements PageController.Ob
         requestData(1);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == COLLECTION_CODE){
+            requestDataFromDb(pageController.getCurrentPageIndex());
+        }
+    }
+
+    private void requestDataFromDb(final int currentPage){
+        Observable.create(new Observable.OnSubscribe<List<MovieBean.MessageBean.MoviesBean>>() {
+            @Override
+            public void call(Subscriber<? super List<MovieBean.MessageBean.MoviesBean>> subscriber) {
+                DBManager dbManager = new DBManager(MovieListActivity.this);
+                subscriber.onNext(dbManager.query(currentPage));
+                dbManager.closeDB();
+            }
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<List<MovieBean.MessageBean.MoviesBean>>() {
+                    @Override
+                    public void call(List<MovieBean.MessageBean.MoviesBean> moviesBeen) {
+                        if (moviesBeen.size() != 0) {
+                            pageController.setMaxPageIndex(moviesBeen.size()/Config.NOMOR_PAGE_SIZE+1);
+                            movieListAdapter.setNewData(moviesBeen);
+                        } else {
+                            toggleShowError(getString(R.string.no_collection));
+                        }
+                    }
+                });
+    }
+
     private void requestData(final int currentPageIndex) {
         requestData(currentPageIndex, true);
     }
@@ -107,10 +162,13 @@ public class MovieListActivity extends BaseActivity implements PageController.Ob
         if (subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
 
-        if (type.equals(Config.typeChannel) && channelId != null) {
+        if (type.equals(Config.typeCollection)) {
+            requestDataFromDb(currentPage);
+            return;
+        } else if (type.equals(Config.typeChannel) && channelId != null) {
             moviceBody = new FormBody.Builder()
                     .add("PageIndex", String.valueOf(currentPage))
-                    .add("PageSize", "20")
+                    .add("PageSize", String.valueOf(Config.NOMOR_PAGE_SIZE))
                     .add("Type", "1")
                     .add("ID", channelId)
                     .add("Data", "")
@@ -119,7 +177,7 @@ public class MovieListActivity extends BaseActivity implements PageController.Ob
         } else if (type.equals(Config.typeActor) && actorId != null) {
             moviceBody = new FormBody.Builder()
                     .add("PageIndex", String.valueOf(currentPage))
-                    .add("PageSize", "20")
+                    .add("PageSize", String.valueOf(Config.NOMOR_PAGE_SIZE))
                     .add("Type", "5")
                     .add("ID", actorId)
                     .add("Data", "")
@@ -128,7 +186,7 @@ public class MovieListActivity extends BaseActivity implements PageController.Ob
         } else if (type.equals(Config.typeClass) && classId != null) {
             moviceBody = new FormBody.Builder()
                     .add("PageIndex", String.valueOf(currentPage))
-                    .add("PageSize", "20")
+                    .add("PageSize", String.valueOf(Config.NOMOR_PAGE_SIZE))
                     .add("Type", "2")
                     .add("ID", classId)
                     .add("Data", "")
@@ -137,7 +195,7 @@ public class MovieListActivity extends BaseActivity implements PageController.Ob
         } else if (type.equals(Config.typeSearch) && searchData != null) {
             moviceBody = new FormBody.Builder()
                     .add("PageIndex", String.valueOf(currentPage))
-                    .add("PageSize", "20")
+                    .add("PageSize", String.valueOf(Config.NOMOR_PAGE_SIZE))
                     .add("Type", "1")
                     .add("ID", "-1")
                     .add("Data", searchData)
@@ -178,14 +236,14 @@ public class MovieListActivity extends BaseActivity implements PageController.Ob
 
                         @Override
                         public void onNext(MovieBean bean) {
-                            if (hasUpdate){
-                                if(bean.getResult() != 1){
+                            if (hasUpdate) {
+                                if (bean.getResult() != 1) {
                                     toggleShowError("请求出错");
                                     return;
-                                }else if(bean.getMessage().getTotal() == 0){
+                                } else if (bean.getMessage().getTotal() == 0) {
                                     toggleShowError("无数据");
                                     return;
-                                }else {
+                                } else {
                                     toggleShowLoading(false);
                                     movieListAdapter.setNewData(bean.getMessage().getMovies());
                                 }

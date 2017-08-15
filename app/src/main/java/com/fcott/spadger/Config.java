@@ -4,6 +4,7 @@ package com.fcott.spadger;
 
 
 public class Config {
+    public static final int NOMOR_PAGE_SIZE = 20;
     public static final boolean IS_DEBUG = true;
     public static final boolean NEED_LOG = true;//需要LOG
     public static final String SP_TOKEN = "SP_TOKEN";
@@ -19,4 +20,5 @@ public class Config {
     public static final String typeClass = "typeClass";
     public static final String typeActor = "typeActor";
     public static final String typeSearch = "typeSearch";
+    public static final String typeCollection = "typeCollection";
 }
