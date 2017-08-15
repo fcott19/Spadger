@@ -103,15 +103,15 @@ public class NativeUtil {
         return (char) code;
     }
 
-    public static boolean needUpdate() {
+    public static boolean needUpdate(String tag) {
 
         Calendar c = Calendar.getInstance();
         int mHour = c.get(Calendar.HOUR_OF_DAY);//时
         int mDay = c.get(Calendar.DAY_OF_MONTH);// 获取当日期
-        SharedPreferences pref = App.getInstance().getSharedPreferences(Config.SP_TIME, Context.MODE_PRIVATE);
+        SharedPreferences pref = App.getInstance().getSharedPreferences(Config.SP_TIME+tag, Context.MODE_PRIVATE);
         String time = pref.getString("time", "");//第二个参数为默认值
         if(!time.equals(mDay+""+mHour)){
-            SharedPreferences.Editor sharedata = App.getInstance().getSharedPreferences(Config.SP_TIME, Context.MODE_PRIVATE).edit();
+            SharedPreferences.Editor sharedata = App.getInstance().getSharedPreferences(Config.SP_TIME+tag, Context.MODE_PRIVATE).edit();
             sharedata.putString("token", mDay+""+mHour);
             sharedata.commit();
             return true;

@@ -89,15 +89,15 @@ public abstract class BaseActivity extends AppCompatActivity implements MvpView 
         }
     }
     protected void toggleShowLoading(boolean toggle) {
+        toggleShowLoading(toggle,getResources().getString(R.string.load_loading_tip));
+    }
+
+    protected void toggleShowError(String msg) {
         if (null == mVaryViewHelperController) {
             throw new IllegalArgumentException("You must return a right target view for loading");
         }
 
-        if (toggle) {
-            mVaryViewHelperController.showLoading(getResources().getString(R.string.load_loading_tip));
-        } else {
-            mVaryViewHelperController.restore();
-        }
+        mVaryViewHelperController.showEmpty(msg,null);
     }
     //*************MVPView方法********************
     @Override

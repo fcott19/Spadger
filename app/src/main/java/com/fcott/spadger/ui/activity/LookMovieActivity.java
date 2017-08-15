@@ -1,12 +1,15 @@
 package com.fcott.spadger.ui.activity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
+import com.fcott.spadger.App;
 import com.fcott.spadger.Config;
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.bean.ActorBean;
@@ -30,6 +33,7 @@ import okhttp3.FormBody;
 import okhttp3.RequestBody;
 import rx.Observable;
 import rx.Subscriber;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -37,10 +41,9 @@ public class LookMovieActivity extends BaseActivity implements NetChangeObserver
     public static final String TAG = LookMovieActivity.class.getSimpleName();
 
     private MovieTypeAdapter adapter = null;
-    private final String[] typeList = new String[]{"最新", "动漫", "有码", "中文", "演员", "类型"};
-    private boolean requestSuccess = false;//数据请求成功
-    private boolean requesting = false;//正在请求网络数据
+    private final String[] typeList = new String[]{"最新", "动漫", "有码", "中文", "演员", "类型" , "搜索"};
     private RequestBody requestBody;
+    private Subscription subscription1,subscription2;
 
     @Bind(R.id.rcy_movie_type)
     public RecyclerView recyclerView;
@@ -100,6 +103,9 @@ public class LookMovieActivity extends BaseActivity implements NetChangeObserver
                     case 5:
                         intent.setClass(LookMovieActivity.this, MovieClassActivity.class);
                         break;
+                    case 6:
+                        intent.setClass(LookMovieActivity.this, SearchActivity.class);
+                        break;
                 }
                 bundle.putString("ID", id);
                 intent.putExtras(bundle);
@@ -117,52 +123,67 @@ public class LookMovieActivity extends BaseActivity implements NetChangeObserver
      * 预加载数据
      */
     private void perLoadData() {
-        Observable.merge(makeTaskList())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<MovieBean>() {
-                    @Override
-                    public void onCompleted() {
+        SharedPreferences pref = App.getInstance().getSharedPreferences(Config.SP_PER_LOAD, Context.MODE_PRIVATE);
+        boolean channelSuccess = pref.getBoolean("channel", false);
+        boolean actorSuccess = pref.getBoolean("actor", false);
 
-                    }
+        if(!channelSuccess){
+            subscription1 = Observable.merge(makeTaskList())
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Subscriber<MovieBean>() {
+                        @Override
+                        public void onCompleted() {
 
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onNext(MovieBean movieBean) {
-                        for (MovieBean.MessageBean.MoviesBean bean1 : movieBean.getMessage().getMovies()) {
-                            ImageLoader.getInstance().preLoad(LookMovieActivity.this, bean1.getCoverImg());
                         }
-                    }
-                });
 
-        RequestBody body = new FormBody.Builder()
-                .add("PageIndex", String.valueOf(60))
-                .add("PageSize", String.valueOf(1))
-                .build();
-        RetrofitUtils.getInstance().create(LookMovieService.class)
-                .requestActor(body)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<ActorBean>() {
-                    @Override
-                    public void onCompleted() {
-                    }
+                        @Override
+                        public void onError(Throwable e) {
 
-                    @Override
-                    public void onError(Throwable e) {
-                    }
-
-                    @Override
-                    public void onNext(ActorBean bean) {
-                        for (ActorBean.MessageBean.DataBean bean1 : bean.getMessage().getData()) {
-                            ImageLoader.getInstance().preLoad(LookMovieActivity.this, bean1.getPic());
                         }
-                    }
-                });
+
+                        @Override
+                        public void onNext(MovieBean movieBean) {
+                            for (MovieBean.MessageBean.MoviesBean bean1 : movieBean.getMessage().getMovies()) {
+                                ImageLoader.getInstance().preLoad(LookMovieActivity.this, bean1.getCoverImg());
+                            }
+                            SharedPreferences.Editor sharedata = App.getInstance().getSharedPreferences(Config.SP_PER_LOAD, Context.MODE_PRIVATE).edit();
+                            sharedata.putBoolean("channel", true);
+                            sharedata.commit();
+                        }
+                    });
+        }
+
+        if(!actorSuccess){
+            RequestBody body = new FormBody.Builder()
+                    .add("PageIndex", String.valueOf(60))
+                    .add("PageSize", String.valueOf(1))
+                    .build();
+            subscription2 = RetrofitUtils.getInstance().create(LookMovieService.class)
+                    .requestActor(body)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Subscriber<ActorBean>() {
+                        @Override
+                        public void onCompleted() {
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                        }
+
+                        @Override
+                        public void onNext(ActorBean bean) {
+                            for (ActorBean.MessageBean.DataBean bean1 : bean.getMessage().getData()) {
+                                ImageLoader.getInstance().preLoad(LookMovieActivity.this, bean1.getPic());
+                            }
+                            SharedPreferences.Editor sharedata = App.getInstance().getSharedPreferences(Config.SP_PER_LOAD, Context.MODE_PRIVATE).edit();
+                            sharedata.putBoolean("actor", true);
+                            sharedata.commit();
+                        }
+                    });
+        }
+
     }
 
     /**
@@ -192,6 +213,10 @@ public class LookMovieActivity extends BaseActivity implements NetChangeObserver
         super.onDestroy();
         //反注册网络监听
         NetStateReceiver.removeRegisterObserver(this);
+        if (subscription1 != null && !subscription1.isUnsubscribed())
+            subscription1.unsubscribe();
+        if (subscription2 != null && !subscription2.isUnsubscribed())
+            subscription2.unsubscribe();
     }
 
     @Override

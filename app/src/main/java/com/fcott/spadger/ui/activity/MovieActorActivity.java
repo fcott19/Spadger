@@ -7,8 +7,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.Toast;
 
 import com.fcott.spadger.Config;
 import com.fcott.spadger.R;
@@ -18,6 +16,7 @@ import com.fcott.spadger.model.http.utils.RetrofitUtils;
 import com.fcott.spadger.ui.adapter.ActorAdapter;
 import com.fcott.spadger.ui.adapter.baseadapter.OnItemClickListeners;
 import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
+import com.fcott.spadger.ui.widget.PageController;
 import com.fcott.spadger.utils.ACache;
 import com.fcott.spadger.utils.GsonUtil;
 import com.fcott.spadger.utils.NativeUtil;
@@ -26,7 +25,6 @@ import com.fcott.spadger.utils.glideutils.ImageLoader;
 import java.util.ArrayList;
 
 import butterknife.Bind;
-import butterknife.OnClick;
 import okhttp3.FormBody;
 import okhttp3.RequestBody;
 import rx.Subscriber;
@@ -34,65 +32,20 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class MovieActorActivity extends BaseActivity {
+public class MovieActorActivity extends BaseActivity implements PageController.ObserverPageListener{
     public static final String TAG = MovieActorActivity.class.getSimpleName();
 
     private static final int pageSize = 60;
-    private int maxIndex;
     private String cacheTag;
     private ActorAdapter actorAdapter;
-    private ActorBean actorBean;
-    private int currentPageIndex = 1;
     private Subscription subscription;
 
     @Bind(R.id.contain)
     View contain;
     @Bind(R.id.rcy_actor)
     public RecyclerView recyclerView;
-    @Bind(R.id.et_page_number)
-    public EditText etPageNumber;
-
-    @OnClick({R.id.tv_first_page, R.id.tv_pre_page, R.id.tv_next_page, R.id.tv_last_page})
-    public void onClick(View view) {
-        if (actorBean == null) {
-            return;
-        }
-        switch (view.getId()) {
-            case R.id.tv_first_page:
-                if (currentPageIndex != 1) {
-                    currentPageIndex = 1;
-                    requestData(1);
-                } else {
-                    Toast.makeText(MovieActorActivity.this, getResources().getString(R.string.already_first), Toast.LENGTH_LONG).show();
-                }
-                break;
-            case R.id.tv_pre_page:
-                if (currentPageIndex > 1) {
-                    currentPageIndex--;
-                    requestData(currentPageIndex);
-                } else {
-                    Toast.makeText(MovieActorActivity.this, getResources().getString(R.string.already_first), Toast.LENGTH_LONG).show();
-                }
-                break;
-            case R.id.tv_next_page:
-                if (currentPageIndex < actorBean.getMessage().getPageCount()) {
-                    currentPageIndex++;
-                    requestData(currentPageIndex);
-                } else {
-                    Toast.makeText(MovieActorActivity.this, getResources().getString(R.string.already_last), Toast.LENGTH_LONG).show();
-                }
-                break;
-            case R.id.tv_last_page:
-                if (currentPageIndex != actorBean.getMessage().getPageCount()) {
-                    currentPageIndex = actorBean.getMessage().getPageCount();
-                    requestData(actorBean.getMessage().getPageCount());
-                } else {
-                    Toast.makeText(MovieActorActivity.this, getResources().getString(R.string.already_last), Toast.LENGTH_LONG).show();
-                }
-                break;
-        }
-        etPageNumber.setText(String.valueOf(currentPageIndex));
-    }
+    @Bind(R.id.rl_pagecontrol)
+    public PageController pageController;
 
     @Override
     protected View getLoadingTargetView() {
@@ -112,6 +65,7 @@ public class MovieActorActivity extends BaseActivity {
     @Override
     protected void initViews() {
 
+        pageController.setObserverPageListener(this);
         actorAdapter = new ActorAdapter(MovieActorActivity.this, new ArrayList<ActorBean.MessageBean.DataBean>(), false);
         actorAdapter.setOnItemClickListener(new OnItemClickListeners<ActorBean.MessageBean.DataBean>() {
             @Override
@@ -141,6 +95,7 @@ public class MovieActorActivity extends BaseActivity {
         if (subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
 
+        boolean needUpdate = NativeUtil.needUpdate(TAG);
         cacheTag = TAG + "ACTOR" + currentPage;
         ACache mCache = ACache.get(MovieActorActivity.this.getApplicationContext());
         //取出缓存
@@ -149,11 +104,11 @@ public class MovieActorActivity extends BaseActivity {
         if (!TextUtils.isEmpty(value) && hasUpdate) {
             ActorBean actorBean = GsonUtil.fromJson(value, ActorBean.class);
             actorAdapter.setNewData(actorBean.getMessage().getData());
-        } else if (hasUpdate && NativeUtil.needUpdate()) {
+        } else if (hasUpdate && needUpdate) {
             toggleShowLoading(true);
         }
 
-        if (NativeUtil.needUpdate()) {
+        if (needUpdate) {
             RequestBody body = new FormBody.Builder()
                     .add("PageIndex", String.valueOf(currentPage))
                     .add("PageSize", String.valueOf(pageSize))
@@ -165,24 +120,40 @@ public class MovieActorActivity extends BaseActivity {
                     .subscribe(new Subscriber<ActorBean>() {
                         @Override
                         public void onCompleted() {
-                            toggleShowLoading(false);
+
                         }
 
                         @Override
                         public void onError(Throwable e) {
-
+                            toggleShowLoading(false);
                         }
 
                         @Override
                         public void onNext(ActorBean bean) {
-                            actorBean = bean;
+                            if (hasUpdate){
+                                if(bean.getResult() != 1){
+                                    toggleShowError("请求出错");
+                                    return;
+                                }else if(bean.getMessage().getTotal() == 0){
+                                    toggleShowError("无数据");
+                                    return;
+                                }else {
+                                    toggleShowLoading(false);
+                                    actorAdapter.setNewData(bean.getMessage().getData());
+                                }
+                            }
+                            pageController.setMaxPageIndex(bean.getMessage().getPageCount());
                             //缓存
                             ACache aCache = ACache.get(MovieActorActivity.this.getApplicationContext());
                             aCache.put(cacheTag, GsonUtil.toJson(bean));
                             for (ActorBean.MessageBean.DataBean bean1 : bean.getMessage().getData()) {
                                 ImageLoader.getInstance().preLoad(MovieActorActivity.this, bean1.getPic());
                             }
-                            actorAdapter.setNewData(bean.getMessage().getData());
+
+                            if (currentPage == pageController.getCurrentPageIndex()) {
+                                int nextPage = currentPage + 1;
+                                requestData(nextPage, false);
+                            }
                         }
                     });
         }
@@ -193,5 +164,10 @@ public class MovieActorActivity extends BaseActivity {
         super.onDestroy();
         if (subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
+    }
+
+    @Override
+    public void goPage(int page) {
+        requestData(page);
     }
 }

@@ -47,4 +47,10 @@ public interface LookMovieService {
 
     @POST("/Movie/GetMovieInfo")
     Observable<MovieInfoBean> requestMovieInfo(@Body RequestBody requestBody);
+
+    @POST("/Movie/GetActor")
+    Observable<String> requestActorJson(@Body RequestBody requestBody);
+
+    @POST("/Movie/GetClass")
+    Observable<String> requestClassJson(@Body RequestBody requestBody);
 }

@@ -64,7 +64,7 @@ public class TokenCheckActivity extends BaseActivity{
 
     public void login(final View view) {
         toggleShowLoading(true);
-        if (loginBody == null) {
+        if (view != null) {
             loginBody = new FormBody.Builder()
                     .add("Token", editText.getText().toString().trim())
                     .build();

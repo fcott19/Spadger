@@ -1,17 +1,11 @@
 package com.fcott.spadger.ui.activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fcott.spadger.Config;
@@ -22,17 +16,15 @@ import com.fcott.spadger.model.http.utils.RetrofitUtils;
 import com.fcott.spadger.ui.adapter.MovieListAdapter;
 import com.fcott.spadger.ui.adapter.baseadapter.OnItemClickListeners;
 import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
+import com.fcott.spadger.ui.widget.PageController;
 import com.fcott.spadger.utils.ACache;
 import com.fcott.spadger.utils.GsonUtil;
 import com.fcott.spadger.utils.NativeUtil;
 import com.fcott.spadger.utils.glideutils.ImageLoader;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import butterknife.Bind;
-import butterknife.OnClick;
 import okhttp3.FormBody;
 import okhttp3.RequestBody;
 import rx.Subscriber;
@@ -44,69 +36,26 @@ import rx.schedulers.Schedulers;
  * Created by Administrator on 2017/8/11.
  */
 
-public class MovieListActivity extends BaseActivity {
+public class MovieListActivity extends BaseActivity implements PageController.ObserverPageListener {
     public static final String TAG = MovieListActivity.class.getSimpleName();
 
     private String type;
     private String channelId;
     private String actorId;
     private String classId;
+    private String searchData;
     private String cacheTag;
     private RequestBody moviceBody;
-    private MovieBean movieBean;
     private MovieListAdapter movieListAdapter;
-    private int currentPageIndex = 1;
     private Subscription subscription;
-    private Map<String,String> cacheTagMap = new HashMap<>();
 
     @Bind(R.id.contain)
     View contain;
-    @Bind(R.id.et_page_number)
-    public EditText etPageNumber;
     @Bind(R.id.rcy_movie)
     RecyclerView recyclerView;
+    @Bind(R.id.rl_pagecontrol)
+    public PageController pageController;
 
-    @OnClick({R.id.tv_first_page, R.id.tv_pre_page, R.id.tv_next_page, R.id.tv_last_page})
-    public void onClick(View view) {
-        if (movieBean == null) {
-            return;
-        }
-        switch (view.getId()) {
-            case R.id.tv_first_page:
-                if (currentPageIndex != 1) {
-                    currentPageIndex = 1;
-                    requestData(1);
-                } else {
-                    Toast.makeText(MovieListActivity.this, getResources().getString(R.string.already_first), Toast.LENGTH_LONG).show();
-                }
-                break;
-            case R.id.tv_pre_page:
-                if (currentPageIndex > 1) {
-                    currentPageIndex--;
-                    requestData(currentPageIndex);
-                } else {
-                    Toast.makeText(MovieListActivity.this, getResources().getString(R.string.already_first), Toast.LENGTH_LONG).show();
-                }
-                break;
-            case R.id.tv_next_page:
-                if (currentPageIndex < movieBean.getMessage().getPageCount()) {
-                    currentPageIndex++;
-                    requestData(currentPageIndex);
-                } else {
-                    Toast.makeText(MovieListActivity.this, getResources().getString(R.string.already_last), Toast.LENGTH_LONG).show();
-                }
-                break;
-            case R.id.tv_last_page:
-                if (currentPageIndex != movieBean.getMessage().getPageCount()) {
-                    currentPageIndex = movieBean.getMessage().getPageCount();
-                    requestData(movieBean.getMessage().getPageCount());
-                } else {
-                    Toast.makeText(MovieListActivity.this, getResources().getString(R.string.already_last), Toast.LENGTH_LONG).show();
-                }
-                break;
-        }
-        etPageNumber.setText(String.valueOf(currentPageIndex));
-    }
 
     @Override
     protected View getLoadingTargetView() {
@@ -124,11 +73,13 @@ public class MovieListActivity extends BaseActivity {
         channelId = bundle.getString("ID");
         actorId = bundle.getString("ACTORID");
         classId = bundle.getString("CLASSID");
+        searchData = bundle.getString("DATA");
     }
 
     @Override
     protected void initViews() {
 
+        pageController.setObserverPageListener(this);
         movieListAdapter = new MovieListAdapter(this, new ArrayList<MovieBean.MessageBean.MoviesBean>(), false);
         movieListAdapter.setOnItemClickListener(new OnItemClickListeners<MovieBean.MessageBean.MoviesBean>() {
             @Override
@@ -146,53 +97,6 @@ public class MovieListActivity extends BaseActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(movieListAdapter);
         requestData(1);
-
-        //监听软键盘完成按钮
-        etPageNumber.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                    /*隐藏软键盘*/
-                InputMethodManager imm = (InputMethodManager) v
-                        .getContext().getSystemService(
-                                Context.INPUT_METHOD_SERVICE);
-                if (imm.isActive()) {
-                    imm.hideSoftInputFromWindow(
-                            v.getApplicationWindowToken(), 0);
-                }
-                goPage();
-                //etPageNumber失去焦点，隐藏光标
-                etPageNumber.clearFocus();
-                etPageNumber.setFocusable(false);
-                return true;
-            }
-        });
-        //触摸etPageNumber时获取焦点
-        etPageNumber.setOnTouchListener(new View.OnTouchListener() {
-
-            public boolean onTouch(View v, MotionEvent event) {
-                // TODO Auto-generated method stub
-                etPageNumber.setFocusable(true);
-                etPageNumber.setFocusableInTouchMode(true);
-                etPageNumber.requestFocus();
-                return false;
-            }
-        });
-    }
-
-    //跳转到指定页面
-    private void goPage() {
-        int pageNumber = 0;
-        try {
-            pageNumber = Integer.valueOf(etPageNumber.getText().toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if (pageNumber < 1 || pageNumber > movieBean.getMessage().getPageCount()) {
-            Toast.makeText(MovieListActivity.this, getResources().getString(R.string.input_error), Toast.LENGTH_SHORT).show();
-        } else {
-            requestData(pageNumber);
-        }
     }
 
     private void requestData(final int currentPageIndex) {
@@ -200,7 +104,7 @@ public class MovieListActivity extends BaseActivity {
     }
 
     private void requestData(final int currentPage, final boolean hasUpdate) {
-        if(subscription != null && !subscription.isUnsubscribed())
+        if (subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
 
         if (type.equals(Config.typeChannel) && channelId != null) {
@@ -230,11 +134,21 @@ public class MovieListActivity extends BaseActivity {
                     .add("Data", "")
                     .build();
             cacheTag = TAG + "CLASSID" + classId + String.valueOf(currentPage);
+        } else if (type.equals(Config.typeSearch) && searchData != null) {
+            moviceBody = new FormBody.Builder()
+                    .add("PageIndex", String.valueOf(currentPage))
+                    .add("PageSize", "20")
+                    .add("Type", "1")
+                    .add("ID", "-1")
+                    .add("Data", searchData)
+                    .build();
+            cacheTag = TAG + "SEARCH" + searchData + String.valueOf(currentPage);
         } else {
             Toast.makeText(MovieListActivity.this, "操作错误", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        boolean needUpdate = NativeUtil.needUpdate(TAG);
         ACache mCache = ACache.get(MovieListActivity.this.getApplicationContext());
         //取出缓存
         String value = mCache.getAsString(cacheTag);
@@ -242,11 +156,11 @@ public class MovieListActivity extends BaseActivity {
         if (!TextUtils.isEmpty(value) && hasUpdate) {
             MovieBean movieBean = GsonUtil.fromJson(value, MovieBean.class);
             movieListAdapter.setNewData(movieBean.getMessage().getMovies());
-        } else if(hasUpdate && NativeUtil.needUpdate()) {
+        } else if (hasUpdate && needUpdate) {
             toggleShowLoading(true);
         }
 
-        if(NativeUtil.needUpdate()){
+        if (needUpdate) {
             subscription = RetrofitUtils.getInstance().create(LookMovieService.class)
                     .requestMovie(moviceBody)
                     .subscribeOn(Schedulers.io())
@@ -254,18 +168,30 @@ public class MovieListActivity extends BaseActivity {
                     .subscribe(new Subscriber<MovieBean>() {
                         @Override
                         public void onCompleted() {
-                            toggleShowLoading(false);
+
                         }
 
                         @Override
                         public void onError(Throwable e) {
-
+                            toggleShowLoading(false);
                         }
 
                         @Override
                         public void onNext(MovieBean bean) {
+                            if (hasUpdate){
+                                if(bean.getResult() != 1){
+                                    toggleShowError("请求出错");
+                                    return;
+                                }else if(bean.getMessage().getTotal() == 0){
+                                    toggleShowError("无数据");
+                                    return;
+                                }else {
+                                    toggleShowLoading(false);
+                                    movieListAdapter.setNewData(bean.getMessage().getMovies());
+                                }
+                            }
 
-                            movieBean = bean;
+                            pageController.setMaxPageIndex(bean.getMessage().getPageCount());
                             //缓存
                             ACache aCache = ACache.get(MovieListActivity.this.getApplicationContext());
                             aCache.put(cacheTag, GsonUtil.toJson(bean));
@@ -273,10 +199,8 @@ public class MovieListActivity extends BaseActivity {
                             for (MovieBean.MessageBean.MoviesBean bean1 : bean.getMessage().getMovies()) {
                                 ImageLoader.getInstance().preLoad(MovieListActivity.this, bean1.getCoverImg());
                             }
-                            if (hasUpdate)
-                                movieListAdapter.setNewData(bean.getMessage().getMovies());
 
-                            if (currentPage == currentPageIndex) {
+                            if (currentPage == pageController.getCurrentPageIndex()) {
                                 int nextPage = currentPage + 1;
                                 requestData(nextPage, false);
                             }
@@ -289,7 +213,12 @@ public class MovieListActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(subscription != null && !subscription.isUnsubscribed())
+        if (subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
+    }
+
+    @Override
+    public void goPage(int page) {
+        requestData(page);
     }
 }
