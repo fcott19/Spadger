@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
@@ -68,8 +69,10 @@ public class LookMovieActivity extends BaseActivity implements NetChangeObserver
         if(NetUtils.isWifiConnected(getApplicationContext())){
             perLoadData();
         }else {
-            if(GeneralSettingUtil.isProhibitNoWifi())
+            if(GeneralSettingUtil.isProhibitNoWifi()){
+                Toast.makeText(LookMovieActivity.this,getString(R.string.prohibit_no_wifi),Toast.LENGTH_SHORT).show();
                 App.getInstance().cleanActivity();
+            }
         }
 
 

@@ -10,7 +10,7 @@
 <video id="media"
        style="width:100%; height: 100%;"
        src=""
-       preload="auto"
+       preload="metadata"
        poster=""
        controls></video>
 </body>
@@ -18,7 +18,7 @@
     function url(str){
         document.getElementById("media").src=str;
         document.getElementById("media").load();
-        document.getElementById("media").preload="auto";
+        document.getElementById("media").preload="metadata";
     }
     function poster(str){
         document.getElementById("media").poster=str;

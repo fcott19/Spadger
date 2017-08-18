@@ -1,6 +1,7 @@
 package com.fcott.spadger.ui.activity;
 
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 
@@ -27,7 +28,18 @@ public class SettingActivity extends BaseActivity {
     }
 
     @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return super.onSupportNavigateUp();
+    }
+
+    @Override
     protected void initViews() {
+
+        ActionBar mActionBar=getSupportActionBar();
+        mActionBar.setHomeButtonEnabled(true);
+        mActionBar.setDisplayHomeAsUpEnabled(true);
+        mActionBar.setTitle("设置");
 
         switchMovieMode.setChecked(GeneralSettingUtil.isOpenWebMovieMode());
         switchMovieMode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
