@@ -1,5 +1,8 @@
 package com.fcott.spadger.ui.activity;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
@@ -112,6 +115,16 @@ public class MovieDetialActivity extends BaseActivity {
                 .load(moviesBean.getCoverImg())
                 .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                 .into(ivPlay);
+        ivActor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(moviePlayBean != null){
+                    ClipboardManager myClipboard = (ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
+                    myClipboard.setPrimaryClip(ClipData.newPlainText("movieurl", moviePlayBean.getMessage()));
+                    Toast.makeText(MovieDetialActivity.this,"视频地址已经复制",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
         //网页video
         if(GeneralSettingUtil.isOpenWebMovieMode()){

@@ -32,6 +32,7 @@ public class App extends Application {
         activityList = new ArrayList<>();
 
         initBugly();
+//        initQbSdk();
     }
 
     @Override
