@@ -41,7 +41,7 @@ public class LookMovieActivity extends BaseActivity implements NetChangeObserver
     public static final String TAG = LookMovieActivity.class.getSimpleName();
 
     private MovieTypeAdapter adapter = null;
-    private final String[] typeList = new String[]{"最新", "动漫", "有码", "中文", "演员", "类型" , "搜索","收藏"};
+    private final String[] typeList = new String[]{"最新", "动漫", "有码", "中文", "演员", "类型" , "搜索","收藏","设置"};
     private RequestBody requestBody;
     private Subscription subscription1,subscription2;
 
@@ -109,6 +109,9 @@ public class LookMovieActivity extends BaseActivity implements NetChangeObserver
                     case 7:
                         intent.setClass(LookMovieActivity.this, MovieListActivity.class);
                         bundle.putString("TYPE", Config.typeCollection);
+                        break;
+                    case 8:
+                        intent.setClass(LookMovieActivity.this, SettingActivity.class);
                         break;
                 }
                 bundle.putString("ID", id);

@@ -10,14 +10,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.fcott.spadger.ui.widget.loading.VaryViewHelperController;
-import com.fcott.spadger.view.MvpView;
 
 import butterknife.ButterKnife;
 
 /**
  * Created by Administrator on 2016/9/20.
  */
-public abstract class BaseFragment extends Fragment implements MvpView {
+public abstract class BaseFragment extends Fragment{
     protected Activity baseActivity;
     protected View rootView;
 
@@ -126,21 +125,5 @@ public abstract class BaseFragment extends Fragment implements MvpView {
         } else {
             mVaryViewHelperController.restore();
         }
-    }
-
-    /**********MvpView方法***********/
-    @Override
-    public void showProgressDialog() {
-
-    }
-
-    @Override
-    public void hidProgressDialog() {
-
-    }
-
-    @Override
-    public void showError(String error) {
-
     }
 }

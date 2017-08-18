@@ -8,9 +8,14 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.FutureTarget;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.fcott.spadger.App;
 import com.fcott.spadger.R;
+
+import java.io.File;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by fcott on 2016/9/19.
@@ -89,4 +94,18 @@ public class ImageLoader {
             return false;
         }
     } ;
+
+    public String getImageCachePath(String url){
+        FutureTarget<File> future = Glide.with(App.getInstance().getApplicationContext()).load(url).downloadOnly(100,100);
+        try {
+            File cacheFile = future.get();
+            String path = cacheFile.getAbsolutePath();
+            return path;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

@@ -11,14 +11,13 @@ import android.view.Window;
 import com.fcott.spadger.App;
 import com.fcott.spadger.R;
 import com.fcott.spadger.ui.widget.loading.VaryViewHelperController;
-import com.fcott.spadger.view.MvpView;
 
 import butterknife.ButterKnife;
 
 /**
  * Created by Administrator on 2016/9/19.
  */
-public abstract class BaseActivity extends AppCompatActivity implements MvpView {
+public abstract class BaseActivity extends AppCompatActivity{
 
     //上下文
     protected Context mContext = null;
@@ -99,19 +98,5 @@ public abstract class BaseActivity extends AppCompatActivity implements MvpView 
 
         mVaryViewHelperController.showEmpty(msg,null);
     }
-    //*************MVPView方法********************
-    @Override
-    public void showProgressDialog() {
 
-    }
-
-    @Override
-    public void hidProgressDialog() {
-
-    }
-
-    @Override
-    public void showError(String error) {
-
-    }
 }

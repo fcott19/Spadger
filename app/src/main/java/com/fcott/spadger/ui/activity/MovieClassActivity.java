@@ -136,7 +136,7 @@ public class MovieClassActivity extends BaseActivity implements PageController.O
 
                         @Override
                         public void onError(Throwable e) {
-                            toggleShowLoading(false);
+                            toggleShowError("请求出错");
                         }
 
                         @Override

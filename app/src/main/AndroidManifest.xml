@@ -9,6 +9,12 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.READ_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+
+    <!-- 硬件加速对X5视频播放非常重要，建议开启 -->
+    <uses-permission android:name="android.permission.GET_TASKS" />
 
     <application
         android:name=".App"
@@ -20,14 +26,10 @@
         <activity
             android:name=".ui.activity.NovelDetialActivity"
             android:configChanges="orientation|screenSize|keyboardHidden" />
-        <activity
-            android:name=".ui.activity.PLVideoViewActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:theme="@style/AppThemeFullscreen" />
         <activity android:name=".ui.activity.VedioExhibitionActivity" />
         <activity android:name=".ui.activity.NovelExhibitionActivity" />
         <activity
-            android:name="com.tencent.smtt.sdk.VideoActivity"
+            android:name=".ui.activity.MyVideoActivity"
             android:alwaysRetainTaskState="true"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="false"
@@ -44,12 +46,18 @@
             android:name=".ui.activity.PictureSinglelActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity android:name=".ui.activity.KvMainActivity" />
-        <activity android:name=".ui.activity.TestActivity" />
+        <!--<activity android:name=".ui.activity.MyVideoActivity" />-->
         <activity android:name=".ui.activity.LookMovieActivity" />
         <activity android:name=".ui.activity.MovieActorActivity" />
         <activity android:name=".ui.activity.MovieListActivity" />
-        <activity android:name=".ui.activity.MovieDetialActivity" />
-        <activity android:name=".ui.activity.TokenCheckActivity"></activity>
+        <activity
+            android:name=".ui.activity.MovieDetialActivity"
+            android:alwaysRetainTaskState="true"
+            android:exported="false"
+            android:hardwareAccelerated="true"
+            android:launchMode="singleTask"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity android:name=".ui.activity.TokenCheckActivity" />
         <activity android:name=".ui.activity.MovieClassActivity" />
         <activity android:name=".ui.activity.MainActivity">
             <intent-filter>
@@ -58,7 +66,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.activity.SearchActivity"></activity>
+        <activity android:name=".ui.activity.SearchActivity" />
+        <activity android:name=".ui.activity.SettingActivity"/>
     </application>
 
 </manifest>

@@ -16,23 +16,22 @@
 
 
         <FrameLayout
-            android:padding="5dp"
+            android:layout_margin="5dp"
             android:layout_width="match_parent"
-            android:layout_height="250dp">
+            android:layout_height="230dp">
             <ImageView
+                android:visibility="gone"
                 android:scaleType="centerCrop"
-                android:foreground="@color/background_tran"
+                android:foreground="@drawable/playbtn"
                 android:src="@mipmap/ic_launcher"
                 android:id="@+id/iv_play"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
-            <ImageView
-                android:clickable="false"
-                android:focusable="false"
-                android:src="@drawable/ic_play_circle"
-                android:layout_gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+            <com.fcott.spadger.utils.web.X5WebView
+                android:id="@+id/web_filechooser"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            </com.fcott.spadger.utils.web.X5WebView>
         </FrameLayout>
 
         <android.support.v7.widget.CardView

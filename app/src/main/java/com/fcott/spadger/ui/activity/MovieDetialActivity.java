@@ -1,9 +1,15 @@
 package com.fcott.spadger.ui.activity;
 
+import android.content.res.Configuration;
+import android.graphics.PixelFormat;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.Switch;
@@ -18,16 +24,22 @@ import com.fcott.spadger.model.bean.MovieInfoBean;
 import com.fcott.spadger.model.bean.MoviePlayBean;
 import com.fcott.spadger.model.http.LookMovieService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
+import com.fcott.spadger.utils.GeneralSettingUtil;
 import com.fcott.spadger.utils.db.DBManager;
+import com.fcott.spadger.utils.glideutils.ImageLoader;
+import com.fcott.spadger.utils.web.X5WebView;
 import com.tencent.smtt.sdk.TbsVideo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
 import okhttp3.FormBody;
 import okhttp3.RequestBody;
+import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 public class MovieDetialActivity extends BaseActivity {
@@ -36,6 +48,8 @@ public class MovieDetialActivity extends BaseActivity {
     private MovieBean.MessageBean.MoviesBean moviesBean;
     private MoviePlayBean moviePlayBean;
 
+    @Bind(R.id.web_filechooser)
+    public X5WebView webView;
     @Bind(R.id.tv_time)
     public TextView tvTime;
     @Bind(R.id.tv_actor)
@@ -81,27 +95,57 @@ public class MovieDetialActivity extends BaseActivity {
     }
 
     @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
     protected void initViews() {
-
-        ActionBar mActionBar = getSupportActionBar();
-        mActionBar.setHomeButtonEnabled(true);
-        mActionBar.setDisplayHomeAsUpEnabled(true);
-        mActionBar.setTitle("电影详情");
-
+        removeAd();
+        initActionBar();
         toggleShowLoading(true);
         tvTime.setText(moviesBean.getCreateTime());
         tvDescript.setText(moviesBean.getDescription());
         tvTitle.setText(moviesBean.getName());
-        ivPlay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (moviePlayBean != null && TbsVideo.canUseTbsPlayer(MovieDetialActivity.this)) {
-                    TbsVideo.openVideo(MovieDetialActivity.this, moviePlayBean.getMessage());
-                } else {
-                    Toast.makeText(MovieDetialActivity.this, "未获取到播放地址", Toast.LENGTH_SHORT).show();
+        Glide.with(MovieDetialActivity.this)
+                .load(moviesBean.getCoverImg())
+                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                .into(ivPlay);
+
+        //网页video
+        if(GeneralSettingUtil.isOpenWebMovieMode()){
+            ivPlay.setVisibility(View.GONE);
+            webView.setVisibility(View.VISIBLE);
+            Observable.create(new Observable.OnSubscribe<String>() {
+                @Override
+                public void call(Subscriber<? super String> subscriber) {
+                    subscriber.onNext(ImageLoader.getInstance().getImageCachePath(moviesBean.getCoverImg()));
                 }
-            }
-        });
+            }).subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Action1<String>() {
+                        @Override
+                        public void call(String s) {
+                            initWebView(s);
+                        }
+                    });
+        }
+        //tbsviedo
+        else {
+            ivPlay.setVisibility(View.VISIBLE);
+            webView.setVisibility(View.GONE);
+            ivPlay.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (moviePlayBean != null && TbsVideo.canUseTbsPlayer(MovieDetialActivity.this)) {
+                        TbsVideo.openVideo(MovieDetialActivity.this, moviePlayBean.getMessage());
+                    } else {
+                        Toast.makeText(MovieDetialActivity.this, "未获取到播放地址", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
 
         RequestBody playBody = new FormBody.Builder()
                 .add("MovieID", moviesBean.getMovieID())
@@ -113,7 +157,7 @@ public class MovieDetialActivity extends BaseActivity {
                 .subscribe(new Subscriber<MovieInfoBean>() {
                     @Override
                     public void onCompleted() {
-
+                        unsubscribe();
                     }
 
                     @Override
@@ -130,10 +174,6 @@ public class MovieDetialActivity extends BaseActivity {
                         tvClass.setText(makeClass(messageBean.getClassBean()));
                         tvSupplier.setText(messageBean.getSupplier().getName());
                         tvTime.setText(messageBean.getCreateTime());
-                        Glide.with(MovieDetialActivity.this)
-                                .load(messageBean.getCoverImg())
-                                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                                .into(ivPlay);
                         Glide.with(MovieDetialActivity.this)
                                 .load(messageBean.getImg())
                                 .diskCacheStrategy(DiskCacheStrategy.SOURCE)
@@ -152,7 +192,7 @@ public class MovieDetialActivity extends BaseActivity {
                 .subscribe(new Subscriber<MoviePlayBean>() {
                     @Override
                     public void onCompleted() {
-
+                        unsubscribe();
                     }
 
                     @Override
@@ -163,19 +203,124 @@ public class MovieDetialActivity extends BaseActivity {
                     @Override
                     public void onNext(MoviePlayBean playBean) {
                         moviePlayBean = playBean;
+                        webView.loadUrl("javascript:url('" + moviePlayBean.getMessage() + "')");
                     }
                 });
     }
 
+    private List<View> oldList;
+    private void removeAd(){
+        getWindow().getDecorView().addOnLayoutChangeListener(new      View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+
+                if (oldList != null &&getAllChildViews(getWindow().getDecorView()).size() > oldList.size()) {
+
+                    for (View view :getAllChildViews(getWindow().getDecorView())) {
+
+                        if (!oldList.contains(view)) {
+
+                            view.setVisibility(View.GONE);
+                        }
+                    }
+                }
+
+                ArrayList<View> outView= new ArrayList<View>();
+                getWindow().getDecorView().findViewsWithText(outView, "QQ浏览器", View.FIND_VIEWS_WITH_TEXT);
+                int size = outView.size();
+                if (outView != null && outView.size() > 0) {
+                    oldList =getAllChildViews(getWindow().getDecorView());
+                    outView.get(0).setVisibility(View.GONE);
+                }
+            }
+        });
+    }
+    private List<View> getAllChildViews(View view) {
+
+        List<View> allchildren = new ArrayList<View>();
+
+        if (view instanceof ViewGroup) {
+
+            ViewGroup vp = (ViewGroup) view;
+
+            for (int i = 0; i < vp.getChildCount(); i++) {
+                View viewchild = vp.getChildAt(i);
+                allchildren.add(viewchild);
+                allchildren.addAll(getAllChildViews(viewchild));
+            }
+
+        }
+
+        return allchildren;
+
+    }
+    /**
+     * 初始化webview
+     */
+    private void initWebView(final String localImageCachePath) {
+        webView.loadUrl("file:///android_asset/webpage/fullscreenVideo.html");
+        getWindow().setFormat(PixelFormat.TRANSLUCENT);
+        webView.getView().setOverScrollMode(View.OVER_SCROLL_ALWAYS);
+        webView.setOnPageFinishListener(new X5WebView.OnPageFinishListener() {
+            @Override
+            public void onPageFinish() {
+                if (moviePlayBean != null)
+                    webView.loadUrl("javascript:url('" + moviePlayBean.getMessage() + "')");
+                if(localImageCachePath != null)
+                    webView.loadUrl("javascript:poster('" + localImageCachePath + "')");
+                enablePageVideoFunc();
+            }
+        });
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        // TODO Auto-generated method stub
+        try {
+            super.onConfigurationChanged(newConfig);
+            if (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                getWindow().addFlags(
+                        WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+            }
+            else if (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                getWindow().clearFlags(
+                        WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
+     * 初始化ActionBar
+     */
+    private void initActionBar(){
+        ActionBar mActionBar = getSupportActionBar();
+        mActionBar.setHomeButtonEnabled(true);
+        mActionBar.setDisplayHomeAsUpEnabled(true);
+        mActionBar.setTitle("电影详情");
+    }
+
+    private void enablePageVideoFunc() {
+        if (webView.getX5WebViewExtension() != null) {
+            Bundle data = new Bundle();
+            data.putBoolean("standardFullScreen", false);// true表示标准全屏，会调起onShowCustomView()，false表示X5全屏；不设置默认false，
+            data.putBoolean("supportLiteWnd", false);// false：关闭小窗；true：开启小窗；不设置默认true，
+            data.putInt("DefaultVideoScreen", 1);// 1：以页面内开始播放，2：以全屏开始播放；不设置默认：1
+            webView.getX5WebViewExtension().invokeMiscMethod("setVideoParams", data);
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if(moviesBean == null)
+        if (moviesBean == null)
             return true;
 
         getMenuInflater().inflate(R.menu.out_map_menu, menu);
         final Switch switchShop = (Switch) menu.findItem(R.id.myswitch).getActionView().findViewById(R.id.switchForActionBar);
         final DBManager dbManager = new DBManager(this);
-        if(dbManager.hasContainId(moviesBean.getMovieID())){
+        if (dbManager.hasContainId(moviesBean.getMovieID())) {
             switchShop.setChecked(true);
             switchShop.setText(getResources().getString(R.string.cancel_collection));
         }
@@ -217,4 +362,14 @@ public class MovieDetialActivity extends BaseActivity {
         }
         return stringBuffer.toString();
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(webView != null){
+            webView.destroy();
+            webView = null;
+        }
+    }
+
 }

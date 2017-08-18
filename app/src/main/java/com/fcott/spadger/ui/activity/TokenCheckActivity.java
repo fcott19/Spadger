@@ -76,12 +76,12 @@ public class TokenCheckActivity extends BaseActivity{
                 .subscribe(new Subscriber<LoginBean>() {
                     @Override
                     public void onCompleted() {
-                        toggleShowLoading(false);
                         Log.w("response", "completed");
                     }
 
                     @Override
                     public void onError(Throwable e) {
+                        toggleShowLoading(false);
                         Log.w("response", e.toString());
                     }
 
@@ -98,6 +98,7 @@ public class TokenCheckActivity extends BaseActivity{
                             startActivity(new Intent(TokenCheckActivity.this, LookMovieActivity.class));
                             finish();
                         }else {
+                            toggleShowLoading(false);
                             Toast.makeText(TokenCheckActivity.this,"请正确输入验证码",Toast.LENGTH_SHORT).show();
                         }
                     }
