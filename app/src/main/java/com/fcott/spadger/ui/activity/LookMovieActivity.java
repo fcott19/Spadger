@@ -19,6 +19,7 @@ import com.fcott.spadger.model.http.utils.RetrofitUtils;
 import com.fcott.spadger.ui.adapter.MovieTypeAdapter;
 import com.fcott.spadger.ui.adapter.baseadapter.OnItemClickListeners;
 import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
+import com.fcott.spadger.utils.GeneralSettingUtil;
 import com.fcott.spadger.utils.glideutils.ImageLoader;
 import com.fcott.spadger.utils.netstatus.NetChangeObserver;
 import com.fcott.spadger.utils.netstatus.NetStateReceiver;
@@ -66,7 +67,11 @@ public class LookMovieActivity extends BaseActivity implements NetChangeObserver
         //wifi环境下，预加载图片
         if(NetUtils.isWifiConnected(getApplicationContext())){
             perLoadData();
+        }else {
+            if(GeneralSettingUtil.isProhibitNoWifi())
+                App.getInstance().cleanActivity();
         }
+
 
         //列表适配器
         adapter = new MovieTypeAdapter(LookMovieActivity.this, Arrays.asList(typeList), false);
@@ -234,6 +239,8 @@ public class LookMovieActivity extends BaseActivity implements NetChangeObserver
                 requestManager.resumeRequests();
             }
         }else {
+            if(GeneralSettingUtil.isProhibitNoWifi())
+                App.getInstance().cleanActivity();
             Glide.with(LookMovieActivity.this).pauseRequests();
         }
     }

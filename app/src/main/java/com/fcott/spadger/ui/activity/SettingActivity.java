@@ -13,6 +13,8 @@ public class SettingActivity extends BaseActivity {
 
     @Bind(R.id.switch_movie_mode)
     public Switch switchMovieMode;
+    @Bind(R.id.switch_prohibit_no_wifi)
+    public Switch switchProhibitNoWifi;
 
     @Override
     protected int getContentViewLayoutID() {
@@ -32,6 +34,14 @@ public class SettingActivity extends BaseActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 GeneralSettingUtil.setOpenWebMoviewMode(isChecked);
+            }
+        });
+
+        switchProhibitNoWifi.setChecked(GeneralSettingUtil.isProhibitNoWifi());
+        switchProhibitNoWifi.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                GeneralSettingUtil.setProhibitNoWifi(isChecked);
             }
         });
     }

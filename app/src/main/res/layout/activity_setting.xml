@@ -4,11 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="com.fcott.spadger.ui.activity.SettingActivity">
     <Switch
         android:id="@+id/switch_movie_mode"
         android:padding="10dp"
         android:text="启用web视频"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <Switch
+        android:id="@+id/switch_prohibit_no_wifi"
+        android:padding="10dp"
+        android:text="非wifi环境下自动退出APP"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

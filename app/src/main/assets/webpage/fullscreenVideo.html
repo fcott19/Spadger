@@ -5,21 +5,10 @@
     <meta name="viewport"
           content="width=device-width, maximum-scale=1, minimum-scale=1, user-scale=1">
     <title></title>
-    <style type="text/css" rel="stylesheet">
-        .line{
-            width:100%;
-            background: #000000;
-
-            margin-top: 5px;
-            margin-bottom: 5px;
-        }
-
-    </style>
-
 </head>
 <body>
 <video id="media"
-       style="width:100%; height: auto;"
+       style="width:100%; height: 100%;"
        src=""
        preload="auto"
        poster=""
@@ -35,9 +24,7 @@
         document.getElementById("media").poster=str;
         document.getElementById("media").load();
     }
-    document.getElementById("media").addEventListener('play',function(){
-        console.log("kaishile")
-    });
+
     document.getElementById("media").addEventListener('error',function(errorStr){
         <!--3 = MEDIA_ERR_DECODE - 当解码时发生错误-->
         console.log(document.getElementById("media").error.code);
