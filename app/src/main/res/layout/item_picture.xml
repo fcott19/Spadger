@@ -6,8 +6,7 @@
     android:orientation="vertical">
     <ImageView
         android:id="@+id/img_cover"
-        android:background="@drawable/shape_btn_bg1"
-        android:scaleType="centerCrop"
+        android:scaleType="fitCenter"
         android:layout_width="match_parent"
-        android:layout_height="400dp" />
+        android:layout_height="wrap_content" />
 </FrameLayout>

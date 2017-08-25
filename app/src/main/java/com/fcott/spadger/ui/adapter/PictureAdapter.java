@@ -4,6 +4,7 @@ import android.content.Context;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.fcott.spadger.R;
 import com.fcott.spadger.ui.adapter.baseadapter.BaseAdapter;
@@ -26,11 +27,12 @@ public class PictureAdapter extends BaseAdapter<String> {
     @Override
     protected void convert(ViewHolder holder, String data) {
         ImageView imageView = holder.getView(R.id.img_cover);
-//        ImageLoader.getInstance().load(App.getInstance(), data, imageView);
         Glide.with(context)
                 .load(data)
+                .priority(Priority.HIGH)
                 .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                 .into(imageView);
+
     }
 
     @Override

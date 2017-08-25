@@ -29,6 +29,7 @@ import static com.fcott.spadger.ui.activity.NovelExhibitionActivity.NOVEL_DETIAL
 import static com.fcott.spadger.ui.activity.NovelExhibitionActivity.NOVEL_DETIAL_URL;
 
 public class PictureDetailActivity extends BaseActivity {
+    public static final String TAG = PictureDetailActivity.class.getSimpleName();
     private static final String ACACHE_TAG = "CACHE_PIC";
 
     @Bind(R.id.rv_imgs)
@@ -66,7 +67,6 @@ public class PictureDetailActivity extends BaseActivity {
                 bundle.putStringArrayList(PictureSinglelActivity.URL_TAG, dataList);
                 bundle.putInt(PictureSinglelActivity.POSITION_TAG, position);
                 intent.putExtras(bundle);
-//                startActivity(intent);
                 startActivityForResult(intent, 0);
             }
         });
@@ -111,7 +111,6 @@ public class PictureDetailActivity extends BaseActivity {
                 .subscribe(new Subscriber<String>() {
                     @Override
                     public void onCompleted() {
-                        Log.w("response", "completed");
                         toggleShowLoading(false);
                     }
 

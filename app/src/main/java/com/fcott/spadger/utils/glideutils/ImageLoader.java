@@ -74,6 +74,7 @@ public class ImageLoader {
         Glide.with(context)
                 .load(url)
                 .asBitmap()
+                .priority(Priority.NORMAL)
                 .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                 .preload();
     }
