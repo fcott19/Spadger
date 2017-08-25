@@ -2,10 +2,12 @@ package com.fcott.spadger.ui.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 
 import com.fcott.spadger.R;
+import com.fcott.spadger.utils.FileUtil;
 import com.fcott.spadger.utils.GeneralSettingUtil;
 
 import butterknife.Bind;
@@ -16,6 +18,8 @@ public class SettingActivity extends BaseActivity {
     public Switch switchMovieMode;
     @Bind(R.id.switch_prohibit_no_wifi)
     public Switch switchProhibitNoWifi;
+    @Bind(R.id.switch_window_movie)
+    public Switch switchWindowMovie;
 
     @Override
     protected int getContentViewLayoutID() {
@@ -46,8 +50,16 @@ public class SettingActivity extends BaseActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 GeneralSettingUtil.setOpenWebMoviewMode(isChecked);
+                if(isChecked)
+                    switchWindowMovie.setVisibility(View.VISIBLE);
+                else
+                    switchWindowMovie.setVisibility(View.GONE);
             }
         });
+        if(GeneralSettingUtil.isOpenWebMovieMode())
+            switchWindowMovie.setVisibility(View.VISIBLE);
+        else
+            switchWindowMovie.setVisibility(View.GONE);
 
         switchProhibitNoWifi.setChecked(GeneralSettingUtil.isProhibitNoWifi());
         switchProhibitNoWifi.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -56,5 +68,17 @@ public class SettingActivity extends BaseActivity {
                 GeneralSettingUtil.setProhibitNoWifi(isChecked);
             }
         });
+
+        switchWindowMovie.setChecked(GeneralSettingUtil.isWindowMovie());
+        switchWindowMovie.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                GeneralSettingUtil.setWindowMovie(isChecked);
+            }
+        });
+    }
+
+    public void clearVideoCache(View view){
+        FileUtil.clearVideoCache();
     }
 }

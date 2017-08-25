@@ -2,6 +2,7 @@ package com.fcott.spadger.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.view.View;
@@ -12,13 +13,16 @@ import android.widget.SearchView;
 
 import com.fcott.spadger.Config;
 import com.fcott.spadger.R;
+import com.fcott.spadger.model.bean.ActorBean;
 import com.fcott.spadger.model.bean.MovieClassBean;
 import com.fcott.spadger.model.http.LookMovieService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
 import com.fcott.spadger.utils.ACache;
 import com.fcott.spadger.utils.GsonUtil;
+import com.fcott.spadger.utils.LogUtil;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import butterknife.Bind;
 import okhttp3.FormBody;
@@ -27,9 +31,11 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
-public class SearchActivity extends BaseActivity implements SearchView.OnQueryTextListener{
+public class SearchActivity extends BaseActivity implements SearchView.OnQueryTextListener {
     public static final String TAG = SearchActivity.class.getSimpleName();
 
     @Bind(R.id.sv)
@@ -43,6 +49,8 @@ public class SearchActivity extends BaseActivity implements SearchView.OnQueryTe
     private ArrayAdapter arrayAdapter;
     private ArrayList<String> tipList = new ArrayList();
     private Subscription subscription;
+    private Map<String, ActorBean.MessageBean.DataBean> actorBeanMap;
+    private Map<String, MovieClassBean.MessageBean.DataBean> movieClassBeanMap;
 
 
     @Override
@@ -59,6 +67,7 @@ public class SearchActivity extends BaseActivity implements SearchView.OnQueryTe
     protected void getBundleExtras(Bundle bundle) {
 
     }
+
     @Override
     public boolean onSupportNavigateUp() {
         finish();
@@ -66,14 +75,21 @@ public class SearchActivity extends BaseActivity implements SearchView.OnQueryTe
     }
 
     @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        LogUtil.log(TAG);
+        super.onCreate(savedInstanceState);
+        LogUtil.log(TAG);
+    }
+
+    @Override
     protected void initViews() {
 
-        ActionBar mActionBar=getSupportActionBar();
+        ActionBar mActionBar = getSupportActionBar();
         mActionBar.setHomeButtonEnabled(true);
         mActionBar.setDisplayHomeAsUpEnabled(true);
         mActionBar.setTitle("搜索");
 
-        arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, tipList.toArray(new String[tipList.size()]));
+        arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, tipList.toArray(new String[tipList.size()]));
         lv.setAdapter(arrayAdapter);
         lv.setTextFilterEnabled(true);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -96,15 +112,30 @@ public class SearchActivity extends BaseActivity implements SearchView.OnQueryTe
         makeTips();
     }
 
-    private void makeTips(){
+    private void makeTips() {
         ACache mCache = ACache.get(SearchActivity.this.getApplicationContext());
         //取出缓存
-        String value = mCache.getAsString(TAG);
+        final String valueActor = mCache.getAsString(TAG + "Actor");
+        final String valueClass = mCache.getAsString(TAG + "Class");
         //显示缓存
-        if (!TextUtils.isEmpty(value)) {
-            tipList = GsonUtil.fromJson(value, ArrayList.class);
-            arrayAdapter = new ArrayAdapter<String>(SearchActivity.this,android.R.layout.simple_list_item_1, tipList.toArray(new String[tipList.size()]));
-            lv.setAdapter(arrayAdapter);
+        if (!TextUtils.isEmpty(valueActor) && !TextUtils.isEmpty(valueClass)) {
+
+            Observable.create(new Observable.OnSubscribe<Void>() {
+                @Override
+                public void call(Subscriber<? super Void> subscriber) {
+                    makeDataMap(GsonUtil.fromJson(valueActor, ActorBean.class));
+                    makeDataMap(GsonUtil.fromJson(valueClass, MovieClassBean.class));
+                    subscriber.onNext(null);
+                }
+            }).subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Action1<Void>() {
+                        @Override
+                        public void call(Void aVoid) {
+                            arrayAdapter = new ArrayAdapter<String>(SearchActivity.this, android.R.layout.simple_list_item_1, tipList.toArray(new String[tipList.size()]));
+                            lv.setAdapter(arrayAdapter);
+                        }
+                    });
         } else {
             toggleShowLoading(true);
             RequestBody body = new FormBody.Builder()
@@ -115,17 +146,16 @@ public class SearchActivity extends BaseActivity implements SearchView.OnQueryTe
             LookMovieService lookMovieService = RetrofitUtils.getInstance().create1(LookMovieService.class);
             obList.add(lookMovieService.requestActorJson(body));
             obList.add(lookMovieService.requestClassJson(body));
-            subscription =  Observable.merge(obList)
+            subscription = Observable.merge(obList)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Subscriber<String>() {
                         @Override
                         public void onCompleted() {
                             //缓存
-                            ACache aCache = ACache.get(SearchActivity.this.getApplicationContext());
-                            aCache.put(TAG, GsonUtil.toJson(tipList));
                             toggleShowLoading(false);
-                            arrayAdapter = new ArrayAdapter<String>(SearchActivity.this,android.R.layout.simple_list_item_1, tipList.toArray(new String[tipList.size()]));
+
+                            arrayAdapter = new ArrayAdapter<String>(SearchActivity.this, android.R.layout.simple_list_item_1, tipList.toArray(new String[tipList.size()]));
                             lv.setAdapter(arrayAdapter);
                         }
 
@@ -136,9 +166,13 @@ public class SearchActivity extends BaseActivity implements SearchView.OnQueryTe
 
                         @Override
                         public void onNext(String json) {
-                            MovieClassBean bean = GsonUtil.fromJson(json,MovieClassBean.class);
-                            for(MovieClassBean.MessageBean.DataBean dataBean:bean.getMessage().getData()){
-                                tipList.add(dataBean.getName());
+                            ACache aCache = ACache.get(SearchActivity.this.getApplicationContext());
+                            if (json.contains("http://")) {
+                                aCache.put(TAG + "Actor", json);
+                                makeDataMap(GsonUtil.fromJson(json, ActorBean.class));
+                            } else {
+                                aCache.put(TAG + "Class", json);
+                                makeDataMap(GsonUtil.fromJson(json, MovieClassBean.class));
                             }
                         }
                     });
@@ -149,23 +183,67 @@ public class SearchActivity extends BaseActivity implements SearchView.OnQueryTe
     @Override
     public boolean onQueryTextChange(String newText) {
         // TODO Auto-generated method stub
-        if(TextUtils.isEmpty(newText))
-        {
+        if (TextUtils.isEmpty(newText)) {
             lv.setVisibility(View.GONE);
-        }else {
+        } else {
             lv.setVisibility(View.VISIBLE);
         }
         arrayAdapter.getFilter().filter(newText);
         return true;
     }
+
+    private void makeDataMap(final ActorBean actorBean){
+        Observable.from(actorBean.getMessage().getData())
+                .toMap(new Func1<ActorBean.MessageBean.DataBean, String>() {
+                    @Override
+                    public String call(ActorBean.MessageBean.DataBean dataBean) {
+                        return dataBean.getName();
+                    }
+                }).subscribe(new Action1<Map<String, ActorBean.MessageBean.DataBean>>() {
+            @Override
+            public void call(Map<String, ActorBean.MessageBean.DataBean> stringDataBeanMap) {
+                actorBeanMap = stringDataBeanMap;
+                for (ActorBean.MessageBean.DataBean dataBean : actorBean.getMessage().getData()) {
+                    tipList.add(dataBean.getName());
+                }
+            }
+        });
+    }
+    private void makeDataMap(final MovieClassBean movieClassBean){
+        Observable.from(movieClassBean.getMessage().getData())
+                .toMap(new Func1<MovieClassBean.MessageBean.DataBean, String>() {
+                    @Override
+                    public String call(MovieClassBean.MessageBean.DataBean dataBean) {
+                        return dataBean.getName();
+                    }
+                }).subscribe(new Action1<Map<String, MovieClassBean.MessageBean.DataBean>>() {
+            @Override
+            public void call(Map<String, MovieClassBean.MessageBean.DataBean> stringDataBeanMap) {
+                movieClassBeanMap = stringDataBeanMap;
+                for (MovieClassBean.MessageBean.DataBean dataBean : movieClassBean.getMessage().getData()) {
+                    tipList.add(dataBean.getName());
+                }
+            }
+        });
+    }
+
     //单击搜索按钮时激发该方法
     @Override
     public boolean onQueryTextSubmit(String query) {
         // TODO Auto-generated method stub
         Intent intent = new Intent();
         Bundle bundle = new Bundle();
-        bundle.putString("TYPE", Config.typeSearch);
-        bundle.putString("DATA", query);
+
+        if(actorBeanMap != null && actorBeanMap.keySet().contains(query)){
+            bundle.putString("TYPE", Config.searchTypeActor);
+            bundle.putString("DATA", actorBeanMap.get(query).getID());
+        }else if(movieClassBeanMap != null && movieClassBeanMap.keySet().contains(query)){
+            bundle.putString("TYPE", Config.searchTypeClass);
+            bundle.putString("DATA", movieClassBeanMap.get(query).getID());
+        }else {
+            bundle.putString("TYPE", Config.searchTypeNormal);
+            bundle.putString("DATA", query);
+        }
         intent.putExtras(bundle);
         intent.setClass(SearchActivity.this, MovieListActivity.class);
         startActivity(intent);

@@ -20,6 +20,7 @@ import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
 import com.fcott.spadger.ui.widget.PageController;
 import com.fcott.spadger.utils.ACache;
 import com.fcott.spadger.utils.GsonUtil;
+import com.fcott.spadger.utils.LogUtil;
 import com.fcott.spadger.utils.NativeUtil;
 import com.fcott.spadger.utils.db.DBManager;
 import com.fcott.spadger.utils.glideutils.ImageLoader;
@@ -136,8 +137,9 @@ public class MovieListActivity extends BaseActivity implements PageController.Ob
             @Override
             public void call(Subscriber<? super List<MovieBean.MessageBean.MoviesBean>> subscriber) {
                 DBManager dbManager = new DBManager(MovieListActivity.this);
-                subscriber.onNext(dbManager.query(currentPage));
+                List<MovieBean.MessageBean.MoviesBean> list = dbManager.query(currentPage);
                 dbManager.closeDB();
+                subscriber.onNext(list);
             }
         }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -174,25 +176,35 @@ public class MovieListActivity extends BaseActivity implements PageController.Ob
                     .add("Data", "")
                     .build();
             cacheTag = TAG + "CHANNELID" + channelId + String.valueOf(currentPage);
-        } else if (type.equals(Config.typeActor) && actorId != null) {
+        } else if ((type.equals(Config.typeActor) && actorId != null) || (type.equals(Config.searchTypeActor) && searchData != null)) {
+            String id;
+            if(actorId != null)
+                id = actorId;
+            else
+                id = searchData;
             moviceBody = new FormBody.Builder()
                     .add("PageIndex", String.valueOf(currentPage))
                     .add("PageSize", String.valueOf(Config.NOMOR_PAGE_SIZE))
                     .add("Type", "5")
-                    .add("ID", actorId)
+                    .add("ID", id)
                     .add("Data", "")
                     .build();
-            cacheTag = TAG + "ACTORID" + actorId + String.valueOf(currentPage);
-        } else if (type.equals(Config.typeClass) && classId != null) {
+            cacheTag = TAG + "ACTORID" + id + String.valueOf(currentPage);
+        } else if ((type.equals(Config.typeClass) && classId != null) || (type.equals(Config.searchTypeClass) && searchData != null)) {
+            String id;
+            if(actorId != null)
+                id = classId;
+            else
+                id = searchData;
             moviceBody = new FormBody.Builder()
                     .add("PageIndex", String.valueOf(currentPage))
                     .add("PageSize", String.valueOf(Config.NOMOR_PAGE_SIZE))
                     .add("Type", "2")
-                    .add("ID", classId)
+                    .add("ID", id)
                     .add("Data", "")
                     .build();
-            cacheTag = TAG + "CLASSID" + classId + String.valueOf(currentPage);
-        } else if (type.equals(Config.typeSearch) && searchData != null) {
+            cacheTag = TAG + "CLASSID" + id + String.valueOf(currentPage);
+        } else if (type.equals(Config.searchTypeNormal) && searchData != null) {
             moviceBody = new FormBody.Builder()
                     .add("PageIndex", String.valueOf(currentPage))
                     .add("PageSize", String.valueOf(Config.NOMOR_PAGE_SIZE))
@@ -270,6 +282,7 @@ public class MovieListActivity extends BaseActivity implements PageController.Ob
 
     @Override
     protected void onDestroy() {
+        LogUtil.log(TAG,"onDestroy");
         super.onDestroy();
         if (subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();

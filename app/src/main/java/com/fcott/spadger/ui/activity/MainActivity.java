@@ -2,6 +2,7 @@ package com.fcott.spadger.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Process;
 import android.view.View;
 
 import com.fcott.spadger.R;
@@ -29,5 +30,11 @@ public class MainActivity extends BaseActivity {
 
     public void goMovie(View view){
         startActivity(new Intent(MainActivity.this,TokenCheckActivity.class));
+    }
+
+    @Override
+    protected void onDestroy() {
+        Process.killProcess(Process.myPid());
+        super.onDestroy();
     }
 }

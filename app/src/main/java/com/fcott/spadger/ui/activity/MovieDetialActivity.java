@@ -10,7 +10,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
@@ -118,16 +117,16 @@ public class MovieDetialActivity extends BaseActivity {
         ivActor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(moviePlayBean != null){
-                    ClipboardManager myClipboard = (ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
+                if (moviePlayBean != null) {
+                    ClipboardManager myClipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                     myClipboard.setPrimaryClip(ClipData.newPlainText("movieurl", moviePlayBean.getMessage()));
-                    Toast.makeText(MovieDetialActivity.this,"视频地址已经复制",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MovieDetialActivity.this, "视频地址已经复制", Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
         //网页video
-        if(GeneralSettingUtil.isOpenWebMovieMode()){
+        if (GeneralSettingUtil.isOpenWebMovieMode()) {
             ivPlay.setVisibility(View.GONE);
             webView.setVisibility(View.VISIBLE);
             Observable.create(new Observable.OnSubscribe<String>() {
@@ -151,10 +150,12 @@ public class MovieDetialActivity extends BaseActivity {
             ivPlay.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (moviePlayBean != null && TbsVideo.canUseTbsPlayer(MovieDetialActivity.this)) {
-                        TbsVideo.openVideo(MovieDetialActivity.this, moviePlayBean.getMessage());
-                    } else {
+                    if (moviePlayBean == null) {
                         Toast.makeText(MovieDetialActivity.this, "未获取到播放地址", Toast.LENGTH_SHORT).show();
+                    } else if (!TbsVideo.canUseTbsPlayer(MovieDetialActivity.this)) {
+                        Toast.makeText(MovieDetialActivity.this, "播放器未准备好", Toast.LENGTH_SHORT).show();
+                    } else {
+                        TbsVideo.openVideo(MovieDetialActivity.this, moviePlayBean.getMessage());
                     }
                 }
             });
@@ -221,52 +222,19 @@ public class MovieDetialActivity extends BaseActivity {
                 });
     }
 
-    private List<View> oldList;
-    private void removeAd(){
-        getWindow().getDecorView().addOnLayoutChangeListener(new      View.OnLayoutChangeListener() {
+    private void removeAd() {
+        getWindow().getDecorView().addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-
-                if (oldList != null &&getAllChildViews(getWindow().getDecorView()).size() > oldList.size()) {
-
-                    for (View view :getAllChildViews(getWindow().getDecorView())) {
-
-                        if (!oldList.contains(view)) {
-
-                            view.setVisibility(View.GONE);
-                        }
-                    }
-                }
-
-                ArrayList<View> outView= new ArrayList<View>();
+                ArrayList<View> outView = new ArrayList<View>();
                 getWindow().getDecorView().findViewsWithText(outView, "QQ浏览器", View.FIND_VIEWS_WITH_TEXT);
-                int size = outView.size();
                 if (outView != null && outView.size() > 0) {
-                    oldList =getAllChildViews(getWindow().getDecorView());
                     outView.get(0).setVisibility(View.GONE);
                 }
             }
         });
     }
-    private List<View> getAllChildViews(View view) {
 
-        List<View> allchildren = new ArrayList<View>();
-
-        if (view instanceof ViewGroup) {
-
-            ViewGroup vp = (ViewGroup) view;
-
-            for (int i = 0; i < vp.getChildCount(); i++) {
-                View viewchild = vp.getChildAt(i);
-                allchildren.add(viewchild);
-                allchildren.addAll(getAllChildViews(viewchild));
-            }
-
-        }
-
-        return allchildren;
-
-    }
     /**
      * 初始化webview
      */
@@ -279,7 +247,7 @@ public class MovieDetialActivity extends BaseActivity {
             public void onPageFinish() {
                 if (moviePlayBean != null)
                     webView.loadUrl("javascript:url('" + moviePlayBean.getMessage() + "')");
-                if(localImageCachePath != null)
+                if (localImageCachePath != null)
                     webView.loadUrl("javascript:poster('" + localImageCachePath + "')");
                 enablePageVideoFunc();
             }
@@ -294,21 +262,19 @@ public class MovieDetialActivity extends BaseActivity {
             if (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 getWindow().addFlags(
                         WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-            }
-            else if (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            } else if (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
                 getWindow().clearFlags(
                         WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     /**
      * 初始化ActionBar
      */
-    private void initActionBar(){
+    private void initActionBar() {
         ActionBar mActionBar = getSupportActionBar();
         mActionBar.setHomeButtonEnabled(true);
         mActionBar.setDisplayHomeAsUpEnabled(true);
@@ -319,7 +285,7 @@ public class MovieDetialActivity extends BaseActivity {
         if (webView.getX5WebViewExtension() != null) {
             Bundle data = new Bundle();
             data.putBoolean("standardFullScreen", false);// true表示标准全屏，会调起onShowCustomView()，false表示X5全屏；不设置默认false，
-            data.putBoolean("supportLiteWnd", false);// false：关闭小窗；true：开启小窗；不设置默认true，
+            data.putBoolean("supportLiteWnd", GeneralSettingUtil.isWindowMovie());// false：关闭小窗；true：开启小窗；不设置默认true，
             data.putInt("DefaultVideoScreen", 1);// 1：以页面内开始播放，2：以全屏开始播放；不设置默认：1
             webView.getX5WebViewExtension().invokeMiscMethod("setVideoParams", data);
         }
@@ -379,7 +345,7 @@ public class MovieDetialActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(webView != null){
+        if (webView != null) {
             webView.destroy();
             webView = null;
         }

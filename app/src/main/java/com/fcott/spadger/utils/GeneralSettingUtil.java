@@ -13,6 +13,7 @@ import com.fcott.spadger.Config;
 public class GeneralSettingUtil {
     public static final String MOVIEMODE = "movieMode";
     public static final String PROHIBIT_NO_WIFI = "PROHIBIT_NO_WIFI";
+    public static final String WINDOW_MOVIE = "WINDOW_MOVIE";
 
     public static void setOpenWebMoviewMode(boolean openWebMovieMode){
         SharedPreferences.Editor sharedata = App.getInstance().getSharedPreferences(Config.SP_GENERAL_SETTING, Context.MODE_PRIVATE).edit();
@@ -34,5 +35,16 @@ public class GeneralSettingUtil {
     public static boolean isProhibitNoWifi(){
         SharedPreferences pref = App.getInstance().getSharedPreferences(Config.SP_GENERAL_SETTING, Context.MODE_PRIVATE);
         return pref.getBoolean(PROHIBIT_NO_WIFI, false);
+    }
+
+    public static void setWindowMovie(boolean windowMovie){
+        SharedPreferences.Editor sharedata = App.getInstance().getSharedPreferences(Config.SP_GENERAL_SETTING, Context.MODE_PRIVATE).edit();
+        sharedata.putBoolean(WINDOW_MOVIE,windowMovie);
+        sharedata.commit();
+    }
+
+    public static boolean isWindowMovie(){
+        SharedPreferences pref = App.getInstance().getSharedPreferences(Config.SP_GENERAL_SETTING, Context.MODE_PRIVATE);
+        return pref.getBoolean(WINDOW_MOVIE, false);
     }
 }

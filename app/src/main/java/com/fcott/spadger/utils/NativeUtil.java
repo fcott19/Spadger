@@ -106,7 +106,7 @@ public class NativeUtil {
     public static boolean needUpdate(String tag) {
 
         Calendar c = Calendar.getInstance();
-        int mHour = c.get(Calendar.HOUR_OF_DAY);//时
+        int mHour = 0;//时c.get(Calendar.HOUR_OF_DAY)
         int mDay = c.get(Calendar.DAY_OF_MONTH);// 获取当日期
         SharedPreferences pref = App.getInstance().getSharedPreferences(Config.SP_TIME+tag, Context.MODE_PRIVATE);
         String time = pref.getString("time", "");//第二个参数为默认值

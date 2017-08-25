@@ -1,9 +1,8 @@
 package com.fcott.spadger;
 
 
-
-
 public class Config {
+    public static final String VIDEO_CACHE_PATH = "/storage/emulated/0/Android/data/com.fcott.spadger/files/VideoCache/main";
     public static final int NOMOR_PAGE_SIZE = 20;
     public static final boolean IS_DEBUG = true;
     public static final boolean NEED_LOG = true;//需要LOG
@@ -20,6 +19,9 @@ public class Config {
     public static final String typeChannel = "typeChannel";
     public static final String typeClass = "typeClass";
     public static final String typeActor = "typeActor";
-    public static final String typeSearch = "typeSearch";
     public static final String typeCollection = "typeCollection";
+
+    public static final String searchTypeNormal = "searchTypeNormal";
+    public static final String searchTypeClass = "searchTypeClass";
+    public static final String searchTypeActor = "searchTypeActor";
 }

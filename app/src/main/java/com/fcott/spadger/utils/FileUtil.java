@@ -7,17 +7,17 @@ package com.fcott.spadger.utils;
 import android.os.Environment;
 import android.util.Log;
 
+import com.fcott.spadger.Config;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InterruptedIOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
-import java.net.SocketTimeoutException;
 
 import okhttp3.ResponseBody;
 
@@ -213,12 +213,38 @@ public class FileUtil {
      *
      * @return
      */
-    private static String getFilesDir() {
+    public static String getFilesDir() {
         if (isMounted()) {
 //            return INApplication.getInstance().getApplicationContext().getFilesDir().getAbsolutePath()+File.separator;
             return Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator;
         } else {
             throw new NullPointerException("no memory to save some files !");
+        }
+    }
+
+    public static void clearVideoCache(){
+        File file = new File(Config.VIDEO_CACHE_PATH);
+        recursionDeleteFile(file);
+    }
+    /**
+     * 递归删除文件和文件夹
+     * @param file    要删除的根目录
+     */
+    public static void recursionDeleteFile(File file){
+        if(file.isFile()){
+            file.delete();
+            return;
+        }
+        if(file.isDirectory()){
+            File[] childFile = file.listFiles();
+            if(childFile == null || childFile.length == 0){
+                file.delete();
+                return;
+            }
+            for(File f : childFile){
+                recursionDeleteFile(f);
+            }
+            file.delete();
         }
     }
 
