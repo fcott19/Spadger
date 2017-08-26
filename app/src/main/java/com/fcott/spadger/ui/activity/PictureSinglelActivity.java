@@ -8,6 +8,9 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.fcott.spadger.R;
 import com.fcott.spadger.ui.widget.HackyViewPager;
 import com.fcott.spadger.utils.glideutils.ImageLoader;
@@ -44,6 +47,8 @@ public class PictureSinglelActivity extends BaseActivity {
 
     @Override
     protected void initViews() {
+        viewPager.setPageMargin(30);
+        viewPager.setOffscreenPageLimit(4);
         viewPager.setAdapter(new SamplePagerAdapter());
         viewPager.setCurrentItem(position);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -74,7 +79,15 @@ public class PictureSinglelActivity extends BaseActivity {
         @Override
         public View instantiateItem(ViewGroup container, int position) {
             PhotoView photoView = new PhotoView(container.getContext());
-            ImageLoader.getInstance().load(mContext, imagCollectionBeenList.get(position), photoView);
+//            ImageLoader.getInstance().load(mContext, imagCollectionBeenList.get(position), photoView);
+            Glide.with(mContext)
+                    .load(imagCollectionBeenList.get(position))
+                    .thumbnail(0.1f)
+                    .priority(Priority.HIGH)
+                    .placeholder(R.drawable.ic_launcher_round)
+                    .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                    .dontAnimate()
+                    .into(photoView);
 
             // Now just add PhotoView to ViewPager and return it
             container.addView(photoView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);

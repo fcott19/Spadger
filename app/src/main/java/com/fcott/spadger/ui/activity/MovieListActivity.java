@@ -192,7 +192,7 @@ public class MovieListActivity extends BaseActivity implements PageController.Ob
             cacheTag = TAG + "ACTORID" + id + String.valueOf(currentPage);
         } else if ((type.equals(Config.typeClass) && classId != null) || (type.equals(Config.searchTypeClass) && searchData != null)) {
             String id;
-            if(actorId != null)
+            if(classId != null)
                 id = classId;
             else
                 id = searchData;

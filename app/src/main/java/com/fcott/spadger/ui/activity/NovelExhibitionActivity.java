@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fcott.spadger.App;
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.bean.NovelListBean;
 import com.fcott.spadger.model.bean.NovelListItemBean;
@@ -22,10 +23,12 @@ import com.fcott.spadger.model.http.MainPageService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
 import com.fcott.spadger.ui.adapter.NovelListAdapter;
 import com.fcott.spadger.ui.adapter.baseadapter.OnItemClickListeners;
+import com.fcott.spadger.ui.adapter.baseadapter.OnItemLongClickListener;
 import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
 import com.fcott.spadger.ui.fragment.MenuFragment;
 import com.fcott.spadger.utils.ACache;
 import com.fcott.spadger.utils.JsoupUtil;
+import com.fcott.spadger.utils.glideutils.ImageLoader;
 
 import java.util.ArrayList;
 
@@ -125,6 +128,14 @@ public class NovelExhibitionActivity extends BaseActivity {
                 startActivity(intent);
             }
         });
+        adapter.setItemLongClickListener(new OnItemLongClickListener<NovelListItemBean>() {
+            @Override
+            public void onItemLongClick(ViewHolder viewHolder, NovelListItemBean data, int position) {
+                perLoadImage(data.getUrl());
+                Toast.makeText(mContext,"已经开始预加载",Toast.LENGTH_SHORT).show();
+            }
+        });
+
         final LinearLayoutManager layoutManager = new LinearLayoutManager(NovelExhibitionActivity.this);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         layoutManager.setAutoMeasureEnabled(true);
@@ -186,6 +197,31 @@ public class NovelExhibitionActivity extends BaseActivity {
         }
     }
 
+    private void perLoadImage(String url){
+        RetrofitUtils.getInstance().create1(MainPageService.class)
+                .getData(url)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<String>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.w("response", e.toString());
+                    }
+
+                    @Override
+                    public void onNext(String s) {
+                        ArrayList<String> dataList = JsoupUtil.parsePictureDetial(s);
+                        for (String string : dataList) {
+                            ImageLoader.getInstance().preLoad(App.getInstance().getApplicationContext(), string);
+                        }
+                    }
+                });
+    }
     //请求数据，更新界面
     private void requestData(final String url) {
         ACache mCache = ACache.get(NovelExhibitionActivity.this.getApplicationContext());
