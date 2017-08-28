@@ -25,10 +25,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ui.activity.NovelDetialActivity"
+            android:name=".ui.activity.kv.NovelDetialActivity"
             android:configChanges="orientation|screenSize|keyboardHidden" />
-        <activity android:name=".ui.activity.VedioExhibitionActivity" />
-        <activity android:name=".ui.activity.NovelExhibitionActivity" />
+        <activity android:name=".ui.activity.kv.VedioExhibitionActivity" />
+        <activity android:name=".ui.activity.kv.NovelExhibitionActivity" />
         <activity
             android:name=".ui.activity.MyVideoActivity"
             android:alwaysRetainTaskState="true"
@@ -42,39 +42,31 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.activity.PictureDetailActivity" />
+        <activity android:name=".ui.activity.kv.PictureDetailActivity" />
         <activity
-            android:name=".ui.activity.PictureSinglelActivity"
+            android:name=".ui.activity.kv.PictureSinglelActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-        <activity android:name=".ui.activity.KvMainActivity" />
-
-        <activity android:name=".ui.activity.LookMovieActivity" />
-        <activity android:name=".ui.activity.MovieActorActivity" />
-        <activity android:name=".ui.activity.MovieListActivity" />
+        <activity android:name=".ui.activity.kv.KvMainActivity" />
+        <activity android:name=".ui.activity.look.LookMovieActivity" />
+        <activity android:name=".ui.activity.look.MovieActorActivity" />
+        <activity android:name=".ui.activity.look.MovieListActivity" />
         <activity
-            android:name=".ui.activity.MovieDetialActivity"
+            android:name=".ui.activity.look.MovieDetialActivity"
             android:alwaysRetainTaskState="true"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="false"
             android:hardwareAccelerated="true"
-            android:launchMode="singleTask"
-            android:configChanges="orientation|screenSize|keyboardHidden" />
-        <activity android:name=".ui.activity.TokenCheckActivity" />
-        <activity android:name=".ui.activity.MovieClassActivity" />
-        <activity android:name=".ui.activity.MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:launchMode="singleTask" />
+        <activity android:name=".ui.activity.look.TokenCheckActivity" />
+        <activity android:name=".ui.activity.look.MovieClassActivity" />
+        <activity android:name=".ui.activity.look.SearchActivity" />
+        <activity android:name=".ui.activity.SettingActivity" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity android:name=".ui.activity.SearchActivity" />
-        <activity android:name=".ui.activity.SettingActivity"/>
-
-        <!--必须配置-->
+        <!-- 必须配置 -->
         <activity
             android:name="com.tencent.bugly.beta.ui.BetaActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:theme="@android:style/Theme.Translucent"/>
+            android:theme="@android:style/Theme.Translucent" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -83,9 +75,17 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"/>
-
+                android:resource="@xml/provider_paths" />
         </provider>
+
+        <activity android:name=".ui.activity.TestActivity"></activity>
+        <activity android:name=".ui.activity.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

@@ -1,4 +1,4 @@
-package com.fcott.spadger.ui.activity;
+package com.fcott.spadger.ui.activity.kv;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,8 +12,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.fcott.spadger.R;
+import com.fcott.spadger.ui.activity.BaseActivity;
 import com.fcott.spadger.ui.widget.HackyViewPager;
-import com.fcott.spadger.utils.glideutils.ImageLoader;
 
 import java.util.ArrayList;
 

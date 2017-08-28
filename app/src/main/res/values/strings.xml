@@ -15,6 +15,7 @@
     <string name="cancel_collection">取消收藏</string>
     <string name="no_collection">没有收藏电影</string>
     <string name="prohibit_no_wifi">非wifi环境自动退出APP</string>
+    <string name="auto_per_load">自动预加载</string>
 
     <string name="channel">A</string>
     <string name="actor">B</string>

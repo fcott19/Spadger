@@ -1,4 +1,4 @@
-package com.fcott.spadger.ui.activity;
+package com.fcott.spadger.ui.activity.look;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -26,6 +26,7 @@ import com.fcott.spadger.model.bean.MovieInfoBean;
 import com.fcott.spadger.model.bean.MoviePlayBean;
 import com.fcott.spadger.model.http.LookMovieService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
+import com.fcott.spadger.ui.activity.BaseActivity;
 import com.fcott.spadger.utils.GeneralSettingUtil;
 import com.fcott.spadger.utils.db.DBManager;
 import com.fcott.spadger.utils.glideutils.ImageLoader;

@@ -1,4 +1,4 @@
-package com.fcott.spadger.ui.activity;
+package com.fcott.spadger.ui.activity.look;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,16 +11,18 @@ import android.view.View;
 
 import com.fcott.spadger.Config;
 import com.fcott.spadger.R;
-import com.fcott.spadger.model.bean.MovieClassBean;
+import com.fcott.spadger.model.bean.ActorBean;
 import com.fcott.spadger.model.http.LookMovieService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
-import com.fcott.spadger.ui.adapter.MovieClassAdapter;
+import com.fcott.spadger.ui.activity.BaseActivity;
+import com.fcott.spadger.ui.adapter.ActorAdapter;
 import com.fcott.spadger.ui.adapter.baseadapter.OnItemClickListeners;
 import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
 import com.fcott.spadger.ui.widget.PageController;
 import com.fcott.spadger.utils.ACache;
 import com.fcott.spadger.utils.GsonUtil;
 import com.fcott.spadger.utils.NativeUtil;
+import com.fcott.spadger.utils.glideutils.ImageLoader;
 
 import java.util.ArrayList;
 
@@ -32,18 +34,18 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class MovieClassActivity extends BaseActivity implements PageController.ObserverPageListener {
-    public static final String TAG = MovieClassActivity.class.getSimpleName();
+public class MovieActorActivity extends BaseActivity implements PageController.ObserverPageListener{
+    public static final String TAG = MovieActorActivity.class.getSimpleName();
 
-    private MovieClassAdapter movieClassAdapter;
     private static final int pageSize = 60;
-    private Subscription subscription;
     private String cacheTag;
+    private ActorAdapter actorAdapter;
+    private Subscription subscription;
 
-    @Bind(R.id.rcy_class)
-    public RecyclerView recyclerView;
     @Bind(R.id.contain)
-    public View contain;
+    View contain;
+    @Bind(R.id.rcy_actor)
+    public RecyclerView recyclerView;
     @Bind(R.id.rl_pagecontrol)
     public PageController pageController;
 
@@ -54,13 +56,14 @@ public class MovieClassActivity extends BaseActivity implements PageController.O
 
     @Override
     protected int getContentViewLayoutID() {
-        return R.layout.activity_movie_class;
+        return R.layout.activity_actor;
     }
 
     @Override
     protected void getBundleExtras(Bundle bundle) {
 
     }
+
     @Override
     public boolean onSupportNavigateUp() {
         finish();
@@ -73,27 +76,27 @@ public class MovieClassActivity extends BaseActivity implements PageController.O
         ActionBar mActionBar=getSupportActionBar();
         mActionBar.setHomeButtonEnabled(true);
         mActionBar.setDisplayHomeAsUpEnabled(true);
-        mActionBar.setTitle("类型");
+        mActionBar.setTitle("演员");
 
         pageController.setObserverPageListener(this);
-        movieClassAdapter = new MovieClassAdapter(MovieClassActivity.this, new ArrayList<MovieClassBean.MessageBean.DataBean>(), false);
-        movieClassAdapter.setOnItemClickListener(new OnItemClickListeners<MovieClassBean.MessageBean.DataBean>() {
+        actorAdapter = new ActorAdapter(MovieActorActivity.this, new ArrayList<ActorBean.MessageBean.DataBean>(), false);
+        actorAdapter.setOnItemClickListener(new OnItemClickListeners<ActorBean.MessageBean.DataBean>() {
             @Override
-            public void onItemClick(ViewHolder viewHolder, MovieClassBean.MessageBean.DataBean data, int position) {
+            public void onItemClick(ViewHolder viewHolder, ActorBean.MessageBean.DataBean data, int position) {
                 Intent intent = new Intent();
-                intent.setClass(MovieClassActivity.this, MovieListActivity.class);
+                intent.setClass(MovieActorActivity.this, MovieListActivity.class);
                 Bundle bundle = new Bundle();
-                bundle.putString("CLASSID", data.getID());
-                bundle.putString("TYPE", Config.typeClass);
+                bundle.putString("ACTORID", data.getID());
+                bundle.putString("TYPE", Config.typeActor);
                 intent.putExtras(bundle);
                 startActivity(intent);
             }
         });
 
-        final LinearLayoutManager layoutManager = new GridLayoutManager(MovieClassActivity.this, 2);
+        final LinearLayoutManager layoutManager = new GridLayoutManager(MovieActorActivity.this, 2);
         layoutManager.setAutoMeasureEnabled(true);
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(movieClassAdapter);
+        recyclerView.setAdapter(actorAdapter);
         requestData(1);
     }
 
@@ -106,14 +109,14 @@ public class MovieClassActivity extends BaseActivity implements PageController.O
             subscription.unsubscribe();
 
         boolean needUpdate = NativeUtil.needUpdate(TAG);
-        cacheTag = TAG + "CLASS" + currentPage;
-        ACache mCache = ACache.get(MovieClassActivity.this.getApplicationContext());
+        cacheTag = TAG + "ACTOR" + currentPage;
+        ACache mCache = ACache.get(MovieActorActivity.this.getApplicationContext());
         //取出缓存
         String value = mCache.getAsString(cacheTag);
         //显示缓存
         if (!TextUtils.isEmpty(value) && hasUpdate) {
-            MovieClassBean movieClassBean = GsonUtil.fromJson(value, MovieClassBean.class);
-            movieClassAdapter.setNewData(movieClassBean.getMessage().getData());
+            ActorBean actorBean = GsonUtil.fromJson(value, ActorBean.class);
+            actorAdapter.setNewData(actorBean.getMessage().getData());
         } else if (hasUpdate && needUpdate) {
             toggleShowLoading(true);
         }
@@ -123,12 +126,11 @@ public class MovieClassActivity extends BaseActivity implements PageController.O
                     .add("PageIndex", String.valueOf(currentPage))
                     .add("PageSize", String.valueOf(pageSize))
                     .build();
-
             subscription = RetrofitUtils.getInstance().create(LookMovieService.class)
-                    .requestClass(body)
+                    .requestActor(body)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Subscriber<MovieClassBean>() {
+                    .subscribe(new Subscriber<ActorBean>() {
                         @Override
                         public void onCompleted() {
 
@@ -140,7 +142,7 @@ public class MovieClassActivity extends BaseActivity implements PageController.O
                         }
 
                         @Override
-                        public void onNext(MovieClassBean bean) {
+                        public void onNext(ActorBean bean) {
                             if (hasUpdate){
                                 if(bean.getResult() != 1){
                                     toggleShowError("请求出错");
@@ -150,14 +152,16 @@ public class MovieClassActivity extends BaseActivity implements PageController.O
                                     return;
                                 }else {
                                     toggleShowLoading(false);
-                                    movieClassAdapter.setNewData(bean.getMessage().getData());
+                                    actorAdapter.setNewData(bean.getMessage().getData());
                                 }
                             }
-
                             pageController.setMaxPageIndex(bean.getMessage().getPageCount());
                             //缓存
-                            ACache aCache = ACache.get(MovieClassActivity.this.getApplicationContext());
+                            ACache aCache = ACache.get(MovieActorActivity.this.getApplicationContext());
                             aCache.put(cacheTag, GsonUtil.toJson(bean));
+                            for (ActorBean.MessageBean.DataBean bean1 : bean.getMessage().getData()) {
+                                ImageLoader.getInstance().preLoad(MovieActorActivity.this, bean1.getPic());
+                            }
 
                             if (currentPage == pageController.getCurrentPageIndex()) {
                                 int nextPage = currentPage + 1;
@@ -169,14 +173,14 @@ public class MovieClassActivity extends BaseActivity implements PageController.O
     }
 
     @Override
-    public void goPage(int page) {
-        requestData(page);
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         if (subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
+    }
+
+    @Override
+    public void goPage(int page) {
+        requestData(page);
     }
 }

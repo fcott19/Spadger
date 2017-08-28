@@ -1,4 +1,4 @@
-package com.fcott.spadger.ui.activity;
+package com.fcott.spadger.ui.activity.kv;
 
 import android.os.Build;
 import android.os.Bundle;

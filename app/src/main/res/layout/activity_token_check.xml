@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/contain"
-    tools:context="com.fcott.spadger.ui.activity.TokenCheckActivity">
+    tools:context="com.fcott.spadger.ui.activity.look.TokenCheckActivity">
 
     <EditText
         android:id="@+id/tv_token"

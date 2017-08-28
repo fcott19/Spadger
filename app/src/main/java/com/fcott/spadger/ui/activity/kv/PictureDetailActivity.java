@@ -1,4 +1,4 @@
-package com.fcott.spadger.ui.activity;
+package com.fcott.spadger.ui.activity.kv;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,6 +11,7 @@ import android.view.View;
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.http.MainPageService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
+import com.fcott.spadger.ui.activity.BaseActivity;
 import com.fcott.spadger.ui.adapter.PictureAdapter;
 import com.fcott.spadger.ui.adapter.baseadapter.OnItemClickListeners;
 import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
@@ -24,9 +25,6 @@ import butterknife.Bind;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
-
-import static com.fcott.spadger.ui.activity.NovelExhibitionActivity.NOVEL_DETIAL_TITLE;
-import static com.fcott.spadger.ui.activity.NovelExhibitionActivity.NOVEL_DETIAL_URL;
 
 public class PictureDetailActivity extends BaseActivity {
     public static final String TAG = PictureDetailActivity.class.getSimpleName();
@@ -52,8 +50,8 @@ public class PictureDetailActivity extends BaseActivity {
 
     @Override
     protected void getBundleExtras(Bundle bundle) {
-        url = bundle.getString(NOVEL_DETIAL_URL);
-        title = bundle.getString(NOVEL_DETIAL_TITLE);
+        url = bundle.getString(NovelExhibitionActivity.NOVEL_DETIAL_URL);
+        title = bundle.getString(NovelExhibitionActivity.NOVEL_DETIAL_TITLE);
     }
 
     @Override

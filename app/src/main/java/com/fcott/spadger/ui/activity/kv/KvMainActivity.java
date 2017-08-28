@@ -1,15 +1,16 @@
-package com.fcott.spadger.ui.activity;
+package com.fcott.spadger.ui.activity.kv;
 
+import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.os.Bundle;
-import android.util.Log;
+import android.view.View;
 
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.bean.MenuBean;
 import com.fcott.spadger.model.http.MainPageService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
+import com.fcott.spadger.ui.activity.BaseActivity;
 import com.fcott.spadger.ui.adapter.ViewPagerAdapter;
 import com.fcott.spadger.ui.fragment.MenuFragment;
 import com.fcott.spadger.utils.JsoupUtil;
@@ -23,11 +24,14 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class KvMainActivity extends BaseActivity {
+public class KvMainActivity extends BaseActivity{
+    public static final String TAG = KvMainActivity.class.getSimpleName();
     @Bind(R.id.vp_news)
     ViewPager vp_news;
     @Bind(R.id.tabLayout)
     TabLayout tabLayout;
+    @Bind(R.id.contain)
+    View contain;
 
     private ViewPagerAdapter pagerAdapter;
     private List<String> titles;
@@ -44,7 +48,14 @@ public class KvMainActivity extends BaseActivity {
     }
 
     @Override
+    protected View getLoadingTargetView() {
+        return contain;
+    }
+
+    @Override
     protected void initViews() {
+
+        toggleShowLoading(true);
         RetrofitUtils.getInstance().create1(MainPageService.class)
                 .getMainPage("")
                 .subscribeOn(Schedulers.io())
@@ -52,17 +63,22 @@ public class KvMainActivity extends BaseActivity {
                 .subscribe(new Subscriber<String>() {
                     @Override
                     public void onCompleted() {
-                        Log.w("response","completed");
-                        requestComplete(null);
+
                     }
                     @Override
                     public void onError(Throwable e) {
-                        Log.w("response",e.toString());
+                        toggleShowError("请求出错,点击重试", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                initViews();
+                            }
+                        });
                     }
 
                     @Override
                     public void onNext(String s) {
                         requestComplete(JsoupUtil.parseMenu(s));
+                        toggleShowLoading(false);
                     }
                 });
     }
@@ -71,6 +87,7 @@ public class KvMainActivity extends BaseActivity {
         if(menuBean == null){
             return;
         }
+
         titles = Arrays.asList(getResources().getStringArray(R.array.news));
         fragmentList = new ArrayList<>();
         fragmentList.add(MenuFragment.newInstance(menuBean.getPicList(),menuBean.getNewpicList(), MenuFragment.PICTURE));
@@ -99,5 +116,4 @@ public class KvMainActivity extends BaseActivity {
             }
         });
     }
-
 }

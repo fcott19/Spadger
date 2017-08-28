@@ -1,4 +1,4 @@
-package com.fcott.spadger.ui.activity;
+package com.fcott.spadger.ui.activity.kv;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,12 +15,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.fcott.spadger.App;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.bean.NovelListBean;
 import com.fcott.spadger.model.bean.NovelListItemBean;
 import com.fcott.spadger.model.http.MainPageService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
+import com.fcott.spadger.ui.activity.BaseActivity;
 import com.fcott.spadger.ui.adapter.NovelListAdapter;
 import com.fcott.spadger.ui.adapter.baseadapter.OnItemClickListeners;
 import com.fcott.spadger.ui.adapter.baseadapter.OnItemLongClickListener;
@@ -28,7 +30,11 @@ import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
 import com.fcott.spadger.ui.fragment.MenuFragment;
 import com.fcott.spadger.utils.ACache;
 import com.fcott.spadger.utils.JsoupUtil;
+import com.fcott.spadger.utils.LogUtil;
 import com.fcott.spadger.utils.glideutils.ImageLoader;
+import com.fcott.spadger.utils.netstatus.NetChangeObserver;
+import com.fcott.spadger.utils.netstatus.NetStateReceiver;
+import com.fcott.spadger.utils.netstatus.NetUtils;
 
 import java.util.ArrayList;
 
@@ -39,8 +45,8 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 //小说展示界面，由于图片界面与此相同。故也是图片展示界面
-public class NovelExhibitionActivity extends BaseActivity {
-    private static final String ACACHE_TAG = "CACHE_NOVEL_E";
+public class NovelExhibitionActivity extends BaseActivity implements NetChangeObserver {
+    public static final String ACACHE_TAG = "CACHE_NOVEL_E";
     public static final String NOVEL_DETIAL_URL = "DETIAL_URL";
     public static final String NOVEL_DETIAL_TITLE = "DETIAL_TITLE";
 
@@ -50,10 +56,13 @@ public class NovelExhibitionActivity extends BaseActivity {
     private NovelListAdapter adapter = null;
     private NovelListBean novelListBean = null;
 
+    @Bind(R.id.nest)
+    public View nest;
     @Bind(R.id.rv_vedio_list)
     public RecyclerView recyclerView;
     @Bind(R.id.et_page_number)
     public EditText etPageNumber;
+
     @OnClick({R.id.tv_first_page, R.id.tv_pre_page, R.id.tv_next_page, R.id.tv_last_page})
     public void onClick(View view) {
         if (novelListBean == null) {
@@ -93,7 +102,7 @@ public class NovelExhibitionActivity extends BaseActivity {
 
     @Override
     protected View getLoadingTargetView() {
-        return recyclerView;
+        return nest;
     }
 
     @Override
@@ -110,20 +119,23 @@ public class NovelExhibitionActivity extends BaseActivity {
 
     @Override
     protected void initViews() {
+        //注册网络监听
+        NetStateReceiver.registerObserver(this);
+
         //列表适配器
         adapter = new NovelListAdapter(NovelExhibitionActivity.this, new ArrayList<NovelListItemBean>(), false);
         adapter.setOnItemClickListener(new OnItemClickListeners<NovelListItemBean>() {
             @Override
-            public void onItemClick(ViewHolder viewHolder,NovelListItemBean data, int position) {
+            public void onItemClick(ViewHolder viewHolder, NovelListItemBean data, int position) {
                 Intent intent = new Intent();
-                if(tyep.equals(MenuFragment.NOVEL)){
-                    intent = new Intent(NovelExhibitionActivity.this,NovelDetialActivity.class);
-                }else {
-                    intent = new Intent(NovelExhibitionActivity.this,PictureDetailActivity.class);
+                if (tyep.equals(MenuFragment.NOVEL)) {
+                    intent = new Intent(NovelExhibitionActivity.this, NovelDetialActivity.class);
+                } else {
+                    intent = new Intent(NovelExhibitionActivity.this, PictureDetailActivity.class);
                 }
                 Bundle bundle = new Bundle();
-                bundle.putString(NOVEL_DETIAL_URL,data.getUrl());
-                bundle.putString(NOVEL_DETIAL_TITLE,data.getTitle());
+                bundle.putString(NOVEL_DETIAL_URL, data.getUrl());
+                bundle.putString(NOVEL_DETIAL_TITLE, data.getTitle());
                 intent.putExtras(bundle);
                 startActivity(intent);
             }
@@ -131,8 +143,8 @@ public class NovelExhibitionActivity extends BaseActivity {
         adapter.setItemLongClickListener(new OnItemLongClickListener<NovelListItemBean>() {
             @Override
             public void onItemLongClick(ViewHolder viewHolder, NovelListItemBean data, int position) {
-                perLoadImage(data.getUrl());
-                Toast.makeText(mContext,"已经开始预加载",Toast.LENGTH_SHORT).show();
+                ImageLoader.getInstance().perLoadImage(NovelExhibitionActivity.this,data.getUrl());
+                Toast.makeText(mContext, "开始加载本图集", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -197,31 +209,7 @@ public class NovelExhibitionActivity extends BaseActivity {
         }
     }
 
-    private void perLoadImage(String url){
-        RetrofitUtils.getInstance().create1(MainPageService.class)
-                .getData(url)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<String>() {
-                    @Override
-                    public void onCompleted() {
 
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.w("response", e.toString());
-                    }
-
-                    @Override
-                    public void onNext(String s) {
-                        ArrayList<String> dataList = JsoupUtil.parsePictureDetial(s);
-                        for (String string : dataList) {
-                            ImageLoader.getInstance().preLoad(App.getInstance().getApplicationContext(), string);
-                        }
-                    }
-                });
-    }
     //请求数据，更新界面
     private void requestData(final String url) {
         ACache mCache = ACache.get(NovelExhibitionActivity.this.getApplicationContext());
@@ -266,7 +254,40 @@ public class NovelExhibitionActivity extends BaseActivity {
                         adapter.setNewData(novelListBean.getNovelList());
                         //设置当前页数
                         etPageNumber.setText(novelListBean.getPageControlBean().getCurrentPage());
+
+                        //wifi环境下，预加载图片
+                        if (NetUtils.isWifiConnected(NovelExhibitionActivity.this)) {
+                            Toast.makeText(NovelExhibitionActivity.this,getString(R.string.auto_per_load),Toast.LENGTH_SHORT).show();
+                            for (NovelListItemBean bean : novelListBean.getNovelList()) {
+                                LogUtil.log(bean.getUrl());
+                                ImageLoader.getInstance().perLoadImage(NovelExhibitionActivity.this,bean.getUrl());
+                            }
+                        }
                     }
                 });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //反注册网络监听
+        NetStateReceiver.removeRegisterObserver(this);
+    }
+
+    @Override
+    public void onNetConnected(NetUtils.NetType type) {
+        if(type == NetUtils.NetType.WIFI){
+            RequestManager requestManager = Glide.with(NovelExhibitionActivity.this);
+            if(requestManager.isPaused()){
+                requestManager.resumeRequests();
+            }
+        }else {
+            Glide.with(NovelExhibitionActivity.this).pauseRequests();
+        }
+    }
+
+    @Override
+    public void onNetDisConnect() {
+        Glide.with(NovelExhibitionActivity.this).pauseRequests();
     }
 }

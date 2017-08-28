@@ -12,16 +12,14 @@ import com.fcott.spadger.R;
 import com.fcott.spadger.model.bean.ItemBean;
 import com.fcott.spadger.model.http.MainPageService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
-import com.fcott.spadger.ui.activity.NovelDetialActivity;
-import com.fcott.spadger.ui.activity.NovelExhibitionActivity;
-import com.fcott.spadger.ui.activity.PictureDetailActivity;
-import com.fcott.spadger.ui.activity.VedioExhibitionActivity;
+import com.fcott.spadger.ui.activity.kv.NovelDetialActivity;
+import com.fcott.spadger.ui.activity.kv.NovelExhibitionActivity;
+import com.fcott.spadger.ui.activity.kv.PictureDetailActivity;
+import com.fcott.spadger.ui.activity.kv.VedioExhibitionActivity;
 import com.fcott.spadger.ui.adapter.MenuAdapter;
 import com.fcott.spadger.ui.adapter.baseadapter.OnItemClickListeners;
 import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
-import com.fcott.spadger.utils.GsonUtil;
 import com.fcott.spadger.utils.JsoupUtil;
-import com.fcott.spadger.utils.LogUtil;
 import com.tencent.smtt.sdk.TbsVideo;
 
 import java.util.ArrayList;
@@ -31,10 +29,10 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-import static com.fcott.spadger.ui.activity.NovelExhibitionActivity.NOVEL_DETIAL_TITLE;
-import static com.fcott.spadger.ui.activity.NovelExhibitionActivity.NOVEL_DETIAL_URL;
+import static com.fcott.spadger.ui.activity.kv.NovelExhibitionActivity.NOVEL_DETIAL_TITLE;
+import static com.fcott.spadger.ui.activity.kv.NovelExhibitionActivity.NOVEL_DETIAL_URL;
 
-public class MenuFragment extends BaseFragment {
+public class MenuFragment extends BaseFragment{
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private static final String ARG_PARAM3 = "param3";
@@ -85,6 +83,7 @@ public class MenuFragment extends BaseFragment {
             newData = getArguments().getParcelableArrayList(ARG_PARAM2);
             TAG = getArguments().getString(ARG_PARAM3);
         }
+
         //设置标题
         if (TAG.equals(VEDIO)) {
             tvTitle.setText(getResources().getString(R.string.new_video));

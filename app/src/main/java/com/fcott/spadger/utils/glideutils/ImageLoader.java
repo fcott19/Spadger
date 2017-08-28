@@ -13,9 +13,17 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.fcott.spadger.App;
 import com.fcott.spadger.R;
+import com.fcott.spadger.model.http.MainPageService;
+import com.fcott.spadger.model.http.utils.RetrofitUtils;
+import com.fcott.spadger.utils.JsoupUtil;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
+
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by fcott on 2016/9/19.
@@ -109,4 +117,34 @@ public class ImageLoader {
         }
         return null;
     }
+
+    public void perLoadImage(String url){
+        perLoadImage(App.getInstance().getApplicationContext(),url);
+    }
+    public void perLoadImage(final Context context, String url){
+        RetrofitUtils.getInstance().create1(MainPageService.class)
+                .getData(url)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<String>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.w("response", e.toString());
+                    }
+
+                    @Override
+                    public void onNext(String s) {
+                        ArrayList<String> dataList = JsoupUtil.parsePictureDetial(s);
+                        for (String string : dataList) {
+                            ImageLoader.getInstance().preLoad(context, string);
+                        }
+                    }
+                });
+    }
+
 }

@@ -14,6 +14,7 @@ public class GeneralSettingUtil {
     public static final String MOVIEMODE = "movieMode";
     public static final String PROHIBIT_NO_WIFI = "PROHIBIT_NO_WIFI";
     public static final String WINDOW_MOVIE = "WINDOW_MOVIE";
+    public static final String PER_LOAD = "PER_LOAD";
 
     public static void setOpenWebMoviewMode(boolean openWebMovieMode){
         SharedPreferences.Editor sharedata = App.getInstance().getSharedPreferences(Config.SP_GENERAL_SETTING, Context.MODE_PRIVATE).edit();
@@ -46,5 +47,16 @@ public class GeneralSettingUtil {
     public static boolean isWindowMovie(){
         SharedPreferences pref = App.getInstance().getSharedPreferences(Config.SP_GENERAL_SETTING, Context.MODE_PRIVATE);
         return pref.getBoolean(WINDOW_MOVIE, false);
+    }
+
+    public static void setPerLoad(boolean perLoad){
+        SharedPreferences.Editor sharedata = App.getInstance().getSharedPreferences(Config.SP_GENERAL_SETTING, Context.MODE_PRIVATE).edit();
+        sharedata.putBoolean(PER_LOAD,perLoad);
+        sharedata.commit();
+    }
+
+    public static boolean isPerLoad(){
+        SharedPreferences pref = App.getInstance().getSharedPreferences(Config.SP_GENERAL_SETTING, Context.MODE_PRIVATE);
+        return pref.getBoolean(PER_LOAD, true);
     }
 }

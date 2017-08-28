@@ -1,4 +1,4 @@
-package com.fcott.spadger.ui.activity;
+package com.fcott.spadger.ui.activity.look;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,6 +17,7 @@ import com.fcott.spadger.model.bean.ActorBean;
 import com.fcott.spadger.model.bean.MovieClassBean;
 import com.fcott.spadger.model.http.LookMovieService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
+import com.fcott.spadger.ui.activity.BaseActivity;
 import com.fcott.spadger.utils.ACache;
 import com.fcott.spadger.utils.GsonUtil;
 import com.fcott.spadger.utils.LogUtil;

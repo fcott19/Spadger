@@ -92,11 +92,14 @@ public abstract class BaseActivity extends AppCompatActivity{
     }
 
     protected void toggleShowError(String msg) {
+        toggleShowError(msg,null);
+    }
+    protected void toggleShowError(String msg,View.OnClickListener onClickListener) {
         if (null == mVaryViewHelperController) {
             throw new IllegalArgumentException("You must return a right target view for loading");
         }
 
-        mVaryViewHelperController.showEmpty(msg,null);
+        mVaryViewHelperController.showEmpty(msg,onClickListener);
     }
 
 }

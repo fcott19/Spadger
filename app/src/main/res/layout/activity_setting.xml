@@ -24,6 +24,12 @@
         android:text="非wifi环境下自动退出APP"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+    <Switch
+        android:id="@+id/switch_perload"
+        android:padding="10dp"
+        android:text="wifi环境自动预加载"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
     <Button
         android:visibility="gone"
         android:onClick="clearVideoCache"

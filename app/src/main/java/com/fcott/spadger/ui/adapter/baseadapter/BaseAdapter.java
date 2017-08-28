@@ -92,14 +92,16 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
         viewHolder.getConvertView().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mItemClickListener.onItemClick(viewHolder, mDatas.get(position), position);
+                if(mItemClickListener != null)
+                    mItemClickListener.onItemClick(viewHolder, mDatas.get(position), position);
             }
         });
 
         viewHolder.getConvertView().setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                mItemLongClickListener.onItemLongClick(viewHolder, mDatas.get(position), position);
+                if(mItemLongClickListener != null)
+                    mItemLongClickListener.onItemLongClick(viewHolder, mDatas.get(position), position);
                 return true;
             }
         });

@@ -18,5 +18,16 @@
         android:onClick="goMovie"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+    <Button
+        android:text="设置"
+        android:onClick="goSetting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <Button
+        android:visibility="gone"
+        android:text="测试"
+        android:onClick="goTest"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

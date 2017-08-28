@@ -9,6 +9,7 @@ import com.fcott.spadger.model.bean.NovelListItemBean;
 import com.fcott.spadger.model.bean.PageControlBean;
 import com.fcott.spadger.model.bean.VedioListBean;
 import com.fcott.spadger.model.bean.VedioListItemBean;
+import com.fcott.spadger.ui.activity.TestActivity;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -16,12 +17,68 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+
+import static com.tencent.tinker.android.dex.util.FileUtils.readStream;
 
 /**
  * Created by Administrator on 2016/9/27.
  */
 public class JsoupUtil {
+
+    public static void parseWangxiao(String response, TestActivity.loadCallBack loadCallBack){
+        Document document = Jsoup.parse(response);
+        Elements elements = document.getElementById("ClassHoursList").getElementsByClass("con-box");
+        String title = null;
+        for(Element e:elements){
+            if(e.getElementsByClass("con-box").size() != 1){
+                title = e.getElementsByClass("row").get(0).select("span").get(0).text();
+            }else {
+                Elements elements1 = e.getElementsByClass("car");
+                LogUtil.log("小标题", e.getElementsByClass("row").get(0).select("span").get(0).text());
+                LogUtil.log("小地址",elements1.select("a").attr("href"));
+
+                try {
+                    requestImageGet(title.replace(" ","_").trim(),e.getElementsByClass("row").get(0).select("span").get(0).text().replace(" ","_").trim(),elements1.select("a").attr("href").replace(" ","_").trim(),loadCallBack);
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
+    }
+
+    // Get方式请求
+    public static void requestImageGet(String a,String b,String u,TestActivity.loadCallBack loadCallBack) throws Exception {
+        String path = "http://wap.wangxiao.cn"+u;
+        // 新建一个URL对象
+        URL url = new URL(path);
+        // 打开一个HttpURLConnection连接
+        HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
+        // 设置连接超时时间
+        urlConn.setConnectTimeout(5 * 1000);
+        // 开始连接
+        urlConn.connect();
+        // 判断请求是否成功
+        if (urlConn.getResponseCode() == 200) {
+            // 获取返回的数据
+            byte[] data = readStream(urlConn.getInputStream());
+            String s =  new String(data, "UTF-8");
+            Document document = Jsoup.parse(s);
+            Elements elements = document.getElementById("divImg").select("img");
+            int i = 0;
+            for(Element element:elements){
+                i++;
+                LogUtil.log(element.attr("src"));
+//                SDFileHelper helper = new SDFileHelper(App.getInstance());
+//                helper.savePicture(a,b,i+"handout.jpg",element.attr("src"));
+                loadCallBack.success(a,b,element.attr("src"),i+"handout.jpg");
+            }
+        }
+        // 关闭连接
+        urlConn.disconnect();
+    }
 
     /**
      * 解析菜单（导航）

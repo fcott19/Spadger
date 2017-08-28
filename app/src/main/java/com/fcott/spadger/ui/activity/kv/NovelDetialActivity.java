@@ -1,37 +1,28 @@
-package com.fcott.spadger.ui.activity;
+package com.fcott.spadger.ui.activity.kv;
 
-import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.support.v4.widget.NestedScrollView;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.http.MainPageService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
+import com.fcott.spadger.ui.activity.BaseActivity;
 import com.fcott.spadger.utils.ACache;
 import com.fcott.spadger.utils.JsoupUtil;
 import com.tencent.smtt.sdk.WebSettings;
 import com.tencent.smtt.sdk.WebView;
-import com.tencent.smtt.sdk.WebViewClient;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 
 import butterknife.Bind;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
-
-import static com.fcott.spadger.ui.activity.NovelExhibitionActivity.NOVEL_DETIAL_TITLE;
-import static com.fcott.spadger.ui.activity.NovelExhibitionActivity.NOVEL_DETIAL_URL;
 
 public class NovelDetialActivity extends BaseActivity {
     private static final String ACACHE_TAG = "CACHE_NOVEL_D";
@@ -58,8 +49,8 @@ public class NovelDetialActivity extends BaseActivity {
 
     @Override
     protected void getBundleExtras(Bundle bundle) {
-        url = bundle.getString(NOVEL_DETIAL_URL);
-        title = bundle.getString(NOVEL_DETIAL_TITLE);
+        url = bundle.getString(NovelExhibitionActivity.NOVEL_DETIAL_URL);
+        title = bundle.getString(NovelExhibitionActivity.NOVEL_DETIAL_TITLE);
     }
 
     @Override

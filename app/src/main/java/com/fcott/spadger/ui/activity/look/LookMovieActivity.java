@@ -1,4 +1,4 @@
-package com.fcott.spadger.ui.activity;
+package com.fcott.spadger.ui.activity.look;
 
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +17,7 @@ import com.fcott.spadger.model.bean.ActorBean;
 import com.fcott.spadger.model.bean.MovieBean;
 import com.fcott.spadger.model.http.LookMovieService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
+import com.fcott.spadger.ui.activity.BaseActivity;
 import com.fcott.spadger.ui.adapter.MovieTypeAdapter;
 import com.fcott.spadger.ui.adapter.baseadapter.OnItemClickListeners;
 import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
@@ -43,7 +44,7 @@ public class LookMovieActivity extends BaseActivity implements NetChangeObserver
     public static final String TAG = LookMovieActivity.class.getSimpleName();
 
     private MovieTypeAdapter adapter = null;
-    private final String[] typeList = new String[]{"最新", "动漫", "有码", "中文", "演员", "类型" , "搜索","收藏","设置"};
+    private final String[] typeList = new String[]{"最新", "动漫", "有码", "中文", "演员", "类型" , "搜索","收藏"};
     private RequestBody requestBody;
     private Subscription subscription1,subscription2;
 
@@ -117,9 +118,6 @@ public class LookMovieActivity extends BaseActivity implements NetChangeObserver
                     case 7:
                         intent.setClass(LookMovieActivity.this, MovieListActivity.class);
                         bundle.putString("TYPE", Config.typeCollection);
-                        break;
-                    case 8:
-                        intent.setClass(LookMovieActivity.this, SettingActivity.class);
                         break;
                 }
                 bundle.putString("ID", id);
@@ -242,8 +240,6 @@ public class LookMovieActivity extends BaseActivity implements NetChangeObserver
                 requestManager.resumeRequests();
             }
         }else {
-            if(GeneralSettingUtil.isProhibitNoWifi())
-                App.getInstance().cleanActivity();
             Glide.with(LookMovieActivity.this).pauseRequests();
         }
     }

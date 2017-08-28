@@ -1,4 +1,4 @@
-package com.fcott.spadger.ui.activity;
+package com.fcott.spadger.ui.activity.look;
 
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +14,7 @@ import com.fcott.spadger.R;
 import com.fcott.spadger.model.bean.LoginBean;
 import com.fcott.spadger.model.http.LookMovieService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
+import com.fcott.spadger.ui.activity.BaseActivity;
 import com.fcott.spadger.utils.GsonUtil;
 import com.fcott.spadger.utils.LogUtil;
 
@@ -24,7 +25,7 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class TokenCheckActivity extends BaseActivity{
+public class TokenCheckActivity extends BaseActivity {
     public static final String TAG = TokenCheckActivity.class.getSimpleName();
 
     private RequestBody loginBody;

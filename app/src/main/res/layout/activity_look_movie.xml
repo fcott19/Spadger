@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.fcott.spadger.ui.activity.LookMovieActivity">
+    tools:context="com.fcott.spadger.ui.activity.look.LookMovieActivity">
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rcy_movie_type"
         android:layout_width="match_parent"

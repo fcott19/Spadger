@@ -20,6 +20,8 @@ public class SettingActivity extends BaseActivity {
     public Switch switchProhibitNoWifi;
     @Bind(R.id.switch_window_movie)
     public Switch switchWindowMovie;
+    @Bind(R.id.switch_perload)
+    public Switch switchPerLoad;
 
     @Override
     protected int getContentViewLayoutID() {
@@ -74,6 +76,14 @@ public class SettingActivity extends BaseActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 GeneralSettingUtil.setWindowMovie(isChecked);
+            }
+        });
+
+        switchPerLoad.setChecked(GeneralSettingUtil.isPerLoad());
+        switchPerLoad.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                GeneralSettingUtil.setPerLoad(isChecked);
             }
         });
     }

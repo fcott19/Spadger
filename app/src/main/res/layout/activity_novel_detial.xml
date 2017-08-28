@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/colorWhite"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".ui.activity.NovelDetialActivity">
+    tools:context=".ui.activity.kv.NovelDetialActivity">
 
     <LinearLayout
         android:id="@+id/ll_contain"

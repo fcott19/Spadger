@@ -1,4 +1,4 @@
-package com.fcott.spadger.ui.activity;
+package com.fcott.spadger.ui.activity.kv;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -19,13 +19,13 @@ import com.fcott.spadger.model.bean.VedioListBean;
 import com.fcott.spadger.model.bean.VedioListItemBean;
 import com.fcott.spadger.model.http.MainPageService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
+import com.fcott.spadger.ui.activity.BaseActivity;
 import com.fcott.spadger.ui.adapter.VedioListAdapter;
 import com.fcott.spadger.ui.adapter.baseadapter.OnItemClickListeners;
 import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
 import com.fcott.spadger.ui.fragment.MenuFragment;
 import com.fcott.spadger.utils.ACache;
 import com.fcott.spadger.utils.JsoupUtil;
-import com.fcott.spadger.utils.LogUtil;
 import com.tencent.smtt.sdk.TbsVideo;
 
 import java.util.ArrayList;
@@ -37,13 +37,15 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class VedioExhibitionActivity extends BaseActivity {
-    private static final String ACACHE_TAG = "CACHE_VEDIO";
+    public static final String ACACHE_TAG = "CACHE_VEDIO";
 
     private String title = "";//标题
     private String url = "";//地址URL
     private VedioListAdapter adapter = null;
     private VedioListBean vedioListBean = null;
 
+    @Bind(R.id.nest)
+    public View nest;
     @Bind(R.id.rv_vedio_list)
     public RecyclerView recyclerView;
     @Bind(R.id.et_page_number)
@@ -88,7 +90,7 @@ public class VedioExhibitionActivity extends BaseActivity {
 
     @Override
     protected View getLoadingTargetView() {
-        return recyclerView;
+        return nest;
     }
 
     @Override
