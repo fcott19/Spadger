@@ -14,7 +14,9 @@ import com.bumptech.glide.request.target.Target;
 import com.fcott.spadger.App;
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.http.MainPageService;
+import com.fcott.spadger.model.http.YirenService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
+import com.fcott.spadger.utils.ACache;
 import com.fcott.spadger.utils.JsoupUtil;
 
 import java.io.File;
@@ -23,6 +25,7 @@ import java.util.concurrent.ExecutionException;
 
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -78,8 +81,8 @@ public class ImageLoader {
         return null;
     }
 
-    public void preLoad(Context context,String url){
-        Glide.with(context)
+    public Target preLoad(Context context,String url){
+        return Glide.with(context)
                 .load(url)
                 .asBitmap()
                 .priority(Priority.NORMAL)
@@ -118,15 +121,61 @@ public class ImageLoader {
         return null;
     }
 
-    public void perLoadImage(String url){
-        perLoadImage(App.getInstance().getApplicationContext(),url);
-    }
-    public void perLoadImage(final Context context, String url){
-        RetrofitUtils.getInstance().create1(MainPageService.class)
+    private YirenService yirenService;
+    public void perLoadYirenImage(final Context context,final String url){
+        if(yirenService == null)
+            yirenService = RetrofitUtils.getInstance().create1(YirenService.class);
+        yirenService
                 .getData(url)
+                .map(new Func1<String, ArrayList<String>>() {
+                    @Override
+                    public ArrayList<String> call(String s) {
+                        ACache aCache = ACache.get(App.getInstance().getApplicationContext());
+                        aCache.put(url, s);
+                        ArrayList<String> dataList = JsoupUtil.parseYirenPic(s);
+                        return dataList;
+                    }
+                })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<String>() {
+                .subscribe(new Subscriber<ArrayList<String>>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.w("response---", e.toString());
+                    }
+
+                    @Override
+                    public void onNext(ArrayList<String> dataList) {
+                        for (String string : dataList) {
+                            ImageLoader.getInstance().preLoad(context, string);
+                        }
+                    }
+                });
+    }
+
+    private MainPageService mainPageService;
+    public void perLoadImage(final Context context,final String url){
+        if(mainPageService == null)
+            mainPageService = RetrofitUtils.getInstance().create1(MainPageService.class);
+        mainPageService
+                .getData(url)
+                .map(new Func1<String, ArrayList<String>>() {
+                    @Override
+                    public ArrayList<String> call(String s) {
+                        ACache aCache = ACache.get(App.getInstance().getApplicationContext());
+                        aCache.put(url, s);
+                        ArrayList<String> dataList = JsoupUtil.parseYirenPic(s);
+                        return dataList;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<ArrayList<String>>() {
                     @Override
                     public void onCompleted() {
 
@@ -138,13 +187,11 @@ public class ImageLoader {
                     }
 
                     @Override
-                    public void onNext(String s) {
-                        ArrayList<String> dataList = JsoupUtil.parsePictureDetial(s);
+                    public void onNext(ArrayList<String> dataList) {
                         for (String string : dataList) {
                             ImageLoader.getInstance().preLoad(context, string);
                         }
                     }
                 });
     }
-
 }

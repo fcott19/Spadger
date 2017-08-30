@@ -37,11 +37,13 @@ public class NetUtils {
 	}
 
 	public static boolean isWifiConnected(Context context) {
-		if (context != null) {
-			ConnectivityManager mConnectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-			NetworkInfo mWiFiNetworkInfo = mConnectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-			if (mWiFiNetworkInfo != null) {
-				return mWiFiNetworkInfo.isAvailable();
+		if(context != null){
+			ConnectivityManager connectivityManager = (ConnectivityManager) context
+					.getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
+			if (activeNetInfo != null
+					&& activeNetInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+				return true;
 			}
 		}
 		return false;

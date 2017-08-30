@@ -8,6 +8,7 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.fcott.spadger.Config;
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.bean.ItemBean;
 import com.fcott.spadger.model.http.MainPageService;
@@ -100,6 +101,7 @@ public class MenuFragment extends BaseFragment{
                 Intent intent = new Intent();
                 Bundle bundle = new Bundle();
                 if (TAG.equals(VEDIO)) {//电影
+                    bundle.putString("TYPE", null);
                     intent = new Intent(baseActivity, VedioExhibitionActivity.class);
                 } else if (TAG.equals(PICTURE)) {//图片
                     bundle.putString(TYPE, PICTURE);
@@ -131,8 +133,10 @@ public class MenuFragment extends BaseFragment{
                     return;
                 } else if (TAG.equals(PICTURE)) {
                     intent = new Intent(baseActivity, PictureDetailActivity.class);
+                    bundle.putString(Config.DATA_FROM,Config.DATA_FROM_KV);
                 } else if (TAG.equals(NOVEL)) {
                     intent = new Intent(baseActivity, NovelDetialActivity.class);
+                    bundle.putString(Config.DATA_FROM,Config.DATA_FROM_KV);
                 }
                 bundle.putString(NOVEL_DETIAL_URL, data.getUrl());
                 bundle.putString(NOVEL_DETIAL_TITLE, data.getTitle());

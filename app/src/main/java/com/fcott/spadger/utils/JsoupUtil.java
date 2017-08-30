@@ -9,7 +9,6 @@ import com.fcott.spadger.model.bean.NovelListItemBean;
 import com.fcott.spadger.model.bean.PageControlBean;
 import com.fcott.spadger.model.bean.VedioListBean;
 import com.fcott.spadger.model.bean.VedioListItemBean;
-import com.fcott.spadger.ui.activity.TestActivity;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -17,69 +16,137 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
-
-import static com.tencent.tinker.android.dex.util.FileUtils.readStream;
 
 /**
  * Created by Administrator on 2016/9/27.
  */
 public class JsoupUtil {
 
-    public static void parseWangxiao(String response, TestActivity.loadCallBack loadCallBack){
+    public static MenuBean parseYirenMenu(String response){
+        MenuBean menuBean = new MenuBean();
         Document document = Jsoup.parse(response);
-        Elements elements = document.getElementById("ClassHoursList").getElementsByClass("con-box");
-        String title = null;
-        for(Element e:elements){
-            if(e.getElementsByClass("con-box").size() != 1){
-                title = e.getElementsByClass("row").get(0).select("span").get(0).text();
-            }else {
-                Elements elements1 = e.getElementsByClass("car");
-                LogUtil.log("小标题", e.getElementsByClass("row").get(0).select("span").get(0).text());
-                LogUtil.log("小地址",elements1.select("a").attr("href"));
-
-                try {
-                    requestImageGet(title.replace(" ","_").trim(),e.getElementsByClass("row").get(0).select("span").get(0).text().replace(" ","_").trim(),elements1.select("a").attr("href").replace(" ","_").trim(),loadCallBack);
-                } catch (Exception e1) {
-                    e1.printStackTrace();
+        Elements elements = document.select(".menu").select(".mt5");
+        for(Element element:elements){
+            Elements elements1 = element.select("a");
+            String type = elements1.get(0).text();
+            elements1.remove(0);
+            if(type.equals("图片")){
+                for(Element ele:elements1){
+                    menuBean.getPicList().add(new ItemBean( ele.text(),ele.attr("href")));
+                }
+            }else if(type.equals("小说")){
+                for(Element ele:elements1){
+                    menuBean.getNovelList().add(new ItemBean( ele.text(),ele.attr("href")));
+                }
+            }else if(type.equals("电影")){
+                for(Element ele:elements1){
+                    menuBean.getVedioList().add(new ItemBean( ele.text(),ele.attr("href")));
                 }
             }
         }
+        return menuBean;
     }
 
-    // Get方式请求
-    public static void requestImageGet(String a,String b,String u,TestActivity.loadCallBack loadCallBack) throws Exception {
-        String path = "http://wap.wangxiao.cn"+u;
-        // 新建一个URL对象
-        URL url = new URL(path);
-        // 打开一个HttpURLConnection连接
-        HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
-        // 设置连接超时时间
-        urlConn.setConnectTimeout(5 * 1000);
-        // 开始连接
-        urlConn.connect();
-        // 判断请求是否成功
-        if (urlConn.getResponseCode() == 200) {
-            // 获取返回的数据
-            byte[] data = readStream(urlConn.getInputStream());
-            String s =  new String(data, "UTF-8");
-            Document document = Jsoup.parse(s);
-            Elements elements = document.getElementById("divImg").select("img");
-            int i = 0;
-            for(Element element:elements){
-                i++;
-                LogUtil.log(element.attr("src"));
-//                SDFileHelper helper = new SDFileHelper(App.getInstance());
-//                helper.savePicture(a,b,i+"handout.jpg",element.attr("src"));
-                loadCallBack.success(a,b,element.attr("src"),i+"handout.jpg");
-            }
+    public static NovelListBean parseYirenList(String response){
+        NovelListBean novelListBean = new NovelListBean();
+        Document document = Jsoup.parse(response);
+        Elements elements = document.getElementsByClass("textList").select("a");
+        for(Element element:elements){
+            LogUtil.log(element.attr("href")+"--"+element.attr("title")+"--"+element.text());
+            novelListBean.getNovelList().add(new NovelListItemBean(element.attr("title"),element.attr("href"),""));
         }
-        // 关闭连接
-        urlConn.disconnect();
+        Element pageElement = document.getElementsByClass("pages").get(0);
+        String totalPage = pageElement.select("strong").get(0).text();
+
+        novelListBean.setPageControlBean(new PageControlBean(null,
+                null,
+                null,
+                null,
+                null,
+                null,totalPage));
+        return novelListBean;
     }
 
+    public static ArrayList<String> parseYirenPic(String response){
+        ArrayList<String> arrayList = new ArrayList<>();
+        Document document = Jsoup.parse(response);
+        Elements elements = document.getElementsByClass("novelContent").select("img");
+        for(Element element:elements){
+            arrayList.add(element.attr("src"));
+        }
+        return arrayList;
+    }
+
+    public static String parseYirenNovelDetial(String response){
+
+        Document document = Jsoup.parse(response);
+        Elements elements = document.getElementsByClass("novelContent").select("td");
+
+        return elements.get(0).text();
+    }
+
+    public static VedioListBean parseYirenVideo(String response){
+        VedioListBean vedioListBean = new VedioListBean();
+        Document document = Jsoup.parse(response);
+        Elements elements = document.getElementsByClass("movieList").select("li");
+        for(Element element:elements){
+            LogUtil.log(element.attr("href")+"--"+element.attr("title")+"--"+element.text());
+            vedioListBean.getVedioList().add(new VedioListItemBean(element.select("h3").text(),element.select("a").attr("href"),element.select("img").attr("src"),element.select("span").text()));
+        }
+
+        Elements pageElement = document.getElementsByClass("pages");
+        String totalPage;
+        if(pageElement.size() == 0)
+            totalPage = "1";
+        else
+            totalPage = pageElement.get(0).select("strong").get(0).text();
+        vedioListBean.setPageControlBean(new PageControlBean(null,
+                null,
+                null,
+                null,
+                null,
+                null,totalPage));
+        return vedioListBean;
+    }
+    public static String parseYirenVideoUrl(String response){
+
+        Document document = Jsoup.parse(response);
+//        Element element = document.getElementById("videobox");
+//        LogUtil.log(element.attr("classid") +"--" +element.attr("xxid"));
+
+//        String title = document.getElementsByTag("title").text();
+        String[] scripts = document.getElementsByTag("script").toString().split("http");
+        if(scripts == null || scripts.length < 2)
+            return null;
+        return "http"+scripts[1].split("mp4")[0]+"mp4";
+    }
+
+    public static VedioListBean parseYirenSearch(String response){
+        VedioListBean vedioListBean = new VedioListBean();
+        Document document = Jsoup.parse(response);
+        Elements elements = document.getElementsByClass("textList").select("li");
+        for(Element element:elements){
+            LogUtil.log(element.attr("href")+"--"+element.attr("title")+"--"+element.text());
+            vedioListBean.getVedioList().add(new VedioListItemBean(element.select("h3").text(),element.select("a").attr("href"),element.select("img").attr("src"),element.select("span").text()));
+        }
+        Elements pageElement = document.getElementsByClass("pages");
+        String totalPage;
+        String jumpUrl = null;
+        if(pageElement.size() == 0)
+            totalPage = "1";
+        else{
+            totalPage = pageElement.get(0).select("strong").get(0).text();
+            jumpUrl = document.getElementsByClass("pageList").toString().split("searchid=")[1].split("\"")[0];
+        }
+        vedioListBean.setPageControlBean(new PageControlBean(null,
+                null,
+                null,
+                null,
+                null,
+                jumpUrl,totalPage));
+        return vedioListBean;
+    }
     /**
      * 解析菜单（导航）
      * @param response

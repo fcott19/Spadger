@@ -14,8 +14,14 @@
     <string name="collection">收藏</string>
     <string name="cancel_collection">取消收藏</string>
     <string name="no_collection">没有收藏电影</string>
+    <string name="no_data">没有数据</string>
     <string name="prohibit_no_wifi">非wifi环境自动退出APP</string>
-    <string name="auto_per_load">自动预加载</string>
+    <string name="auto_per_load">wifi环境下自动预加载</string>
+    <string name="parse_error">地址解析出错</string>
+    <string name="explain">本次更新内容主要有：\n1:增加伊人资源\n2:增加自动预加载图片功能（可在设置中启用）\n3:未启用预加载图片功能时，仍然可以通过长按来预加载某一图集\n4：在第二类资源的视频播放详情页面，
+        点击小图片可复制视频源地址，在第一类和第三类资源中，长点击可复制视频源地址\n\n特别说明：
+        \n1：建议打开非wifi环境下自动退出APP\n2：网速较差建议不启动图片预加载功能，通过长按方式来预加载图片，因为自动预加载功能会自动加载当前页的每一个图集，当网速不快时，反而效率更差，
+        网速正常时推荐使用自动预加载功能\n3：第三类伊人资源的视频源地址为mp4格式，对直播播放很不友好，播放效果较差，可通过长点击复制视频源地址，在UC浏览器或者QQ浏览器中下载到本地观看</string>
 
     <string name="channel">A</string>
     <string name="actor">B</string>

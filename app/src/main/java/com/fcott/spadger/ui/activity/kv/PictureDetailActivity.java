@@ -8,8 +8,10 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 
+import com.fcott.spadger.Config;
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.http.MainPageService;
+import com.fcott.spadger.model.http.YirenService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
 import com.fcott.spadger.ui.activity.BaseActivity;
 import com.fcott.spadger.ui.adapter.PictureAdapter;
@@ -22,19 +24,20 @@ import com.fcott.spadger.utils.glideutils.ImageLoader;
 import java.util.ArrayList;
 
 import butterknife.Bind;
+import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class PictureDetailActivity extends BaseActivity {
     public static final String TAG = PictureDetailActivity.class.getSimpleName();
-    private static final String ACACHE_TAG = "CACHE_PIC";
 
     @Bind(R.id.rv_imgs)
     public RecyclerView recyclerView;
 
     private String url = "";
     private String title = "";
+    private String dataFrom = "";//数据来源
     private PictureAdapter adapter;
     private ArrayList<String> dataList = null;
 
@@ -52,6 +55,7 @@ public class PictureDetailActivity extends BaseActivity {
     protected void getBundleExtras(Bundle bundle) {
         url = bundle.getString(NovelExhibitionActivity.NOVEL_DETIAL_URL);
         title = bundle.getString(NovelExhibitionActivity.NOVEL_DETIAL_TITLE);
+        dataFrom = bundle.getString(Config.DATA_FROM);
     }
 
     @Override
@@ -89,22 +93,37 @@ public class PictureDetailActivity extends BaseActivity {
     //请求数据，更新界面
     private void requestData(final String url) {
         ACache mCache = ACache.get(PictureDetailActivity.this.getApplicationContext());
-        String value = mCache.getAsString(ACACHE_TAG + url);//取出缓存
+        String value = mCache.getAsString(url);//取出缓存
 
         //显示缓存
         if (!TextUtils.isEmpty(value)) {
-            dataList = JsoupUtil.parsePictureDetial(value);
+            if(dataFrom.equals(Config.DATA_FROM_KV)){
+                dataList = JsoupUtil.parsePictureDetial(value);
+            }else if(dataFrom.equals(Config.DATA_FROM_YIREN)){
+                dataList = JsoupUtil.parseYirenPic(value);
+            }
             if (!dataList.isEmpty()) {
                 adapter.setNewData(dataList);
+                for (String string : dataList) {
+                    ImageLoader.getInstance().preLoad(PictureDetailActivity.this, string);
+                }
+                return;
             }
-            return;
         } else {
             toggleShowLoading(true);
         }
 
-        RetrofitUtils.getInstance().create1(MainPageService.class)
-                .getData(url)
-                .subscribeOn(Schedulers.io())
+        Observable<String> ob;
+        if(dataFrom.equals(Config.DATA_FROM_KV)){
+            ob = RetrofitUtils.getInstance().create1(MainPageService.class)
+                    .getData(url);
+        }else if(dataFrom.equals(Config.DATA_FROM_YIREN)){
+            ob = RetrofitUtils.getInstance().create1(YirenService.class)
+                    .getData(url);
+        }else {
+            return;
+        }
+        ob.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<String>() {
                     @Override
@@ -119,7 +138,14 @@ public class PictureDetailActivity extends BaseActivity {
 
                     @Override
                     public void onNext(String s) {
-                        dataList = JsoupUtil.parsePictureDetial(s);
+                        //缓存
+                        ACache aCache = ACache.get(getApplicationContext());
+                        aCache.put(url, s);
+                        if(dataFrom.equals(Config.DATA_FROM_KV)){
+                            dataList = JsoupUtil.parsePictureDetial(s);
+                        }else if(dataFrom.equals(Config.DATA_FROM_YIREN)){
+                            dataList = JsoupUtil.parseYirenPic(s);
+                        }
                         for (String string : dataList) {
                             ImageLoader.getInstance().preLoad(PictureDetailActivity.this, string);
                         }

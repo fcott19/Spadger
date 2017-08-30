@@ -24,4 +24,8 @@ public class Config {
     public static final String searchTypeNormal = "searchTypeNormal";
     public static final String searchTypeClass = "searchTypeClass";
     public static final String searchTypeActor = "searchTypeActor";
+
+    public static final String DATA_FROM = "DATA_FROM";
+    public static final String DATA_FROM_KV = "DATA_FROM_KV";
+    public static final String DATA_FROM_YIREN = "DATA_FROM_YIREN";
 }

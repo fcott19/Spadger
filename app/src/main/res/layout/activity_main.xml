@@ -19,8 +19,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <Button
+        android:text="第三类资源"
+        android:onClick="goYiren"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <Button
         android:text="设置"
         android:onClick="goSetting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <Button
+        android:text="说明(建议阅读)"
+        android:onClick="goExplain"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <Button

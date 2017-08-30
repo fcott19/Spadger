@@ -2,7 +2,6 @@ package com.fcott.spadger.model.http;
 
 
 import retrofit2.http.GET;
-import retrofit2.http.Path;
 import retrofit2.http.Url;
 import rx.Observable;
 

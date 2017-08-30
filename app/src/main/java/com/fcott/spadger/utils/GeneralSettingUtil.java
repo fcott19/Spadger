@@ -57,6 +57,6 @@ public class GeneralSettingUtil {
 
     public static boolean isPerLoad(){
         SharedPreferences pref = App.getInstance().getSharedPreferences(Config.SP_GENERAL_SETTING, Context.MODE_PRIVATE);
-        return pref.getBoolean(PER_LOAD, true);
+        return pref.getBoolean(PER_LOAD, false);
     }
 }

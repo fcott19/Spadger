@@ -39,7 +39,7 @@ public class ActorAdapter extends BaseAdapter<ActorBean.MessageBean.DataBean> {
         title.setText(data.getName());
         date.setVisibility(View.GONE);
 //        ImageLoader.getInstance().load(App.getInstance(),
-//                data.getPic(), cover);
+//                data.getData(), cover);
         Glide.with(context)
                 .load(data.getPic())
                 .diskCacheStrategy(DiskCacheStrategy.SOURCE)

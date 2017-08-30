@@ -4,12 +4,13 @@ import android.content.Context;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.fcott.spadger.App;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.bean.VedioListItemBean;
 import com.fcott.spadger.ui.adapter.baseadapter.BaseAdapter;
 import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
-import com.fcott.spadger.utils.glideutils.ImageLoader;
 
 import java.util.List;
 
@@ -18,9 +19,11 @@ import java.util.List;
  */
 
 public class VedioListAdapter extends BaseAdapter<VedioListItemBean> {
+    private Context context;
 
     public VedioListAdapter(Context context, List<VedioListItemBean> datas, boolean isOpenLoadMore) {
         super(context, datas, isOpenLoadMore);
+        this.context = context;
     }
 
     @Override
@@ -31,8 +34,16 @@ public class VedioListAdapter extends BaseAdapter<VedioListItemBean> {
 
         title.setText(data.getTitle());
         date.setText(data.getDate());
-        ImageLoader.getInstance().load(App.getInstance(),
-                data.getImgUrl(), cover);
+        Glide.with(context)
+                .load(data.getImgUrl())
+                .asBitmap()
+                .thumbnail(0.1f)
+                .priority(Priority.HIGH)
+                .placeholder(R.drawable.ic_launcher_round)
+                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                .dontAnimate()
+                .into(cover);
+
     }
 
     @Override

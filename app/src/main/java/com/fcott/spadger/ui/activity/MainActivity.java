@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Process;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.Toast;
 
@@ -11,6 +12,7 @@ import com.fcott.spadger.App;
 import com.fcott.spadger.R;
 import com.fcott.spadger.ui.activity.kv.KvMainActivity;
 import com.fcott.spadger.ui.activity.look.TokenCheckActivity;
+import com.fcott.spadger.ui.activity.yiren.YirenMainActivity;
 import com.fcott.spadger.utils.GeneralSettingUtil;
 import com.fcott.spadger.utils.LogUtil;
 import com.fcott.spadger.utils.netstatus.NetChangeObserver;
@@ -30,11 +32,15 @@ public class MainActivity extends BaseActivity implements NetChangeObserver {
     protected void getBundleExtras(Bundle bundle) {
 
     }
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        //注册网络监听
+        NetStateReceiver.registerObserver(this);
+        super.onCreate(savedInstanceState);
+    }
 
     @Override
     protected void initViews() {
-        //注册网络监听
-        NetStateReceiver.registerObserver(this);
         try {
             LogUtil.log(Environment.getExternalStorageDirectory().getCanonicalPath());
         } catch (IOException e) {
@@ -50,12 +56,20 @@ public class MainActivity extends BaseActivity implements NetChangeObserver {
         startActivity(new Intent(MainActivity.this,TokenCheckActivity.class));
     }
 
+    public void goYiren(View view){
+        startActivity(new Intent(MainActivity.this,YirenMainActivity.class));
+    }
+
     public void goSetting(View view){
         startActivity(new Intent(MainActivity.this,SettingActivity.class));
     }
 
+    public void goExplain(View view){
+        startActivity(new Intent(MainActivity.this,ExplainActivity.class));
+    }
+
     public void goTest(View view){
-        startActivity(new Intent(MainActivity.this,TestActivity.class));
+
     }
 
     @Override

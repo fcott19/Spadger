@@ -7,12 +7,13 @@
     android:layout_height="match_parent"
     android:background="@color/colorWhite"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.fcott.spadger.ui.activity.kv.NovelExhibitionActivity">
+    tools:context="com.fcott.spadger.ui.activity.kv.VedioExhibitionActivity">
 
     <RelativeLayout
-        android:id="@+id/activity_novel_exhibition"
+        android:id="@+id/activity_vedio_exhibition"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/colorWhite">
 
         <com.fcott.spadger.ui.widget.PageController
             android:id="@+id/rl_pagecontrol"
@@ -20,11 +21,11 @@
             android:layout_height="wrap_content" />
 
         <android.support.v7.widget.RecyclerView
+            android:nestedScrollingEnabled="false"
             android:id="@+id/rv_vedio_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/rl_pagecontrol"
-            android:nestedScrollingEnabled="false" />
+            android:layout_below="@+id/rl_pagecontrol" />
 
     </RelativeLayout>
 </android.support.v4.widget.NestedScrollView>

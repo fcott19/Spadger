@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
@@ -62,10 +63,14 @@ public class LookMovieActivity extends BaseActivity implements NetChangeObserver
     }
 
     @Override
-    protected void initViews() {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         //注册网络监听
         NetStateReceiver.registerObserver(this);
+        super.onCreate(savedInstanceState);
+    }
 
+    @Override
+    protected void initViews() {
         //wifi环境下，预加载图片
         if(NetUtils.isWifiConnected(getApplicationContext())){
             perLoadData();

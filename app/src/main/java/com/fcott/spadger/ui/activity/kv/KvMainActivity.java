@@ -1,19 +1,29 @@
 package com.fcott.spadger.ui.activity.kv;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
 import com.fcott.spadger.R;
+import com.fcott.spadger.model.bean.ItemBean;
 import com.fcott.spadger.model.bean.MenuBean;
 import com.fcott.spadger.model.http.MainPageService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
 import com.fcott.spadger.ui.activity.BaseActivity;
 import com.fcott.spadger.ui.adapter.ViewPagerAdapter;
 import com.fcott.spadger.ui.fragment.MenuFragment;
+import com.fcott.spadger.utils.GeneralSettingUtil;
 import com.fcott.spadger.utils.JsoupUtil;
+import com.fcott.spadger.utils.glideutils.ImageLoader;
+import com.fcott.spadger.utils.netstatus.NetChangeObserver;
+import com.fcott.spadger.utils.netstatus.NetStateReceiver;
+import com.fcott.spadger.utils.netstatus.NetUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,7 +34,7 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class KvMainActivity extends BaseActivity{
+public class KvMainActivity extends BaseActivity implements NetChangeObserver {
     public static final String TAG = KvMainActivity.class.getSimpleName();
     @Bind(R.id.vp_news)
     ViewPager vp_news;
@@ -53,8 +63,14 @@ public class KvMainActivity extends BaseActivity{
     }
 
     @Override
-    protected void initViews() {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        //注册网络监听
+        NetStateReceiver.registerObserver(this);
+        super.onCreate(savedInstanceState);
+    }
 
+    @Override
+    protected void initViews() {
         toggleShowLoading(true);
         RetrofitUtils.getInstance().create1(MainPageService.class)
                 .getMainPage("")
@@ -87,7 +103,11 @@ public class KvMainActivity extends BaseActivity{
         if(menuBean == null){
             return;
         }
-
+        if (GeneralSettingUtil.isPerLoad() && NetUtils.isWifiConnected(KvMainActivity.this)) {
+            for(ItemBean bean:menuBean.getNewpicList()){
+                ImageLoader.getInstance().perLoadImage(KvMainActivity.this,bean.getUrl());
+            }
+        }
         titles = Arrays.asList(getResources().getStringArray(R.array.news));
         fragmentList = new ArrayList<>();
         fragmentList.add(MenuFragment.newInstance(menuBean.getPicList(),menuBean.getNewpicList(), MenuFragment.PICTURE));
@@ -115,5 +135,30 @@ public class KvMainActivity extends BaseActivity{
 
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //反注册网络监听
+        NetStateReceiver.removeRegisterObserver(this);
+    }
+
+    @Override
+    public void onNetConnected(NetUtils.NetType type) {
+        if(type == NetUtils.NetType.WIFI){
+            Toast.makeText(KvMainActivity.this,getString(R.string.auto_per_load),Toast.LENGTH_SHORT).show();
+            RequestManager requestManager = Glide.with(KvMainActivity.this);
+            if(requestManager.isPaused()){
+                requestManager.resumeRequests();
+            }
+        }else {
+            Glide.with(KvMainActivity.this).pauseRequests();
+        }
+    }
+
+    @Override
+    public void onNetDisConnect() {
+        Glide.with(KvMainActivity.this).pauseRequests();
     }
 }
