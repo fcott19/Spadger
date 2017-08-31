@@ -53,7 +53,6 @@ public class JsoupUtil {
         Document document = Jsoup.parse(response);
         Elements elements = document.getElementsByClass("textList").select("a");
         for(Element element:elements){
-            LogUtil.log(element.attr("href")+"--"+element.attr("title")+"--"+element.text());
             novelListBean.getNovelList().add(new NovelListItemBean(element.attr("title"),element.attr("href"),""));
         }
         Element pageElement = document.getElementsByClass("pages").get(0);

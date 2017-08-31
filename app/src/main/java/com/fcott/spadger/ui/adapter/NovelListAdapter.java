@@ -1,16 +1,13 @@
 package com.fcott.spadger.ui.adapter;
 
 import android.content.Context;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fcott.spadger.App;
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.bean.NovelListItemBean;
-import com.fcott.spadger.model.bean.VedioListItemBean;
 import com.fcott.spadger.ui.adapter.baseadapter.BaseAdapter;
 import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
-import com.fcott.spadger.utils.glideutils.ImageLoader;
 
 import java.util.List;
 
@@ -31,6 +28,12 @@ public class NovelListAdapter extends BaseAdapter<NovelListItemBean> {
 
         title.setText(data.getTitle());
         date.setText(data.getDate());
+
+        if(App.getInstance().perLoadList.contains(data.getUrl())){
+            holder.setBgRes(R.id.bg,R.drawable.selector_btn_preload);
+        }else {
+            holder.setBgRes(R.id.bg,R.drawable.selector_btn_bg);
+        }
     }
 
     @Override

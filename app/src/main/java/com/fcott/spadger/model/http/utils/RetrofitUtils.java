@@ -51,6 +51,15 @@ public class RetrofitUtils {
         return retrofit.create(service);
     }
 
+    public <S> S create2(Class<S> service) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .addConverterFactory(ScalarsConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .baseUrl(getBaseUrl(service))
+                .build();
+        return retrofit.create(service);
+    }
+
     /**
      * 解析接口中的BASE_URL，解决BASE_URL不一致的问题
      *

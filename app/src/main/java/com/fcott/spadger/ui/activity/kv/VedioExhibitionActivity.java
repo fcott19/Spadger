@@ -2,6 +2,7 @@ package com.fcott.spadger.ui.activity.kv;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.TextUtils;
@@ -105,7 +106,19 @@ public class VedioExhibitionActivity extends BaseActivity {
     }
 
     @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return super.onSupportNavigateUp();
+    }
+
+    @Override
     protected void initViews() {
+
+        ActionBar mActionBar=getSupportActionBar();
+        mActionBar.setHomeButtonEnabled(true);
+        mActionBar.setDisplayHomeAsUpEnabled(true);
+        mActionBar.setTitle("列表");
+
         //列表适配器
         adapter = new VedioListAdapter(VedioExhibitionActivity.this, new ArrayList<VedioListItemBean>(), false);//
         adapter.setOnItemClickListener(new OnItemClickListeners<VedioListItemBean>() {

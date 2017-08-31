@@ -22,6 +22,7 @@ import java.util.List;
 public class App extends Application {
     public static final String APP_ID = "3802f3bd93"; // TODO 替换成bugly上注册的appid
     public static final String APP_CHANNEL = "DEBUG"; // TODO 自定义渠道
+    public ArrayList<String> perLoadList = new ArrayList<>();
 
     private static App instance;
     private List<Activity> activityList;

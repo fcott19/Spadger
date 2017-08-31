@@ -13,4 +13,6 @@
     <color name="background_press_dark">#bcbcbc</color>
     <color name="background_tran">#99333333</color>
     <color name="background_transparent">#00000000</color>
+    <color name="background_prload_normal">#99aabb</color>
+    <color name="background_prload_press">#77bbbb</color>
 </resources>

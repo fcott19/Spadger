@@ -28,6 +28,8 @@ import com.fcott.spadger.model.http.LookMovieService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
 import com.fcott.spadger.ui.activity.BaseActivity;
 import com.fcott.spadger.utils.GeneralSettingUtil;
+import com.fcott.spadger.utils.GsonUtil;
+import com.fcott.spadger.utils.LogUtil;
 import com.fcott.spadger.utils.db.DBManager;
 import com.fcott.spadger.utils.glideutils.ImageLoader;
 import com.fcott.spadger.utils.web.X5WebView;
@@ -182,6 +184,7 @@ public class MovieDetialActivity extends BaseActivity {
 
                     @Override
                     public void onNext(MovieInfoBean movieInfoBean) {
+                        LogUtil.log(GsonUtil.toJson(movieInfoBean));
                         toggleShowLoading(false);
                         MovieInfoBean.MessageBean messageBean = movieInfoBean.getMessage();
                         tvActor.setText(makeActor(messageBean.getActor()));
@@ -217,6 +220,7 @@ public class MovieDetialActivity extends BaseActivity {
 
                     @Override
                     public void onNext(MoviePlayBean playBean) {
+                        LogUtil.log(GsonUtil.toJson(playBean));
                         moviePlayBean = playBean;
                         webView.loadUrl("javascript:url('" + moviePlayBean.getMessage() + "')");
                     }

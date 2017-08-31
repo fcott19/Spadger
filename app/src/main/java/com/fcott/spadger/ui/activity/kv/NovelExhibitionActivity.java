@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.target.Target;
+import com.fcott.spadger.App;
 import com.fcott.spadger.Config;
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.bean.NovelListBean;
@@ -133,9 +135,20 @@ public class NovelExhibitionActivity extends BaseActivity implements NetChangeOb
         NetStateReceiver.registerObserver(this);
         super.onCreate(savedInstanceState);
     }
-    
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return super.onSupportNavigateUp();
+    }
+
     @Override
     protected void initViews() {
+
+        ActionBar mActionBar=getSupportActionBar();
+        mActionBar.setHomeButtonEnabled(true);
+        mActionBar.setDisplayHomeAsUpEnabled(true);
+        mActionBar.setTitle("列表");
 
         //列表适配器
         adapter = new NovelListAdapter(NovelExhibitionActivity.this, new ArrayList<NovelListItemBean>(), false);
@@ -161,8 +174,10 @@ public class NovelExhibitionActivity extends BaseActivity implements NetChangeOb
             public void onItemLongClick(ViewHolder viewHolder, NovelListItemBean data, int position) {
                 if (!tyep.equals(MenuFragment.PICTURE))
                     return;
-                ImageLoader.getInstance().perLoadImage(NovelExhibitionActivity.this,data.getUrl());
+                ImageLoader.getInstance().perLoadImage(data.getUrl(),targetList);
                 Toast.makeText(mContext, "开始加载本图集", Toast.LENGTH_SHORT).show();
+                viewHolder.setBgRes(R.id.bg,R.drawable.selector_btn_preload);
+                App.getInstance().perLoadList.add(data.getUrl());
             }
         });
 
@@ -230,6 +245,7 @@ public class NovelExhibitionActivity extends BaseActivity implements NetChangeOb
 
     //请求数据，更新界面
     private void requestData(final String url) {
+        final boolean needPerLoad = GeneralSettingUtil.isPerLoad() && tyep.equals(MenuFragment.PICTURE) && NetUtils.isWifiConnected(NovelExhibitionActivity.this);
         if(subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
         for(Target target:targetList){
@@ -237,7 +253,7 @@ public class NovelExhibitionActivity extends BaseActivity implements NetChangeOb
         }
 
         ACache mCache = ACache.get(NovelExhibitionActivity.this.getApplicationContext());
-        String value = mCache.getAsString(url);//取出缓存
+        final String value = mCache.getAsString(url);//取出缓存
 
         //显示缓存
         if (!TextUtils.isEmpty(value)) {
@@ -267,13 +283,27 @@ public class NovelExhibitionActivity extends BaseActivity implements NetChangeOb
                 .observeOn(AndroidSchedulers.mainThread())
                 .concatMapEager(new Func1<NovelListBean, Observable<NovelListItemBean>>() {
                     @Override
-                    public Observable<NovelListItemBean> call(NovelListBean novelListBean) {
-                        adapter.setNewData(novelListBean.getNovelList());
-                        etPageNumber.setText(novelListBean.getPageControlBean().getCurrentPage());
+                    public Observable<NovelListItemBean> call(NovelListBean bean) {
+                        novelListBean = bean;
+                        adapter.setNewData(bean.getNovelList());
+                        etPageNumber.setText(bean.getPageControlBean().getCurrentPage());
                         toggleShowLoading(false);
-                        return Observable.from(novelListBean.getNovelList());
+                        return Observable.from(bean.getNovelList());
                     }
-                }).subscribe(new Subscriber<NovelListItemBean>() {
+                }).observeOn(Schedulers.io())
+                .map(new Func1<NovelListItemBean, NovelListItemBean>() {
+                    @Override
+                    public NovelListItemBean call(NovelListItemBean novelListItemBean) {
+                        try {
+                            Thread.sleep(250);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        return novelListItemBean;
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<NovelListItemBean>() {
                     @Override
                     public void onCompleted() {
 
@@ -281,19 +311,20 @@ public class NovelExhibitionActivity extends BaseActivity implements NetChangeOb
 
                     @Override
                     public void onError(Throwable e) {
-                        toggleShowError("请求出错,点击重试", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                initViews();
-                            }
-                        });
+                        if(value == null){
+                            toggleShowError("请求出错,点击重试", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    initViews();
+                                }
+                            });
+                        }
                     }
 
                     @Override
                     public void onNext(NovelListItemBean novelListItemBean) {
-                        if (GeneralSettingUtil.isPerLoad() && tyep.equals(MenuFragment.PICTURE) && NetUtils.isWifiConnected(NovelExhibitionActivity.this)) {
-                            targetList.add(ImageLoader.getInstance().preLoad(NovelExhibitionActivity.this, novelListItemBean.getUrl()));
-                        }
+                        if (needPerLoad)
+                            ImageLoader.getInstance().perLoadImage(novelListItemBean.getUrl(),targetList);
                     }
                 });
     }
@@ -311,17 +342,17 @@ public class NovelExhibitionActivity extends BaseActivity implements NetChangeOb
     public void onNetConnected(NetUtils.NetType type) {
         if(type == NetUtils.NetType.WIFI){
             Toast.makeText(NovelExhibitionActivity.this,getString(R.string.auto_per_load),Toast.LENGTH_SHORT).show();
-            RequestManager requestManager = Glide.with(NovelExhibitionActivity.this);
+            RequestManager requestManager = Glide.with(getApplicationContext());
             if(requestManager.isPaused()){
                 requestManager.resumeRequests();
             }
         }else {
-            Glide.with(NovelExhibitionActivity.this).pauseRequests();
+            Glide.with(getApplicationContext()).pauseRequests();
         }
     }
 
     @Override
     public void onNetDisConnect() {
-        Glide.with(NovelExhibitionActivity.this).pauseRequests();
+        Glide.with(getApplicationContext()).pauseRequests();
     }
 }

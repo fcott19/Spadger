@@ -5,6 +5,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.TextUtils;
@@ -78,7 +79,18 @@ public class YirenVideoActivity extends BaseActivity implements PageController.O
     }
 
     @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return super.onSupportNavigateUp();
+    }
+
+    @Override
     protected void initViews() {
+
+        ActionBar mActionBar=getSupportActionBar();
+        mActionBar.setHomeButtonEnabled(true);
+        mActionBar.setDisplayHomeAsUpEnabled(true);
+        mActionBar.setTitle("列表");
 
         //列表适配器
         adapter = new VedioListAdapter(YirenVideoActivity.this, new ArrayList<VedioListItemBean>(), false);//
@@ -186,7 +198,7 @@ public class YirenVideoActivity extends BaseActivity implements PageController.O
                     .add("show", "title")
                     .add("page",page)
                     .build();
-            RetrofitUtils.getInstance().create1(YirenService.class)
+            RetrofitUtils.getInstance().create2(YirenService.class)
                     .searchData(body)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())

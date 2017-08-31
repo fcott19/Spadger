@@ -29,6 +29,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <Button
+        android:visibility="gone"
         android:text="说明(建议阅读)"
         android:onClick="goExplain"
         android:layout_width="match_parent"

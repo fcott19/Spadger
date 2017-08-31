@@ -3,6 +3,7 @@ package com.fcott.spadger.ui.activity.yiren;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.target.Target;
+import com.fcott.spadger.App;
 import com.fcott.spadger.Config;
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.bean.NovelListBean;
@@ -20,7 +22,6 @@ import com.fcott.spadger.model.http.YirenService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
 import com.fcott.spadger.ui.activity.BaseActivity;
 import com.fcott.spadger.ui.activity.kv.NovelDetialActivity;
-import com.fcott.spadger.ui.activity.kv.NovelExhibitionActivity;
 import com.fcott.spadger.ui.activity.kv.PictureDetailActivity;
 import com.fcott.spadger.ui.adapter.NovelListAdapter;
 import com.fcott.spadger.ui.adapter.baseadapter.OnItemClickListeners;
@@ -31,6 +32,7 @@ import com.fcott.spadger.ui.widget.PageController;
 import com.fcott.spadger.utils.ACache;
 import com.fcott.spadger.utils.GeneralSettingUtil;
 import com.fcott.spadger.utils.JsoupUtil;
+import com.fcott.spadger.utils.LogUtil;
 import com.fcott.spadger.utils.glideutils.ImageLoader;
 import com.fcott.spadger.utils.netstatus.NetChangeObserver;
 import com.fcott.spadger.utils.netstatus.NetStateReceiver;
@@ -92,9 +94,21 @@ public class YirenExhibitionActivity extends BaseActivity implements
         super.onCreate(savedInstanceState);
         pageController.setObserverPageListener(this);
     }
-    
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return super.onSupportNavigateUp();
+    }
+
     @Override
     protected void initViews() {
+
+        ActionBar mActionBar=getSupportActionBar();
+        mActionBar.setHomeButtonEnabled(true);
+        mActionBar.setDisplayHomeAsUpEnabled(true);
+        mActionBar.setTitle("列表");
+
         //列表适配器
         adapter = new NovelListAdapter(YirenExhibitionActivity.this, new ArrayList<NovelListItemBean>(), false);
         adapter.setOnItemClickListener(new OnItemClickListeners<NovelListItemBean>() {
@@ -119,8 +133,10 @@ public class YirenExhibitionActivity extends BaseActivity implements
             public void onItemLongClick(ViewHolder viewHolder, NovelListItemBean data, int position) {
                 if (!tyep.equals(MenuFragment.PICTURE))
                     return;
-                ImageLoader.getInstance().perLoadYirenImage(YirenExhibitionActivity.this,data.getUrl());
+                ImageLoader.getInstance().perLoadYirenImage(data.getUrl(),targetList);
                 Toast.makeText(mContext, "开始加载本图集", Toast.LENGTH_SHORT).show();
+                viewHolder.setBgRes(R.id.bg,R.drawable.selector_btn_preload);
+                App.getInstance().perLoadList.add(data.getUrl());
             }
         });
 
@@ -134,6 +150,7 @@ public class YirenExhibitionActivity extends BaseActivity implements
 
     //请求数据，更新界面
     private void requestData(final String url) {
+        final boolean needPerload = GeneralSettingUtil.isPerLoad() && tyep.equals(MenuFragment.PICTURE) && NetUtils.isWifiConnected(YirenExhibitionActivity.this);
         if(subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
         for(Target target:targetList){
@@ -141,7 +158,7 @@ public class YirenExhibitionActivity extends BaseActivity implements
         }
 
         ACache mCache = ACache.get(YirenExhibitionActivity.this.getApplicationContext());
-        String value = mCache.getAsString(url);//取出缓存
+        final String value = mCache.getAsString(url);//取出缓存
 
         //显示缓存
         if (!TextUtils.isEmpty(value)) {
@@ -176,7 +193,20 @@ public class YirenExhibitionActivity extends BaseActivity implements
                         toggleShowLoading(false);
                         return Observable.from(novelListBean.getNovelList());
                     }
-                }).subscribe(new Subscriber<NovelListItemBean>() {
+                }).observeOn(Schedulers.io())
+                .map(new Func1<NovelListItemBean, NovelListItemBean>() {
+                    @Override
+                    public NovelListItemBean call(NovelListItemBean novelListItemBean) {
+                        try {
+                            Thread.sleep(250);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        return novelListItemBean;
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<NovelListItemBean>() {
                     @Override
                     public void onCompleted() {
 
@@ -184,18 +214,21 @@ public class YirenExhibitionActivity extends BaseActivity implements
 
                     @Override
                     public void onError(Throwable e) {
-                        toggleShowError("请求出错,点击重试", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                initViews();
-                            }
-                        });
+                        if(value == null){
+                            toggleShowError("请求出错,点击重试", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    initViews();
+                                }
+                            });
+                        }
                     }
 
                     @Override
                     public void onNext(NovelListItemBean novelListItemBean) {
-                        if (GeneralSettingUtil.isPerLoad() && tyep.equals(MenuFragment.PICTURE) && NetUtils.isWifiConnected(YirenExhibitionActivity.this)) {
-                            targetList.add(ImageLoader.getInstance().preLoad(YirenExhibitionActivity.this, novelListItemBean.getUrl()));
+                        if (needPerload) {
+                            LogUtil.log(novelListItemBean.getUrl());
+                            ImageLoader.getInstance().perLoadYirenImage(novelListItemBean.getUrl(),targetList);
                         }
                     }
                 });
@@ -213,18 +246,18 @@ public class YirenExhibitionActivity extends BaseActivity implements
     @Override
     public void onNetConnected(NetUtils.NetType type) {
         if(type == NetUtils.NetType.WIFI){
-            RequestManager requestManager = Glide.with(YirenExhibitionActivity.this);
+            RequestManager requestManager = Glide.with(getApplicationContext());
             if(requestManager.isPaused()){
                 requestManager.resumeRequests();
             }
         }else {
-            Glide.with(YirenExhibitionActivity.this).pauseRequests();
+            Glide.with(getApplicationContext()).pauseRequests();
         }
     }
 
     @Override
     public void onNetDisConnect() {
-        Glide.with(YirenExhibitionActivity.this).pauseRequests();
+        Glide.with(getApplicationContext()).pauseRequests();
     }
 
     @Override

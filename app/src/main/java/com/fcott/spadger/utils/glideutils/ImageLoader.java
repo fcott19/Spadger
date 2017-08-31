@@ -2,6 +2,7 @@ package com.fcott.spadger.utils.glideutils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -18,6 +19,7 @@ import com.fcott.spadger.model.http.YirenService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
 import com.fcott.spadger.utils.ACache;
 import com.fcott.spadger.utils.JsoupUtil;
+import com.fcott.spadger.utils.LogUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -32,15 +34,16 @@ import rx.schedulers.Schedulers;
  * Created by fcott on 2016/9/19.
  */
 public class ImageLoader {
-    public static ImageLoader getInstance(){
+    public static ImageLoader getInstance() {
         return SingleHolder.INSTANCE;
     }
 
-    private static class SingleHolder{
+    private static class SingleHolder {
         private static final ImageLoader INSTANCE = new ImageLoader();
     }
 
-    private ImageLoader(){}
+    private ImageLoader() {
+    }
 
     public void load(Context context, String url, ImageView iv) {
         Glide.with(context)
@@ -81,7 +84,7 @@ public class ImageLoader {
         return null;
     }
 
-    public Target preLoad(Context context,String url){
+    public Target preLoad(Context context, String url) {
         return Glide.with(context)
                 .load(url)
                 .asBitmap()
@@ -89,26 +92,31 @@ public class ImageLoader {
                 .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                 .preload();
     }
+    public void preDownLoad(Context context, String url) {
+         Glide.with(context)
+                .load(url)
+                .downloadOnly(Target.SIZE_ORIGINAL,Target.SIZE_ORIGINAL);
+    }
 
     //设置错误监听
-    RequestListener<String,Bitmap> errorListener=new RequestListener<String, Bitmap>() {
+    RequestListener<String, Bitmap> errorListener = new RequestListener<String, Bitmap>() {
         @Override
         public boolean onException(Exception e, String model, Target<Bitmap> target, boolean isFirstResource) {
 
-            Log.e("onException",e.toString()+"  model:"+model+" isFirstResource: "+isFirstResource);
+            Log.e("onException", e.toString() + "  model:" + model + " isFirstResource: " + isFirstResource);
 
             return false;
         }
 
         @Override
         public boolean onResourceReady(Bitmap resource, String model, Target<Bitmap> target, boolean isFromMemoryCache, boolean isFirstResource) {
-            Log.e("onResourceReady","isFromMemoryCache:"+isFromMemoryCache+"  model:"+model+" isFirstResource: "+isFirstResource);
+            Log.e("onResourceReady", "isFromMemoryCache:" + isFromMemoryCache + "  model:" + model + " isFirstResource: " + isFirstResource);
             return false;
         }
-    } ;
+    };
 
-    public String getImageCachePath(String url){
-        FutureTarget<File> future = Glide.with(App.getInstance().getApplicationContext()).load(url).downloadOnly(100,100);
+    public String getImageCachePath(String url) {
+        FutureTarget<File> future = Glide.with(App.getInstance().getApplicationContext()).load(url).downloadOnly(100, 100);
         try {
             File cacheFile = future.get();
             String path = cacheFile.getAbsolutePath();
@@ -122,9 +130,22 @@ public class ImageLoader {
     }
 
     private YirenService yirenService;
-    public void perLoadYirenImage(final Context context,final String url){
-        if(yirenService == null)
+
+    public void perLoadYirenImage(final String url, final ArrayList<Target> targetList) {
+        if (yirenService == null)
             yirenService = RetrofitUtils.getInstance().create1(YirenService.class);
+        ACache mCache = ACache.get(App.getInstance().getApplicationContext());
+        String value = mCache.getAsString(url);//取出缓存
+        //显示缓存
+        if (!TextUtils.isEmpty(value)) {
+            ArrayList<String> dataList = JsoupUtil.parseYirenPic(value);
+            for (String string : dataList) {
+                Target target = ImageLoader.getInstance().preLoad(App.getInstance().getApplicationContext(), string);
+                if (targetList != null)
+                    targetList.add(target);
+            }
+            return;
+        }
         yirenService
                 .getData(url)
                 .map(new Func1<String, ArrayList<String>>() {
@@ -152,16 +173,28 @@ public class ImageLoader {
                     @Override
                     public void onNext(ArrayList<String> dataList) {
                         for (String string : dataList) {
-                            ImageLoader.getInstance().preLoad(context, string);
+                            targetList.add(ImageLoader.getInstance().preLoad(App.getInstance().getApplicationContext(), string));
                         }
                     }
                 });
     }
 
     private MainPageService mainPageService;
-    public void perLoadImage(final Context context,final String url){
-        if(mainPageService == null)
+    public void perLoadImage(final String url, final ArrayList<Target> targetList) {
+        if (mainPageService == null)
             mainPageService = RetrofitUtils.getInstance().create1(MainPageService.class);
+        ACache mCache = ACache.get(App.getInstance().getApplicationContext());
+        String value = mCache.getAsString(url);//取出缓存
+        //显示缓存
+        if (!TextUtils.isEmpty(value)) {
+            ArrayList<String> dataList = JsoupUtil.parsePictureDetial(value);
+            for (String string : dataList) {
+                Target target = preLoad(App.getInstance().getApplicationContext(), string);
+                if (targetList != null)
+                    targetList.add(target);
+            }
+            return;
+        }
         mainPageService
                 .getData(url)
                 .map(new Func1<String, ArrayList<String>>() {
@@ -169,7 +202,7 @@ public class ImageLoader {
                     public ArrayList<String> call(String s) {
                         ACache aCache = ACache.get(App.getInstance().getApplicationContext());
                         aCache.put(url, s);
-                        ArrayList<String> dataList = JsoupUtil.parseYirenPic(s);
+                        ArrayList<String> dataList = JsoupUtil.parsePictureDetial(s);
                         return dataList;
                     }
                 })
@@ -183,13 +216,16 @@ public class ImageLoader {
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.w("response", e.toString());
+                        Log.w("onerror", e.toString()+"--");
                     }
 
                     @Override
                     public void onNext(ArrayList<String> dataList) {
                         for (String string : dataList) {
-                            ImageLoader.getInstance().preLoad(context, string);
+                            LogUtil.log(string);
+                            Target target = preLoad(App.getInstance().getApplicationContext(), string);
+                            if (targetList != null)
+                                targetList.add(target);
                         }
                     }
                 });

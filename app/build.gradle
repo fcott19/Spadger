@@ -8,8 +8,8 @@ android {
         applicationId "com.fcott.spadger"
         minSdkVersion 18
         targetSdkVersion 24
-        versionCode 4
-        versionName "2.0"
+        versionCode 7
+        versionName "2.3"
         // Specifies the ABI configurations of your native
         // libraries Gradle should build and package with your APK.
         ndk {

@@ -30,8 +30,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import butterknife.Bind;
+import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 public class KvMainActivity extends BaseActivity implements NetChangeObserver {
@@ -104,9 +106,36 @@ public class KvMainActivity extends BaseActivity implements NetChangeObserver {
             return;
         }
         if (GeneralSettingUtil.isPerLoad() && NetUtils.isWifiConnected(KvMainActivity.this)) {
-            for(ItemBean bean:menuBean.getNewpicList()){
-                ImageLoader.getInstance().perLoadImage(KvMainActivity.this,bean.getUrl());
-            }
+            Observable.from(menuBean.getNewpicList())
+                    .map(new Func1<ItemBean, ItemBean>() {
+                        @Override
+                        public ItemBean call(ItemBean itemBean) {
+                            try {
+                                Thread.sleep(250);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            return itemBean;
+                        }
+                    })
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Subscriber<ItemBean>() {
+                        @Override
+                        public void onCompleted() {
+                            unsubscribe();
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+
+                        @Override
+                        public void onNext(ItemBean itemBean) {
+                            ImageLoader.getInstance().perLoadImage(itemBean.getUrl(),null);
+                        }
+                    });
         }
         titles = Arrays.asList(getResources().getStringArray(R.array.news));
         fragmentList = new ArrayList<>();
@@ -148,17 +177,17 @@ public class KvMainActivity extends BaseActivity implements NetChangeObserver {
     public void onNetConnected(NetUtils.NetType type) {
         if(type == NetUtils.NetType.WIFI){
             Toast.makeText(KvMainActivity.this,getString(R.string.auto_per_load),Toast.LENGTH_SHORT).show();
-            RequestManager requestManager = Glide.with(KvMainActivity.this);
+            RequestManager requestManager = Glide.with(getApplicationContext());
             if(requestManager.isPaused()){
                 requestManager.resumeRequests();
             }
         }else {
-            Glide.with(KvMainActivity.this).pauseRequests();
+            Glide.with(getApplicationContext()).pauseRequests();
         }
     }
 
     @Override
     public void onNetDisConnect() {
-        Glide.with(KvMainActivity.this).pauseRequests();
+        Glide.with(getApplicationContext()).pauseRequests();
     }
 }

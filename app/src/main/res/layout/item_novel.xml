@@ -5,6 +5,7 @@
     android:padding="2dp"
     android:orientation="vertical">
     <LinearLayout
+        android:id="@+id/bg"
         android:background="@drawable/selector_btn_bg"
         android:layout_gravity="bottom"
         android:padding="8dp"

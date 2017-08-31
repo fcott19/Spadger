@@ -2,6 +2,7 @@ package com.fcott.spadger.ui.activity.kv;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -59,7 +60,19 @@ public class PictureDetailActivity extends BaseActivity {
     }
 
     @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return super.onSupportNavigateUp();
+    }
+
+    @Override
     protected void initViews() {
+
+        ActionBar mActionBar=getSupportActionBar();
+        mActionBar.setHomeButtonEnabled(true);
+        mActionBar.setDisplayHomeAsUpEnabled(true);
+        mActionBar.setTitle("图片");
+
         adapter = new PictureAdapter(PictureDetailActivity.this, new ArrayList<String>(), false);
         adapter.setOnItemClickListener(new OnItemClickListeners<String>() {
             @Override
