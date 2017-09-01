@@ -7,16 +7,18 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.fcott.spadger.Config;
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.bean.LoginBean;
+import com.fcott.spadger.model.bean.TokenResultBean;
 import com.fcott.spadger.model.http.LookMovieService;
+import com.fcott.spadger.model.http.RequestTokenService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
 import com.fcott.spadger.ui.activity.BaseActivity;
 import com.fcott.spadger.utils.GsonUtil;
 import com.fcott.spadger.utils.LogUtil;
+import com.fcott.spadger.utils.NativeUtil;
 
 import butterknife.Bind;
 import okhttp3.FormBody;
@@ -55,21 +57,19 @@ public class TokenCheckActivity extends BaseActivity {
 
         SharedPreferences pref = getSharedPreferences(Config.SP_TOKEN, Context.MODE_PRIVATE);
         String token = pref.getString("token", "");//第二个参数为默认值
-        if (!token.equals("")) {
-            loginBody = new FormBody.Builder()
-                    .add("Token", token)
-                    .build();
-            login(null);
+        String endTime = pref.getString("endTime", "");//第二个参数为默认值
+        if (!endTime.equals("") && NativeUtil.isBeforEndTime(endTime) && !endTime.equals(token)) {
+            login(token);
+        } else {
+            requestToken();
         }
     }
 
-    public void login(final View view) {
+    public void login(String token) {
         toggleShowLoading(true);
-        if (view != null) {
-            loginBody = new FormBody.Builder()
-                    .add("Token", editText.getText().toString().trim())
-                    .build();
-        }
+        loginBody = new FormBody.Builder()
+                .add("Token", token)
+                .build();
         RetrofitUtils.getInstance().create(LookMovieService.class)
                 .login(loginBody)
                 .subscribeOn(Schedulers.io())
@@ -82,8 +82,12 @@ public class TokenCheckActivity extends BaseActivity {
 
                     @Override
                     public void onError(Throwable e) {
-                        toggleShowLoading(false);
-                        Log.w("response", e.toString());
+                        toggleShowError("请求出错,点击重试", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                initViews();
+                            }
+                        });
                     }
 
                     @Override
@@ -91,18 +95,58 @@ public class TokenCheckActivity extends BaseActivity {
 
                         LogUtil.log(TAG, GsonUtil.toJson(loginBean));
                         if (loginBean.getResult() == 1) {
-                            if(view != null){
-                                SharedPreferences.Editor sharedata = getSharedPreferences(Config.SP_TOKEN, Context.MODE_PRIVATE).edit();
-                                sharedata.putString("token", editText.getText().toString().trim());
-                                sharedata.commit();
-                            }
                             startActivity(new Intent(TokenCheckActivity.this, LookMovieActivity.class));
                             finish();
-                        }else {
-                            toggleShowLoading(false);
-                            Toast.makeText(TokenCheckActivity.this,"请正确输入验证码",Toast.LENGTH_SHORT).show();
+                        } else {
+                            requestToken();
                         }
                     }
                 });
+    }
+
+    public void requestToken() {
+        toggleShowLoading(true);
+        loginBody = new FormBody.Builder()
+                .add("data", "{\"Action\":\"CreateToken\",\"Message\":{\"UID\":\"866693021858191\"}}")
+                .build();
+        RetrofitUtils.getInstance().create(RequestTokenService.class)
+                .requestToken(loginBody)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<TokenResultBean>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        toggleShowError("请求出错,点击重试", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                initViews();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onNext(TokenResultBean tokenResultBean) {
+                        if (tokenResultBean.getResult() == 1) {
+                            SharedPreferences.Editor sharedata = getSharedPreferences(Config.SP_TOKEN, Context.MODE_PRIVATE).edit();
+                            sharedata.putString("token", tokenResultBean.getMessage().getToken());
+                            sharedata.putString("endTime", tokenResultBean.getMessage().getEndTime());
+                            sharedata.commit();
+                            login(tokenResultBean.getMessage().getToken());
+                        } else {
+                            toggleShowError("请求出错,点击重试", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    initViews();
+                                }
+                            });
+                        }
+                    }
+                });
+
     }
 }

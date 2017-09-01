@@ -6,13 +6,47 @@ import android.content.SharedPreferences;
 import com.fcott.spadger.App;
 import com.fcott.spadger.Config;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created by fcott on 2016/12/29.
  */
 
 public class NativeUtil {
+    /**
+     * 与当前时间比较早晚
+     *
+     * @param endTime
+     *            需要比较的时间
+     * @return 输入的时间比现在时间晚则返回true
+     */
+    public static boolean isBeforEndTime(String endTime) {
+        boolean isDayu = false;
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+
+        try {
+            Date parse = dateFormat.parse(endTime);
+            Date parse1 = new Date();
+
+            long diff = parse1.getTime() - parse.getTime();
+            if (diff <= 0) {
+                isDayu = true;
+            } else {
+                isDayu = false;
+            }
+        } catch (ParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return isDayu;
+    }
+
+
     /**
      * prefix of ascii string of native character
      */

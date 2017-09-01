@@ -83,6 +83,12 @@ public class PictureDetailActivity extends BaseActivity {
                 bundle.putInt(PictureSinglelActivity.POSITION_TAG, position);
                 intent.putExtras(bundle);
                 startActivityForResult(intent, 0);
+
+//                View transitionView = viewHolder.getView(R.id.img_cover);
+//                // 这里指定了共享的视图元素
+//                ActivityOptionsCompat options = ActivityOptionsCompat
+//                        .makeSceneTransitionAnimation(PictureDetailActivity.this, transitionView, "image");
+//                ActivityCompat.startActivityForResult(PictureDetailActivity.this, intent, 0,options.toBundle());
             }
         });
         final LinearLayoutManager layoutManager = new LinearLayoutManager(PictureDetailActivity.this);
