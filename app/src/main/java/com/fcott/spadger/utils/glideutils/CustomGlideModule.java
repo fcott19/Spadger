@@ -23,7 +23,7 @@ public class CustomGlideModule implements GlideModule {
         builder.setMemoryCache(new LruResourceCache(memoryCacheSize));
 
         File cacheDir = context.getExternalCacheDir();//指定的是数据的缓存地址
-        int diskCacheSize = 1024 * 1024 * 30;//最多可以缓存多少字节的数据
+        int diskCacheSize = 1024 * 1024 * 50;//最多可以缓存多少字节的数据
         //设置磁盘缓存大小
         builder.setDiskCache(new DiskLruCacheFactory(cacheDir.getPath(), "glide", diskCacheSize));
 
@@ -35,4 +35,3 @@ public class CustomGlideModule implements GlideModule {
         // register ModelLoaders here.
     }
 }
-
