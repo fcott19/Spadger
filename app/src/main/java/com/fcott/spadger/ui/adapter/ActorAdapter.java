@@ -6,13 +6,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.fcott.spadger.App;
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.bean.ActorBean;
 import com.fcott.spadger.ui.adapter.baseadapter.BaseAdapter;
 import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
-import com.fcott.spadger.utils.glideutils.ImageLoader;
 
 import java.util.List;
 
@@ -42,6 +41,7 @@ public class ActorAdapter extends BaseAdapter<ActorBean.MessageBean.DataBean> {
 //                data.getData(), cover);
         Glide.with(context)
                 .load(data.getPic())
+                .priority(Priority.IMMEDIATE)
                 .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                 .into(cover);
     }

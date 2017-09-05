@@ -38,7 +38,7 @@ public class VedioListAdapter extends BaseAdapter<VedioListItemBean> {
                 .load(data.getImgUrl())
                 .asBitmap()
                 .thumbnail(0.1f)
-                .priority(Priority.HIGH)
+                .priority(Priority.IMMEDIATE)
                 .placeholder(R.drawable.ic_launcher_round)
                 .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                 .dontAnimate()

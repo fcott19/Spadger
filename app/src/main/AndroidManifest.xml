@@ -25,10 +25,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <meta-data
-            android:name="com.fcott.spadger.utils.glideutils.CustomGlideModule"
-            android:value="GlideModule"/>
-
         <activity
             android:name=".ui.activity.kv.NovelDetialActivity"
             android:configChanges="orientation|screenSize|keyboardHidden" />

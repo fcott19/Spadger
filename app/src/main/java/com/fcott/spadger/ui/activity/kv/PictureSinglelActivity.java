@@ -86,7 +86,7 @@ public class PictureSinglelActivity extends BaseActivity {
 //            ImageLoader.getInstance().load(mContext, imagCollectionBeenList.get(position), photoView);
             Glide.with(mContext)
                     .load(imagCollectionBeenList.get(position))
-                    .priority(Priority.HIGH)
+                    .priority(Priority.IMMEDIATE)
                     .placeholder(R.drawable.ic_launcher_round)
                     .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                     .dontAnimate()

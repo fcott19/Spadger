@@ -5,6 +5,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.bean.MovieBean;
@@ -35,6 +36,7 @@ public class MovieListAdapter extends BaseAdapter<MovieBean.MessageBean.MoviesBe
         title.setText(data.getName());
         Glide.with(context)
                 .load(data.getCoverImg())
+                .priority(Priority.IMMEDIATE)
                 .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                 .into(imageView);
     }

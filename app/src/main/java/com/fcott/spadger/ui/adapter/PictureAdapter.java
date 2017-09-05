@@ -46,7 +46,7 @@ public class PictureAdapter extends BaseAdapter<String> {
         }
         Glide.with(context)
                 .load(data)
-                .priority(Priority.HIGH)
+                .priority(Priority.IMMEDIATE)
                 .placeholder(R.drawable.ic_launcher_round)
                 .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                 .dontAnimate()
