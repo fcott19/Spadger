@@ -106,15 +106,18 @@ public class MovieClassActivity extends BaseActivity implements PageController.O
         if (subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
 
-        boolean needUpdate = NativeUtil.needUpdate(TAG);
         cacheTag = TAG + "CLASS" + currentPage;
+        boolean needUpdate = NativeUtil.needUpdate(cacheTag);
         ACache mCache = ACache.get(MovieClassActivity.this.getApplicationContext());
         //取出缓存
         String value = mCache.getAsString(cacheTag);
+        if(TextUtils.isEmpty(value))
+            needUpdate = true;
         //显示缓存
         if (!TextUtils.isEmpty(value) && hasUpdate) {
             MovieClassBean movieClassBean = GsonUtil.fromJson(value, MovieClassBean.class);
             movieClassAdapter.setNewData(movieClassBean.getMessage().getData());
+            pageController.setMaxPageIndex(movieClassBean.getMessage().getPageCount());
         } else if (hasUpdate && needUpdate) {
             toggleShowLoading(true);
         }

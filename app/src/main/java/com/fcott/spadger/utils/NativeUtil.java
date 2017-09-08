@@ -140,13 +140,30 @@ public class NativeUtil {
     public static boolean needUpdate(String tag) {
 
         Calendar c = Calendar.getInstance();
-        int mHour = 0;//时c.get(Calendar.HOUR_OF_DAY)
+        int mHour = c.get(Calendar.HOUR_OF_DAY);//时c.get(Calendar.HOUR_OF_DAY)
         int mDay = c.get(Calendar.DAY_OF_MONTH);// 获取当日期
-        SharedPreferences pref = App.getInstance().getSharedPreferences(Config.SP_TIME+tag, Context.MODE_PRIVATE);
-        String time = pref.getString("time", "");//第二个参数为默认值
+        SharedPreferences pref = App.getInstance().getSharedPreferences(Config.SP_TIME, Context.MODE_PRIVATE);
+        String time = pref.getString(tag, "");//第二个参数为默认值
         if(!time.equals(mDay+""+mHour)){
-            SharedPreferences.Editor sharedata = App.getInstance().getSharedPreferences(Config.SP_TIME+tag, Context.MODE_PRIVATE).edit();
-            sharedata.putString("token", mDay+""+mHour);
+            SharedPreferences.Editor sharedata = App.getInstance().getSharedPreferences(Config.SP_TIME, Context.MODE_PRIVATE).edit();
+            sharedata.putString(tag, mDay+""+mHour);
+            sharedata.commit();
+            return true;
+        }else {
+            return false;
+        }
+
+    }
+
+    public static boolean canFindPwd(String email) {
+        Calendar c = Calendar.getInstance();
+        int mHour = 0;;//时c.get(Calendar.HOUR_OF_DAY)
+        int mDay = c.get(Calendar.DAY_OF_MONTH);// 获取当日期
+        SharedPreferences pref = App.getInstance().getSharedPreferences("forgetPwd", Context.MODE_PRIVATE);
+        String time = pref.getString("time"+email, "");//第二个参数为默认值
+        if(!time.equals(mDay+""+mHour)){
+            SharedPreferences.Editor sharedata = App.getInstance().getSharedPreferences("forgetPwd", Context.MODE_PRIVATE).edit();
+            sharedata.putString("time"+email, mDay+""+mHour);
             sharedata.commit();
             return true;
         }else {

@@ -15,4 +15,12 @@
     <color name="background_transparent">#00000000</color>
     <color name="background_prload_normal">#99aabb</color>
     <color name="background_prload_press">#77bbbb</color>
+    <drawable name="translucent_background">#6600CED1</drawable>
+
+    <color name="drawer_home_coclor">#ff0e579a</color>
+    <color name="drawer_explore_coclor">#ff2ec5f5</color>
+    <color name="drawer_follow_coclor">#ff3bbfba</color>
+    <color name="drawer_collect_coclor">#ffec7530</color>
+    <color name="drawer_draft_coclor">#ff6fc624</color>
+    <color name="drawer_question_coclor">#fffecb2f</color>
 </resources>

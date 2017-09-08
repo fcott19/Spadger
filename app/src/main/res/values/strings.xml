@@ -29,4 +29,28 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_login">Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_more">更多选项</string>
+    <string name="prompt_back">返回</string>
+    <string name="prompt_username">用户名</string>
+    <string name="prompt_nickname">昵称</string>
+    <string name="prompt_password">密码</string>
+    <string name="prompt_email">邮箱</string>
+    <string name="prompt_phone_number">手机号</string>
+    <string name="action_sign_in">登陆</string>
+    <string name="action_regist">注册</string>
+    <string name="action_post_token">发送验证码</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">请正确填写邮箱</string>
+    <string name="error_invalid_phonenumber">请正确填写手机号</string>
+    <string name="error_invalid_user_name">帐号长度必须在5-12位之间</string>
+    <string name="error_invalid_nick_name">昵称长度必须在3-10位之间</string>
+    <string name="error_invalid_password">密码长度必须在6-12位之间</string>
+    <string name="error_incorrect_password">密码不正确</string>
+    <string name="error_field_required">请填写完整</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
 </resources>

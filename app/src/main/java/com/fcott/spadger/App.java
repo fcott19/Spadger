@@ -15,6 +15,8 @@ import com.tencent.smtt.sdk.QbSdk;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.bmob.v3.Bmob;
+
 /**
  * Created by Administrator on 2016/12/27.
  */
@@ -36,6 +38,7 @@ public class App extends Application {
         activityList = new ArrayList<>();
 
         initBugly();
+        Bmob.initialize(this, "3c7f5201908d517f4a5f299bc6d6509b");
 //        initQbSdk();
 //        setupLeakCanary();
 

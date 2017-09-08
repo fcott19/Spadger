@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:transitionName="share_contain"
+    android:padding="10dp">
+
+    <ImageView
+        android:padding="2dp"
+        android:transitionName="headimg"
+        android:id="@+id/iv_head"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@mipmap/ic_launcher_round" />
+    <TextView
+        android:padding="10dp"
+        android:lines="1"
+        android:textStyle="bold"
+        android:textSize="17sp"
+        android:layout_toRightOf="@+id/iv_head"
+        android:text="标题"
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:paddingLeft="10dp"
+        android:paddingBottom="10dp"
+        android:paddingRight="10dp"
+        android:layout_toRightOf="@+id/iv_head"
+        android:layout_below="@+id/tv_title"
+        android:text="aaaaaaa"
+        android:id="@+id/tv_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:lines="1"
+        android:ellipsize="end"
+        android:textSize="10sp"
+        android:gravity="center"
+        android:layout_below="@+id/iv_head"
+        android:text="游客"
+        android:id="@+id/tv_nick_name"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content" />
+    <View
+        android:layout_marginLeft="8dp"
+        android:layout_toRightOf="@+id/iv_head"
+        android:background="@color/background_press_dark"
+        android:layout_below="@id/tv_content"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"></View>
+
+</RelativeLayout>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:transitionName="share_contain"
+    android:padding="10dp"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:padding="2dp"
+            android:transitionName="headimg"
+            android:id="@+id/iv_head"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@mipmap/ic_launcher_round" />
+        <LinearLayout
+            android:padding="1dp"
+            android:orientation="vertical"
+            android:layout_gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:lines="1"
+                android:ellipsize="end"
+                android:textSize="10sp"
+                android:text="游客"
+                android:id="@+id/tv_nick_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:lines="1"
+                android:ellipsize="end"
+                android:textSize="10sp"
+                android:text="发布时间"
+                android:id="@+id/tv_creat_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:layout_marginLeft="50dp"
+        android:layout_centerVertical="true"
+        android:paddingBottom="10dp"
+        android:paddingRight="10dp"
+        android:layout_below="@+id/tv_title"
+        android:text="aaaaaa"
+        android:id="@+id/tv_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <View
+        android:layout_marginLeft="50dp"
+        android:background="@color/background_press_dark"
+        android:layout_below="@id/tv_content"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"></View>
+
+</LinearLayout>

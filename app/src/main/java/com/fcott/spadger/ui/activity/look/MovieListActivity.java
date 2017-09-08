@@ -219,13 +219,16 @@ public class MovieListActivity extends BaseActivity implements PageController.Ob
             return;
         }
 
-        boolean needUpdate = NativeUtil.needUpdate(TAG);
+        boolean needUpdate = NativeUtil.needUpdate(cacheTag);
         ACache mCache = ACache.get(MovieListActivity.this.getApplicationContext());
         //取出缓存
         String value = mCache.getAsString(cacheTag);
+        if(TextUtils.isEmpty(value))
+            needUpdate = true;
         //显示缓存
         if (!TextUtils.isEmpty(value) && hasUpdate) {
             MovieBean movieBean = GsonUtil.fromJson(value, MovieBean.class);
+            pageController.setMaxPageIndex(movieBean.getMessage().getPageCount());
             movieListAdapter.setNewData(movieBean.getMessage().getMovies());
         } else if (hasUpdate && needUpdate) {
             toggleShowLoading(true);

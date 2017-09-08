@@ -108,15 +108,18 @@ public class MovieActorActivity extends BaseActivity implements PageController.O
         if (subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
 
-        boolean needUpdate = NativeUtil.needUpdate(TAG);
         cacheTag = TAG + "ACTOR" + currentPage;
+        boolean needUpdate = NativeUtil.needUpdate(cacheTag);
         ACache mCache = ACache.get(MovieActorActivity.this.getApplicationContext());
         //取出缓存
         String value = mCache.getAsString(cacheTag);
+        if(TextUtils.isEmpty(value))
+            needUpdate = true;
         //显示缓存
         if (!TextUtils.isEmpty(value) && hasUpdate) {
             ActorBean actorBean = GsonUtil.fromJson(value, ActorBean.class);
             actorAdapter.setNewData(actorBean.getMessage().getData());
+            pageController.setMaxPageIndex(actorBean.getMessage().getPageCount());
         } else if (hasUpdate && needUpdate) {
             toggleShowLoading(true);
         }

@@ -2,6 +2,10 @@ package com.fcott.spadger;
 
 
 public class Config {
+    public static final int NORMAL_REQUEST_CODE = 100;
+    public static final int NORMAL_RESULT_CODE = 101;
+    public static final int SUCCESS_RESULT_CODE = 101;
+
     public static final String VIDEO_CACHE_PATH = "/storage/emulated/0/Android/data/com.fcott.spadger/files/VideoCache/main";
     public static final int NOMOR_PAGE_SIZE = 20;
     public static final boolean IS_DEBUG = true;
@@ -28,4 +32,6 @@ public class Config {
     public static final String DATA_FROM = "DATA_FROM";
     public static final String DATA_FROM_KV = "DATA_FROM_KV";
     public static final String DATA_FROM_YIREN = "DATA_FROM_YIREN";
+    public static final String DATA_FROM_NEWPOST = "DATA_FROM_NEWPOST";
+    public static final String DATA_FROM_ADDASK = "DATA_FROM_ADDASK";
 }
