@@ -45,6 +45,7 @@
 
     <!-- pupupwindow的弹出和消失动画 -->
     <style name="popup_window_anim">
-        <item name="android:windowEnterAnimation">@anim/in</item>
+        <item name="android:windowEnterAnimation">@anim/dialog_slide_up</item>
+        <item name="android:windowExitAnimation">@anim/dialog_slide_down</item>
     </style>
 </resources>

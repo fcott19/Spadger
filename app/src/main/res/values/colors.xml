@@ -24,4 +24,6 @@
     <color name="drawer_draft_coclor">#ff6fc624</color>
     <color name="drawer_question_coclor">#fffecb2f</color>
     <color name="drawer_logout_coclor">#7799bb</color>
+
+    <color name="gallery_blue">#3F51B5</color>
 </resources>

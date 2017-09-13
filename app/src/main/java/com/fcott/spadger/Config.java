@@ -4,7 +4,8 @@ package com.fcott.spadger;
 public class Config {
     public static final int NORMAL_REQUEST_CODE = 100;
     public static final int NORMAL_RESULT_CODE = 101;
-    public static final int SUCCESS_RESULT_CODE = 101;
+    public static final int SUCCESS_RESULT_CODE = 102;
+    public static final int HEAD_CHANGE_RESULT_CODE = 103;
 
     public static final String VIDEO_CACHE_PATH = "/storage/emulated/0/Android/data/com.fcott.spadger/files/VideoCache/main";
     public static final int NOMOR_PAGE_SIZE = 20;

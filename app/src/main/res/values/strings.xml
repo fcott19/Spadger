@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">Spadger</string>
 
+    <string name="help">提示</string>
+    <string name="string_help_text">没有此权限将无法打开相册。\n点击"设置"-"权限"-打开所需权限。</string>
+    <string name="quit">退出</string>
+    <string name="settings">设置</string>
     <string name="load_empty_tip">抱歉,暂未获取到数据!\n请点击屏幕重试~</string>
     <string name="load_nonetwork_tip">暂未连接上网络!\n请连接后点击屏幕重试~</string>
     <string name="load_failed_tip">抱歉,系统出错了!\n请点击屏幕重试~</string>

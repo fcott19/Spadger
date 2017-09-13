@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +17,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.fcott.spadger.App;
 import com.fcott.spadger.Config;
 import com.fcott.spadger.R;
@@ -38,6 +42,7 @@ import com.fcott.spadger.utils.LogUtil;
 import com.fcott.spadger.utils.NativeUtil;
 import com.fcott.spadger.utils.UserManager;
 import com.fcott.spadger.utils.db.DBManager;
+import com.fcott.spadger.utils.glideutils.GlideCircleTransform;
 import com.fcott.spadger.utils.netstatus.NetChangeObserver;
 import com.fcott.spadger.utils.netstatus.NetStateReceiver;
 import com.fcott.spadger.utils.netstatus.NetUtils;
@@ -83,6 +88,7 @@ public class MainActivity extends BaseActivity implements NetChangeObserver {
     protected void getBundleExtras(Bundle bundle) {
 
     }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         user = UserManager.getCurrentUser();
@@ -95,14 +101,28 @@ public class MainActivity extends BaseActivity implements NetChangeObserver {
     @Override
     protected void initViews() {
 
-        if(user != null){
+        if (user != null) {
             tvNickName.setText(user.getNickName());
+            if (user.getHeadImage() != null) {
+                Glide.with(MainActivity.this)
+                        .load(user.getHeadImage())
+                        .transform(new GlideCircleTransform(MainActivity.this))
+                        .centerCrop()
+                        .into(ivHead);
+            }
         }
         rlPersonalInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this,"后续开放编辑个人资料功能",Toast.LENGTH_SHORT).show();
-//                startActivity(new Intent(MainActivity.this,ExplainActivity.class));
+                if (user != null) {
+                    Intent intent = new Intent(MainActivity.this, MineActivity.class);
+                    Pair<View, String>[] p = new Pair[]{Pair.create(rlPersonalInfo, "share_bg"),
+                            Pair.create(ivHead, "share_head")};
+                    ActivityOptionsCompat activityOptionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(MainActivity.this, p);
+                    ActivityCompat.startActivityForResult(MainActivity.this, intent,Config.NORMAL_REQUEST_CODE, activityOptionsCompat.toBundle());
+                } else {
+                    Toast.makeText(MainActivity.this, "请登陆", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -124,7 +144,7 @@ public class MainActivity extends BaseActivity implements NetChangeObserver {
             public void onItemClick(ViewHolder viewHolder, MainMenu data, int position) {
                 Intent intent = new Intent(MainActivity.this, KvMainActivity.class);
                 Bundle bundle = new Bundle();
-                switch (position){
+                switch (position) {
                     case 0:
 //                        startActivity(new Intent(MainActivity.this,KvMainActivity.class));
                         intent.setClass(MainActivity.this, KvMainActivity.class);
@@ -133,22 +153,22 @@ public class MainActivity extends BaseActivity implements NetChangeObserver {
                         startActivity(intent);
                         break;
                     case 1:
-                        startActivity(new Intent(MainActivity.this,LookMovieActivity.class));
+                        startActivity(new Intent(MainActivity.this, LookMovieActivity.class));
                         break;
                     case 2:
-                        startActivity(new Intent(MainActivity.this,YirenMainActivity.class));
+                        startActivity(new Intent(MainActivity.this, YirenMainActivity.class));
                         break;
                     case 3:
-                        if(user == null){
-                            Toast.makeText(MainActivity.this,"请登陆",Toast.LENGTH_SHORT).show();
-                        }else {
-                            startActivity(new Intent(MainActivity.this,BbsActivity.class));
+                        if (user == null) {
+                            Toast.makeText(MainActivity.this, "请登陆", Toast.LENGTH_SHORT).show();
+                        } else {
+                            startActivity(new Intent(MainActivity.this, BbsActivity.class));
                         }
                         break;
                     case 4:
-                        if(user == null){
-                            Toast.makeText(MainActivity.this,"请登陆",Toast.LENGTH_SHORT).show();
-                        }else {
+                        if (user == null) {
+                            Toast.makeText(MainActivity.this, "请登陆", Toast.LENGTH_SHORT).show();
+                        } else {
                             intent.setClass(MainActivity.this, MovieListActivity.class);
                             bundle.putString("TYPE", Config.typeCollection);
                             intent.putExtras(bundle);
@@ -156,11 +176,11 @@ public class MainActivity extends BaseActivity implements NetChangeObserver {
                         }
                         break;
                     case 5:
-                        startActivity(new Intent(MainActivity.this,SettingActivity.class));
+                        startActivity(new Intent(MainActivity.this, SettingActivity.class));
                         break;
                     case 6:
                         BmobUser.logOut();   //清除缓存用户对象
-                        startActivity(new Intent(MainActivity.this,LoginActivity.class));
+                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
                         App.getInstance().cleanActivity(false);
                         break;
                 }
@@ -175,7 +195,20 @@ public class MainActivity extends BaseActivity implements NetChangeObserver {
         initKvMenuBean();
     }
 
-    private void requestCollections(){
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Config.HEAD_CHANGE_RESULT_CODE) {
+            user = UserManager.getCurrentUser();
+            Glide.with(MainActivity.this)
+                    .load(user.getHeadImage())
+                    .transform(new GlideCircleTransform(MainActivity.this))
+                    .centerCrop()
+                    .into(ivHead);
+        }
+    }
+
+    private void requestCollections() {
         BmobQuery<MovieBean.MessageBean.MoviesBean> query = new BmobQuery<>();
         query.addWhereRelatedTo("avCollections", new BmobPointer(UserManager.getCurrentUser()));
         query.findObjects(new FindListener<MovieBean.MessageBean.MoviesBean>() {
@@ -185,12 +218,12 @@ public class MainActivity extends BaseActivity implements NetChangeObserver {
                 if (e == null && object.size() != 0) {
                     DBManager dbManager = new DBManager(MainActivity.this);
                     dbManager.clearTable();
-                    for(MovieBean.MessageBean.MoviesBean moviesBean:object){
+                    for (MovieBean.MessageBean.MoviesBean moviesBean : object) {
                         dbManager.add(moviesBean);
                     }
                     dbManager.closeDB();
                 }
-                if(e != null)
+                if (e != null)
                     LogUtil.log(e.toString());
             }
         });
@@ -215,6 +248,7 @@ public class MainActivity extends BaseActivity implements NetChangeObserver {
                     public void onCompleted() {
 
                     }
+
                     @Override
                     public void onError(Throwable e) {
                         toggleShowError("请求出错,点击重试", new View.OnClickListener() {
@@ -245,9 +279,9 @@ public class MainActivity extends BaseActivity implements NetChangeObserver {
 
     @Override
     public void onNetConnected(NetUtils.NetType type) {
-        if(type != NetUtils.NetType.WIFI){
-            if(GeneralSettingUtil.isProhibitNoWifi()){
-                Toast.makeText(MainActivity.this,getString(R.string.prohibit_no_wifi),Toast.LENGTH_SHORT).show();
+        if (type != NetUtils.NetType.WIFI) {
+            if (GeneralSettingUtil.isProhibitNoWifi()) {
+                Toast.makeText(MainActivity.this, getString(R.string.prohibit_no_wifi), Toast.LENGTH_SHORT).show();
                 App.getInstance().cleanActivity();
             }
         }
