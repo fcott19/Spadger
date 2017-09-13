@@ -16,6 +16,7 @@ import com.fcott.spadger.model.http.LookMovieService;
 import com.fcott.spadger.model.http.RequestTokenService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
 import com.fcott.spadger.ui.activity.BaseActivity;
+import com.fcott.spadger.ui.activity.MainActivity;
 import com.fcott.spadger.utils.GsonUtil;
 import com.fcott.spadger.utils.LogUtil;
 import com.fcott.spadger.utils.NativeUtil;
@@ -95,7 +96,7 @@ public class TokenCheckActivity extends BaseActivity {
 
                         LogUtil.log(TAG, GsonUtil.toJson(loginBean));
                         if (loginBean.getResult() == 1) {
-                            startActivity(new Intent(TokenCheckActivity.this, LookMovieActivity.class));
+                            startActivity(new Intent(TokenCheckActivity.this, MainActivity.class));
                             finish();
                         } else {
                             requestToken();

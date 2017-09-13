@@ -2,6 +2,8 @@ package com.fcott.spadger.ui.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -57,6 +59,9 @@ public class MenuFragment extends BaseFragment{
     private ArrayList<ItemBean> menuData = new ArrayList<>();//菜单数据
     private ArrayList<ItemBean> newData = new ArrayList<>();//新更新的数据
     private String TAG = "";//类型标志
+    private Handler handler = new Handler();
+    private boolean needWait = true;
+    private int waitTime;
 
     public MenuFragment() {
         // Required empty public constructor
@@ -73,16 +78,40 @@ public class MenuFragment extends BaseFragment{
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            menuData = getArguments().getParcelableArrayList(ARG_PARAM1);
+            newData = getArguments().getParcelableArrayList(ARG_PARAM2);
+            TAG = getArguments().getString(ARG_PARAM3);
+            //设置标题
+            if (TAG.equals(VEDIO)) {
+                waitTime = 200;
+            } else if (TAG.equals(PICTURE)) {
+                waitTime = 0;
+            } else if (TAG.equals(NOVEL)) {
+                waitTime = 100;
+            }
+            needWait = true;
+        }
+    }
+
+    @Override
     public int getFragmentLayoutID() {
         return R.layout.fragment_novel;
     }
 
     @Override
     public void initViews() {
-        if (getArguments() != null) {
-            menuData = getArguments().getParcelableArrayList(ARG_PARAM1);
-            newData = getArguments().getParcelableArrayList(ARG_PARAM2);
-            TAG = getArguments().getString(ARG_PARAM3);
+        if(needWait) {
+            needWait = false;
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    initViews();
+                }
+            },waitTime);
+            return;
         }
 
         //设置标题

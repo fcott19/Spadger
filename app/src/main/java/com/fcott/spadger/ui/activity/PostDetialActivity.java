@@ -9,12 +9,17 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.fcott.spadger.Config;
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.entity.Comment;
 import com.fcott.spadger.model.entity.Post;
+import com.fcott.spadger.ui.activity.look.MovieDetialActivity;
 import com.fcott.spadger.ui.adapter.CommentAdapter;
 import com.fcott.spadger.ui.adapter.baseadapter.OnItemClickListeners;
 import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
@@ -43,6 +48,10 @@ public class PostDetialActivity extends BaseActivity {
     TextView tvContent;
     @Bind(R.id.fab)
     FloatingActionButton floatingActionButton;
+    @Bind(R.id.iv_share)
+    ImageView ivShareAv;
+    @Bind(R.id.cv_main_post)
+    View mainPost;
 
     @Override
     protected int getContentViewLayoutID() {
@@ -68,6 +77,24 @@ public class PostDetialActivity extends BaseActivity {
         tvNickName.setText(post.getAuthor().getNickName());
         tvTitle.setText(post.getTitle());
         tvContent.setText(post.getContent());
+        if(post.getMoviesBean() != null) {
+            ivShareAv.setVisibility(View.VISIBLE);
+            Glide.with(PostDetialActivity.this)
+                    .load(post.getMoviesBean().getCoverImg())
+                    .priority(Priority.IMMEDIATE)
+                    .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                    .into(ivShareAv);
+            mainPost.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(PostDetialActivity.this, MovieDetialActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("DATA", post.getMoviesBean());
+                    intent.putExtras(bundle);
+                    startActivity(intent);
+                }
+            });
+        }
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

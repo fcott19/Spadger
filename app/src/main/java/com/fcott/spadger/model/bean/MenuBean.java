@@ -1,12 +1,15 @@
 package com.fcott.spadger.model.bean;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 
 /**
  * Created by Administrator on 2016/12/27.
  */
 
-public class MenuBean {
+public class MenuBean implements Parcelable {
 
     private ArrayList<ItemBean> vedioList = new ArrayList();//电影菜单列表
     private ArrayList<ItemBean> picList = new ArrayList();//图片菜单列表
@@ -15,6 +18,31 @@ public class MenuBean {
     private ArrayList<ItemBean> newVedioList = new ArrayList();//最新电影列表
     private ArrayList<ItemBean> newpicList = new ArrayList();//最新图片列表
     private ArrayList<ItemBean> newNovelList = new ArrayList();//最新小说列表
+
+    protected MenuBean(Parcel in) {
+        vedioList = in.createTypedArrayList(ItemBean.CREATOR);
+        picList = in.createTypedArrayList(ItemBean.CREATOR);
+        novelList = in.createTypedArrayList(ItemBean.CREATOR);
+        newVedioList = in.createTypedArrayList(ItemBean.CREATOR);
+        newpicList = in.createTypedArrayList(ItemBean.CREATOR);
+        newNovelList = in.createTypedArrayList(ItemBean.CREATOR);
+    }
+
+    public MenuBean(){
+
+    }
+
+    public static final Creator<MenuBean> CREATOR = new Creator<MenuBean>() {
+        @Override
+        public MenuBean createFromParcel(Parcel in) {
+            return new MenuBean(in);
+        }
+
+        @Override
+        public MenuBean[] newArray(int size) {
+            return new MenuBean[size];
+        }
+    };
 
     public ArrayList<ItemBean> getNewVedioList() {
         return newVedioList;
@@ -64,4 +92,18 @@ public class MenuBean {
         this.novelList = novelList;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeTypedList(vedioList);
+        dest.writeTypedList(picList);
+        dest.writeTypedList(novelList);
+        dest.writeTypedList(newVedioList);
+        dest.writeTypedList(newpicList);
+        dest.writeTypedList(newNovelList);
+    }
 }

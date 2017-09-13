@@ -3,12 +3,15 @@ package com.fcott.spadger.ui.activity.look;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
+import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -20,16 +23,20 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.fcott.spadger.Config;
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.bean.MovieBean;
 import com.fcott.spadger.model.bean.MovieInfoBean;
 import com.fcott.spadger.model.bean.MoviePlayBean;
+import com.fcott.spadger.model.entity.User;
 import com.fcott.spadger.model.http.LookMovieService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
 import com.fcott.spadger.ui.activity.BaseActivity;
+import com.fcott.spadger.ui.activity.MakePostActivity;
 import com.fcott.spadger.utils.GeneralSettingUtil;
 import com.fcott.spadger.utils.GsonUtil;
 import com.fcott.spadger.utils.LogUtil;
+import com.fcott.spadger.utils.UserManager;
 import com.fcott.spadger.utils.db.DBManager;
 import com.fcott.spadger.utils.glideutils.ImageLoader;
 import com.fcott.spadger.utils.web.X5WebView;
@@ -39,6 +46,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
+import cn.bmob.v3.BmobQuery;
+import cn.bmob.v3.datatype.BmobRelation;
+import cn.bmob.v3.exception.BmobException;
+import cn.bmob.v3.listener.FindListener;
+import cn.bmob.v3.listener.UpdateListener;
 import okhttp3.FormBody;
 import okhttp3.RequestBody;
 import rx.Observable;
@@ -90,7 +102,7 @@ public class MovieDetialActivity extends BaseActivity {
 
     @Override
     protected void getBundleExtras(Bundle bundle) {
-        moviesBean = bundle.getParcelable("DATA");
+        moviesBean = (MovieBean.MessageBean.MoviesBean) bundle.getSerializable("DATA");
     }
 
     @Override
@@ -303,28 +315,98 @@ public class MovieDetialActivity extends BaseActivity {
 
         getMenuInflater().inflate(R.menu.out_map_menu, menu);
         final Switch switchShop = (Switch) menu.findItem(R.id.myswitch).getActionView().findViewById(R.id.switchForActionBar);
+
         final DBManager dbManager = new DBManager(this);
         if (dbManager.hasContainId(moviesBean.getMovieID())) {
             switchShop.setChecked(true);
             switchShop.setText(getResources().getString(R.string.cancel_collection));
         }
         dbManager.closeDB();
+        switchShop.setEnabled(false);
 
         switchShop.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton btn, boolean isChecked) {
                 DBManager dbManager = new DBManager(MovieDetialActivity.this);
                 if (isChecked) {
+                    setCollection(moviesBean, true);
                     switchShop.setText(getResources().getString(R.string.cancel_collection));
                     dbManager.add(moviesBean);
                 } else {
+                    setCollection(moviesBean, false);
                     switchShop.setText(getResources().getString(R.string.collection));
                     dbManager.deleteMovie(moviesBean.getMovieID());
                 }
                 dbManager.closeDB();
             }
         });
+        BmobQuery<MovieBean.MessageBean.MoviesBean> query = new BmobQuery<>();
+        query.addWhereEqualTo("MovieID", moviesBean.getMovieID());
+        query.findObjects(new FindListener<MovieBean.MessageBean.MoviesBean>() {
+            @Override
+            public void done(List<MovieBean.MessageBean.MoviesBean> list, BmobException e) {
+                if (e == null && list.size() != 0) {
+                    moviesBean = list.get(0);
+                    switchShop.setEnabled(true);
+                }
+            }
+        });
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(moviesBean.getObjectId() == null) {
+            Toast.makeText(MovieDetialActivity.this,"请稍等",Toast.LENGTH_SHORT).show();
+            return super.onOptionsItemSelected(item);
+        }
+        switch (item.getItemId()) {
+            case R.id.share:
+                Intent intent = new Intent(MovieDetialActivity.this, MakePostActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString(Config.DATA_FROM, Config.DATA_FROM_SHARE_AV);
+                bundle.putSerializable("AV", moviesBean);
+                intent.putExtras(bundle);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void setCollection(MovieBean.MessageBean.MoviesBean moviesBean, boolean isCollection) {
+        User user = UserManager.getCurrentUser();
+        BmobRelation relation = new BmobRelation();
+        if (isCollection) {
+            relation.add(moviesBean);
+            user.setAvCollections(relation);
+            user.update(new UpdateListener() {
+                @Override
+                public void done(BmobException e) {
+                    if (e == null) {
+                        Log.i("bmob", "多对多关联添加成功");
+                    } else {
+                        Log.i("bmob", "失败：" + e.getMessage());
+                    }
+                }
+
+            });
+        } else {
+            relation.remove(moviesBean);
+            user.setAvCollections(relation);
+            user.update(new UpdateListener() {
+
+                @Override
+                public void done(BmobException e) {
+                    if (e == null) {
+                        Log.i("bmob", "关联关系删除成功");
+                    } else {
+                        Log.i("bmob", "失败：" + e.getMessage());
+                    }
+                }
+
+            });
+        }
     }
 
     private String makeActor(List<MovieInfoBean.MessageBean.ActorBean> actorBeens) {

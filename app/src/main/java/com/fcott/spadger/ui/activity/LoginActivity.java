@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.entity.User;
+import com.fcott.spadger.ui.activity.look.TokenCheckActivity;
 import com.fcott.spadger.ui.widget.MaterialProgressBar;
 import com.fcott.spadger.utils.LogUtil;
 import com.fcott.spadger.utils.NativeUtil;
@@ -81,6 +82,11 @@ public class LoginActivity extends BaseActivity {
     @Override
     protected void getBundleExtras(Bundle bundle) {
 
+    }
+
+    @Override
+    protected boolean needAddActivityList() {
+        return false;
     }
 
     @Override
@@ -184,7 +190,7 @@ public class LoginActivity extends BaseActivity {
                     if (e == null) {
                         if(bmobUser.getEmailVerified()) {
                             Toast.makeText(LoginActivity.this, "登陆成功", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            startActivity(new Intent(LoginActivity.this, TokenCheckActivity.class));
                             finish();
                         }else {
                             Toast.makeText(LoginActivity.this, "请前往邮箱激活该帐号", Toast.LENGTH_SHORT).show();
@@ -298,7 +304,7 @@ public class LoginActivity extends BaseActivity {
         tvTourist.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(LoginActivity.this,MainActivity.class));
+                startActivity(new Intent(LoginActivity.this,TokenCheckActivity.class));
                 finish();
             }
         });

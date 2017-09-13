@@ -149,4 +149,11 @@ public class DBManager {
     public void clearTable(String tableName){
         db.execSQL("DELETE FROM "+tableName);
     }
+
+    /**
+     * 清空表
+     */
+    public void clearTable(){
+        db.execSQL("DELETE FROM "+DatabaseHelper.TABLE_NAME);
+    }
 }

@@ -7,4 +7,9 @@
         android:title="模式"
         app:actionLayout="@layout/item_switch"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/share"
+        android:title="分享"
+        android:icon="@android:drawable/ic_menu_share"
+        app:showAsAction="always" />
 </menu>

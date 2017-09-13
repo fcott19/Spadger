@@ -43,7 +43,8 @@ public abstract class BaseActivity extends AppCompatActivity{
             setContentView(getContentViewLayoutID());
         }
 
-        App.getInstance().addActivity(this);
+        if(needAddActivityList())
+            App.getInstance().addActivity(this);
 
         if (null != getLoadingTargetView()) {
             mVaryViewHelperController = new VaryViewHelperController(getLoadingTargetView());
@@ -70,6 +71,10 @@ public abstract class BaseActivity extends AppCompatActivity{
     protected abstract void getBundleExtras(Bundle bundle);
     //初始化视图
     protected abstract void initViews();
+
+    protected boolean needAddActivityList() {
+        return true;
+    }
 
     //设置提醒占位视图
     protected View getLoadingTargetView(){

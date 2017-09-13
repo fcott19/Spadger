@@ -3,6 +3,7 @@ package com.fcott.spadger;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Environment;
+import android.os.Process;
 import android.os.StrictMode;
 import android.util.Log;
 
@@ -58,12 +59,17 @@ public class App extends Application {
         activityList.add(activity);
     }
 
-    public void cleanActivity() {
+    public void cleanActivity(boolean needKillProcess) {
         for (Activity activitie : activityList) {
             if (activitie != null) {
                 activitie.finish();
             }
         }
+        if(needKillProcess)
+            Process.killProcess(Process.myPid());
+    }
+    public void cleanActivity() {
+        cleanActivity(true);
     }
 
     protected void setupLeakCanary() {

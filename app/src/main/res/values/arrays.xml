@@ -12,6 +12,7 @@
         <item>BBS</item>
         <item>收藏夹</item>
         <item>设置</item>
+        <item>退出</item>
     </string-array>
 
     <string-array name="main_menu_ic">
@@ -21,6 +22,7 @@
         <item>@drawable/ic_bbs</item>
         <item>@drawable/ic_collection</item>
         <item>@drawable/ic_settings</item>
+        <item>@drawable/ic_logout</item>
     </string-array>
 
     <array name="nav_drawer_tint">
@@ -30,5 +32,6 @@
         <item>@color/drawer_collect_coclor</item>
         <item>@color/drawer_draft_coclor</item>
         <item>@color/drawer_question_coclor</item>
+        <item>@color/drawer_logout_coclor</item>
     </array>
 </resources>

@@ -110,6 +110,7 @@ public class BbsActivity extends BaseActivity {
         query.setSkip(PAGE_SIZE * (page - 1));
         query.order("-createdAt");
         query.include("author");
+        query.include("moviesBean");
         //执行查询方法
         query.findObjects(new FindListener<Post>() {
             @Override

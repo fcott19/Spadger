@@ -34,4 +34,5 @@ public class Config {
     public static final String DATA_FROM_YIREN = "DATA_FROM_YIREN";
     public static final String DATA_FROM_NEWPOST = "DATA_FROM_NEWPOST";
     public static final String DATA_FROM_ADDASK = "DATA_FROM_ADDASK";
+    public static final String DATA_FROM_SHARE_AV = "DATA_FROM_SHARE_AV";
 }

@@ -12,7 +12,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // 数据库版本号
     private static final int DATABASE_VERSION = 1;
     // 数据库名
-    private static final String DATABASE_NAME = "Collection.db";
+    private static final String DATABASE_NAME = "AvCollection.db";
 
     // 数据表名，一个数据库中可以有多个表（虽然本例中只建立了一个表）
     public static final String TABLE_NAME = "CollectionMovies";

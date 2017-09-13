@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.fcott.spadger.R;
+import com.fcott.spadger.ui.activity.look.TokenCheckActivity;
 import com.fcott.spadger.utils.UserManager;
 
 public class SplashActivity extends BaseActivity {
@@ -23,7 +24,7 @@ public class SplashActivity extends BaseActivity {
         if(UserManager.getCurrentUser() == null){
             startActivity(new Intent(SplashActivity.this,LoginActivity.class));
         }else {
-            startActivity(new Intent(SplashActivity.this,MainActivity.class));
+            startActivity(new Intent(SplashActivity.this,TokenCheckActivity.class));
         }
         finish();
     }

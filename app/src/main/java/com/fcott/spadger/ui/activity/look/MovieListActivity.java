@@ -104,17 +104,17 @@ public class MovieListActivity extends BaseActivity implements PageController.Ob
         movieListAdapter = new MovieListAdapter(this, new ArrayList<MovieBean.MessageBean.MoviesBean>(), false);
         movieListAdapter.setOnItemClickListener(new OnItemClickListeners<MovieBean.MessageBean.MoviesBean>() {
             @Override
-            public void onItemClick(ViewHolder viewHolder, MovieBean.MessageBean.MoviesBean data, int position) {
-                if (type.equals(Config.typeCollection)) {
-                    requestCode = COLLECTION_CODE;
-                }else {
-                    requestCode = NORMAL_CODE;
-                }
-                Intent intent = new Intent(MovieListActivity.this, MovieDetialActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putParcelable("DATA", data);
-                intent.putExtras(bundle);
-                startActivityForResult(intent,requestCode);
+            public void onItemClick(ViewHolder viewHolder, final MovieBean.MessageBean.MoviesBean data, int position) {
+                    if (type.equals(Config.typeCollection)) {
+                        requestCode = COLLECTION_CODE;
+                    } else {
+                        requestCode = NORMAL_CODE;
+                    }
+                    Intent intent = new Intent(MovieListActivity.this, MovieDetialActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("DATA", data);
+                    intent.putExtras(bundle);
+                    startActivityForResult(intent, requestCode);
             }
         });
         final LinearLayoutManager layoutManager = new LinearLayoutManager(MovieListActivity.this);
@@ -128,12 +128,12 @@ public class MovieListActivity extends BaseActivity implements PageController.Ob
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == COLLECTION_CODE){
+        if (requestCode == COLLECTION_CODE) {
             requestDataFromDb(pageController.getCurrentPageIndex());
         }
     }
 
-    private void requestDataFromDb(final int currentPage){
+    private void requestDataFromDb(final int currentPage) {
         Observable.create(new Observable.OnSubscribe<List<MovieBean.MessageBean.MoviesBean>>() {
             @Override
             public void call(Subscriber<? super List<MovieBean.MessageBean.MoviesBean>> subscriber) {
@@ -148,7 +148,7 @@ public class MovieListActivity extends BaseActivity implements PageController.Ob
                     @Override
                     public void call(List<MovieBean.MessageBean.MoviesBean> moviesBeen) {
                         if (moviesBeen.size() != 0) {
-                            pageController.setMaxPageIndex(moviesBeen.size()/Config.NOMOR_PAGE_SIZE+1);
+                            pageController.setMaxPageIndex(moviesBeen.size() / Config.NOMOR_PAGE_SIZE + 1);
                             movieListAdapter.setNewData(moviesBeen);
                         } else {
                             toggleShowError(getString(R.string.no_collection));
@@ -179,7 +179,7 @@ public class MovieListActivity extends BaseActivity implements PageController.Ob
             cacheTag = TAG + "CHANNELID" + channelId + String.valueOf(currentPage);
         } else if ((type.equals(Config.typeActor) && actorId != null) || (type.equals(Config.searchTypeActor) && searchData != null)) {
             String id;
-            if(actorId != null)
+            if (actorId != null)
                 id = actorId;
             else
                 id = searchData;
@@ -193,7 +193,7 @@ public class MovieListActivity extends BaseActivity implements PageController.Ob
             cacheTag = TAG + "ACTORID" + id + String.valueOf(currentPage);
         } else if ((type.equals(Config.typeClass) && classId != null) || (type.equals(Config.searchTypeClass) && searchData != null)) {
             String id;
-            if(classId != null)
+            if (classId != null)
                 id = classId;
             else
                 id = searchData;
@@ -223,13 +223,17 @@ public class MovieListActivity extends BaseActivity implements PageController.Ob
         ACache mCache = ACache.get(MovieListActivity.this.getApplicationContext());
         //取出缓存
         String value = mCache.getAsString(cacheTag);
-        if(TextUtils.isEmpty(value))
+        if (TextUtils.isEmpty(value))
             needUpdate = true;
         //显示缓存
         if (!TextUtils.isEmpty(value) && hasUpdate) {
             MovieBean movieBean = GsonUtil.fromJson(value, MovieBean.class);
             pageController.setMaxPageIndex(movieBean.getMessage().getPageCount());
             movieListAdapter.setNewData(movieBean.getMessage().getMovies());
+            if (currentPage == pageController.getCurrentPageIndex()) {
+                int nextPage = currentPage + 1;
+                requestData(nextPage, false);
+            }
         } else if (hasUpdate && needUpdate) {
             toggleShowLoading(true);
         }
@@ -286,7 +290,7 @@ public class MovieListActivity extends BaseActivity implements PageController.Ob
 
     @Override
     protected void onDestroy() {
-        LogUtil.log(TAG,"onDestroy");
+        LogUtil.log(TAG, "onDestroy");
         super.onDestroy();
         if (subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();

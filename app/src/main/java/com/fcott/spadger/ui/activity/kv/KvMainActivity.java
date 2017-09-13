@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
 
@@ -17,15 +18,16 @@ import com.fcott.spadger.model.http.MainPageService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
 import com.fcott.spadger.ui.activity.BaseActivity;
 import com.fcott.spadger.ui.adapter.ViewPagerAdapter;
-import com.fcott.spadger.ui.fragment.MenuFragment;
+import com.fcott.spadger.ui.fragment.FragmentFactroy;
+import com.fcott.spadger.utils.ACache;
 import com.fcott.spadger.utils.GeneralSettingUtil;
 import com.fcott.spadger.utils.JsoupUtil;
+import com.fcott.spadger.utils.NativeUtil;
 import com.fcott.spadger.utils.glideutils.ImageLoader;
 import com.fcott.spadger.utils.netstatus.NetChangeObserver;
 import com.fcott.spadger.utils.netstatus.NetStateReceiver;
 import com.fcott.spadger.utils.netstatus.NetUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -48,6 +50,7 @@ public class KvMainActivity extends BaseActivity implements NetChangeObserver {
     private ViewPagerAdapter pagerAdapter;
     private List<String> titles;
     private List<Fragment> fragmentList;
+    private MenuBean kvMenuBean;
 
     @Override
     protected int getContentViewLayoutID() {
@@ -56,7 +59,7 @@ public class KvMainActivity extends BaseActivity implements NetChangeObserver {
 
     @Override
     protected void getBundleExtras(Bundle bundle) {
-
+        kvMenuBean = bundle.getParcelable("MENUBEAN");
     }
 
     @Override
@@ -73,6 +76,20 @@ public class KvMainActivity extends BaseActivity implements NetChangeObserver {
 
     @Override
     protected void initViews() {
+        if(kvMenuBean != null){
+            requestComplete(kvMenuBean);
+            return;
+        }
+        boolean needUpdate = NativeUtil.needUpdate(TAG);
+        ACache mCache = ACache.get(KvMainActivity.this.getApplicationContext());
+        //取出缓存
+        String value = mCache.getAsString(TAG);
+        //显示缓存
+        if (!TextUtils.isEmpty(value) && !needUpdate) {
+            requestComplete(JsoupUtil.parseMenu(value));
+            return;
+        }
+
         toggleShowLoading(true);
         RetrofitUtils.getInstance().create1(MainPageService.class)
                 .getMainPage("")
@@ -97,6 +114,9 @@ public class KvMainActivity extends BaseActivity implements NetChangeObserver {
                     public void onNext(String s) {
                         requestComplete(JsoupUtil.parseMenu(s));
                         toggleShowLoading(false);
+                        //缓存
+                        ACache aCache = ACache.get(KvMainActivity.this.getApplicationContext());
+                        aCache.put(TAG, s);
                     }
                 });
     }
@@ -138,10 +158,7 @@ public class KvMainActivity extends BaseActivity implements NetChangeObserver {
                     });
         }
         titles = Arrays.asList(getResources().getStringArray(R.array.news));
-        fragmentList = new ArrayList<>();
-        fragmentList.add(MenuFragment.newInstance(menuBean.getPicList(),menuBean.getNewpicList(), MenuFragment.PICTURE));
-        fragmentList.add(MenuFragment.newInstance(menuBean.getNovelList(),menuBean.getNewNovelList(), MenuFragment.NOVEL));
-        fragmentList.add(MenuFragment.newInstance(menuBean.getVedioList(),menuBean.getNewVedioList(), MenuFragment.VEDIO));
+        fragmentList = FragmentFactroy.getFragment(menuBean);
 
         pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(),fragmentList,titles);
         vp_news.setAdapter(pagerAdapter);
