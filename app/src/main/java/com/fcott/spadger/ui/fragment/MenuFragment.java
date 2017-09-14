@@ -19,7 +19,7 @@ import com.fcott.spadger.ui.activity.kv.NovelDetialActivity;
 import com.fcott.spadger.ui.activity.kv.NovelExhibitionActivity;
 import com.fcott.spadger.ui.activity.kv.PictureDetailActivity;
 import com.fcott.spadger.ui.activity.kv.VedioExhibitionActivity;
-import com.fcott.spadger.ui.adapter.MenuAdapter;
+import com.fcott.spadger.ui.adapter.KvMenuAdapter;
 import com.fcott.spadger.ui.adapter.baseadapter.OnItemClickListeners;
 import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
 import com.fcott.spadger.utils.JsoupUtil;
@@ -54,8 +54,8 @@ public class MenuFragment extends BaseFragment{
     @Bind(R.id.tv_title)
     public TextView tvTitle;
 
-    MenuAdapter menuAdapter = null;//菜单选择Adapter
-    MenuAdapter newInfoAdapter = null;//新更新信息Adapter
+    KvMenuAdapter menuAdapter = null;//菜单选择Adapter
+    KvMenuAdapter newInfoAdapter = null;//新更新信息Adapter
     private ArrayList<ItemBean> menuData = new ArrayList<>();//菜单数据
     private ArrayList<ItemBean> newData = new ArrayList<>();//新更新的数据
     private String TAG = "";//类型标志
@@ -123,7 +123,7 @@ public class MenuFragment extends BaseFragment{
             tvTitle.setText(getResources().getString(R.string.new_novel));
         }
         //menu列表展示
-        menuAdapter = new MenuAdapter(baseActivity, menuData, false);
+        menuAdapter = new KvMenuAdapter(baseActivity, menuData, false);
         menuAdapter.setOnItemClickListener(new OnItemClickListeners<ItemBean>() {
             @Override
             public void onItemClick(ViewHolder viewHolder, ItemBean data, int position) {
@@ -151,7 +151,7 @@ public class MenuFragment extends BaseFragment{
         mRvMenu.setLayoutManager(layoutManager);
         mRvMenu.setAdapter(menuAdapter);
         //新内容列表展示
-        newInfoAdapter = new MenuAdapter(baseActivity, newData, false);
+        newInfoAdapter = new KvMenuAdapter(baseActivity, newData, false);
         newInfoAdapter.setOnItemClickListener(new OnItemClickListeners<ItemBean>() {
             @Override
             public void onItemClick(ViewHolder viewHolder, ItemBean data, int position) {

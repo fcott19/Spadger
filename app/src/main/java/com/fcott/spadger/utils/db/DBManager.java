@@ -18,10 +18,16 @@ import java.util.List;
 public class DBManager {
     private DatabaseHelper helper;
     private SQLiteDatabase db;
+    private String tableName;
 
     public DBManager(Context context) {
+        this(context,DatabaseHelper.COLLECTION_TABLE);
+    }
+
+    public DBManager(Context context,String tableName) {
         helper = new DatabaseHelper(context);
         db = helper.getWritableDatabase();
+        this.tableName = tableName;
     }
 
     /**
@@ -31,7 +37,7 @@ public class DBManager {
         // 采用事务处理，确保数据完整性
         db.beginTransaction(); // 开始事务
         try {
-            db.execSQL("INSERT INTO " + DatabaseHelper.TABLE_NAME
+            db.execSQL("INSERT INTO " + tableName
                     + " VALUES(null, ?, ?, ?, ?, ?, ?)", new Object[] { moviesBean.getMovieID(),
                     moviesBean.getName(), moviesBean.getDescription(),moviesBean.getCreateTime(),
                     moviesBean.getImg(),moviesBean.getCoverImg()});
@@ -54,7 +60,7 @@ public class DBManager {
         cv.put("CreateTime", moviesBean.getCreateTime());
         cv.put("Img", moviesBean.getImg());
         cv.put("CoverImg", moviesBean.getCoverImg());
-        db.update(DatabaseHelper.TABLE_NAME, cv, "MovieID = ?",
+        db.update(tableName, cv, "MovieID = ?",
                 new String[] { moviesBean.getMovieID() });
     }
 
@@ -62,7 +68,7 @@ public class DBManager {
      * delete old Movie
      */
     public void deleteMovie(String movieId) {
-        db.delete(DatabaseHelper.TABLE_NAME, "MovieID == ?",
+        db.delete(tableName, "MovieID == ?",
                 new String[]{movieId});
     }
 
@@ -107,13 +113,33 @@ public class DBManager {
         return beanList;
     }
 
+    public List<MovieBean.MessageBean.MoviesBean> queryReverse(int pageIndex) {
+        ArrayList<MovieBean.MessageBean.MoviesBean> beanList = new ArrayList<>();
+        Cursor c = queryTheCursor();
+        c.move(c.getCount()-((pageIndex - 1) * Config.NOMOR_PAGE_SIZE)+1);
+        while (c.moveToPrevious()) {
+            MovieBean.MessageBean.MoviesBean moviesBean = new MovieBean.MessageBean.MoviesBean();
+            moviesBean.setMovieID(c.getString(c.getColumnIndex("MovieID")));
+            moviesBean.setName(c.getString(c.getColumnIndex("Name")));
+            moviesBean.setDescription(c.getString(c.getColumnIndex("Description")));
+            moviesBean.setCreateTime(c.getString(c.getColumnIndex("CreateTime")));
+            moviesBean.setImg(c.getString(c.getColumnIndex("Img")));
+            moviesBean.setCoverImg(c.getString(c.getColumnIndex("CoverImg")));
+            beanList.add(moviesBean);
+            if(beanList.size()==Config.NOMOR_PAGE_SIZE)
+                break;
+        }
+        c.close();
+        return beanList;
+    }
+
     /**
      * query all Movie, return cursor
      *
      * @return Cursor
      */
     public Cursor queryTheCursor() {
-        Cursor c = db.rawQuery("SELECT * FROM " + DatabaseHelper.TABLE_NAME ,
+        Cursor c = db.rawQuery("SELECT * FROM " + tableName,
                 null);
         return c;
     }
@@ -154,6 +180,6 @@ public class DBManager {
      * 清空表
      */
     public void clearTable(){
-        db.execSQL("DELETE FROM "+DatabaseHelper.TABLE_NAME);
+        db.execSQL("DELETE FROM "+tableName);
     }
 }

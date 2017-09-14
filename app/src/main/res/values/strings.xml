@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Spadger</string>
 
+    <string name="load_end_tip">--end--</string>
     <string name="help">提示</string>
     <string name="string_help_text">没有此权限将无法打开相册。\n点击"设置"-"权限"-打开所需权限。</string>
     <string name="quit">退出</string>
@@ -17,7 +18,7 @@
     <string name="new_novel">最新小说</string>
     <string name="collection">收藏</string>
     <string name="cancel_collection">取消收藏</string>
-    <string name="no_collection">没有收藏电影</string>
+    <string name="no_collection">没有数据</string>
     <string name="no_data">没有数据</string>
     <string name="prohibit_no_wifi">非wifi环境自动退出APP</string>
     <string name="auto_per_load">wifi环境下自动预加载</string>

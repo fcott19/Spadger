@@ -243,25 +243,29 @@ public class JsoupUtil {
     }
 
     public static NovelListBean parseNovelList(String response){
-        NovelListBean novelListBean = new NovelListBean();
+        try {
+            NovelListBean novelListBean = new NovelListBean();
 
-        Document document = Jsoup.parse(response);
-        Elements elements = document.getElementsByClass("artlist").select("ul");
-        for(Element element:elements){
-            novelListBean.getNovelList().add(new NovelListItemBean(element.select("a").attr("title"),element.select("a").attr("href"),element.select("font").text()));
+            Document document = Jsoup.parse(response);
+            Elements elements = document.getElementsByClass("artlist").select("ul");
+            for(Element element:elements){
+                novelListBean.getNovelList().add(new NovelListItemBean(element.select("a").attr("title"),element.select("a").attr("href"),element.select("font").text()));
+            }
+
+            Element page = document.getElementsByClass("page").get(0);
+            String s = page.select("input ").attr("onclick").replace("pagego('","").replace(")","");
+            String info[] = s.split("',");
+            novelListBean.setPageControlBean(new PageControlBean(page.select("span").text(),
+                    page.getElementsContainingText("首页").attr("href"),
+                    page.getElementsContainingText("尾页").attr("href"),
+                    page.getElementsContainingText("下一页").attr("href"),
+                    page.getElementsContainingText("上一页").attr("href"),
+                    info[0],info[1]));
+
+            return novelListBean;
+        }catch (Exception e){
+            return null;
         }
-
-        Element page = document.getElementsByClass("page").get(0);
-        String s = page.select("input ").attr("onclick").replace("pagego('","").replace(")","");
-        String info[] = s.split("',");
-        novelListBean.setPageControlBean(new PageControlBean(page.select("span").text(),
-                page.getElementsContainingText("首页").attr("href"),
-                page.getElementsContainingText("尾页").attr("href"),
-                page.getElementsContainingText("下一页").attr("href"),
-                page.getElementsContainingText("上一页").attr("href"),
-                info[0],info[1]));
-
-        return novelListBean;
     }
 
     public static String parseNovelDetial(String response){

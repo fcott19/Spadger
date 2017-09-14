@@ -17,7 +17,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.fcott.spadger.App;
 import com.fcott.spadger.Config;
 import com.fcott.spadger.R;
@@ -42,7 +41,7 @@ import com.fcott.spadger.utils.LogUtil;
 import com.fcott.spadger.utils.NativeUtil;
 import com.fcott.spadger.utils.UserManager;
 import com.fcott.spadger.utils.db.DBManager;
-import com.fcott.spadger.utils.glideutils.GlideCircleTransform;
+import com.fcott.spadger.utils.glideutils.ImageLoader;
 import com.fcott.spadger.utils.netstatus.NetChangeObserver;
 import com.fcott.spadger.utils.netstatus.NetStateReceiver;
 import com.fcott.spadger.utils.netstatus.NetUtils;
@@ -52,7 +51,6 @@ import java.util.List;
 
 import butterknife.Bind;
 import cn.bmob.v3.BmobQuery;
-import cn.bmob.v3.BmobUser;
 import cn.bmob.v3.datatype.BmobPointer;
 import cn.bmob.v3.exception.BmobException;
 import cn.bmob.v3.listener.FindListener;
@@ -104,11 +102,7 @@ public class MainActivity extends BaseActivity implements NetChangeObserver {
         if (user != null) {
             tvNickName.setText(user.getNickName());
             if (user.getHeadImage() != null) {
-                Glide.with(MainActivity.this)
-                        .load(user.getHeadImage())
-                        .transform(new GlideCircleTransform(MainActivity.this))
-                        .centerCrop()
-                        .into(ivHead);
+                ImageLoader.getInstance().loadCircle(MainActivity.this,user.getHeadImage(),ivHead);
             }
         }
         rlPersonalInfo.setOnClickListener(new View.OnClickListener() {
@@ -117,7 +111,8 @@ public class MainActivity extends BaseActivity implements NetChangeObserver {
                 if (user != null) {
                     Intent intent = new Intent(MainActivity.this, MineActivity.class);
                     Pair<View, String>[] p = new Pair[]{Pair.create(rlPersonalInfo, "share_bg"),
-                            Pair.create(ivHead, "share_head")};
+                            Pair.create(ivHead, "share_head"),
+                            Pair.create(tvNickName, "share_mine_nickname")};
                     ActivityOptionsCompat activityOptionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(MainActivity.this, p);
                     ActivityCompat.startActivityForResult(MainActivity.this, intent,Config.NORMAL_REQUEST_CODE, activityOptionsCompat.toBundle());
                 } else {
@@ -178,11 +173,6 @@ public class MainActivity extends BaseActivity implements NetChangeObserver {
                     case 5:
                         startActivity(new Intent(MainActivity.this, SettingActivity.class));
                         break;
-                    case 6:
-                        BmobUser.logOut();   //清除缓存用户对象
-                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                        App.getInstance().cleanActivity(false);
-                        break;
                 }
             }
         });
@@ -200,11 +190,7 @@ public class MainActivity extends BaseActivity implements NetChangeObserver {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Config.HEAD_CHANGE_RESULT_CODE) {
             user = UserManager.getCurrentUser();
-            Glide.with(MainActivity.this)
-                    .load(user.getHeadImage())
-                    .transform(new GlideCircleTransform(MainActivity.this))
-                    .centerCrop()
-                    .into(ivHead);
+            ImageLoader.getInstance().loadCircle(MainActivity.this,user.getHeadImage(),ivHead);
         }
     }
 

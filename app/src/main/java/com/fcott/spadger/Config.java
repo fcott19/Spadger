@@ -25,6 +25,7 @@ public class Config {
     public static final String typeClass = "typeClass";
     public static final String typeActor = "typeActor";
     public static final String typeCollection = "typeCollection";
+    public static final String typeRecord = "typeRecord";
 
     public static final String searchTypeNormal = "searchTypeNormal";
     public static final String searchTypeClass = "searchTypeClass";
@@ -36,4 +37,5 @@ public class Config {
     public static final String DATA_FROM_NEWPOST = "DATA_FROM_NEWPOST";
     public static final String DATA_FROM_ADDASK = "DATA_FROM_ADDASK";
     public static final String DATA_FROM_SHARE_AV = "DATA_FROM_SHARE_AV";
+    public static final String DATA_FROM_MY_POST = "DATA_FROM_MY_POST";
 }

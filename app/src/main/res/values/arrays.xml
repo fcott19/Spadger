@@ -12,7 +12,6 @@
         <item>BBS</item>
         <item>收藏夹</item>
         <item>设置</item>
-        <item>退出</item>
     </string-array>
 
     <string-array name="main_menu_ic">
@@ -22,7 +21,6 @@
         <item>@drawable/ic_bbs</item>
         <item>@drawable/ic_collection</item>
         <item>@drawable/ic_settings</item>
-        <item>@drawable/ic_logout</item>
     </string-array>
 
     <array name="nav_drawer_tint">
@@ -32,6 +30,29 @@
         <item>@color/drawer_collect_coclor</item>
         <item>@color/drawer_draft_coclor</item>
         <item>@color/drawer_question_coclor</item>
-        <item>@color/drawer_logout_coclor</item>
+    </array>
+
+    <string-array name="mine_menu">
+        <item>我的帖子</item>
+        <item>喜欢的帖子</item>
+        <item>浏览记录</item>
+        <item>清除浏览记录</item>
+        <item>退出</item>
+    </string-array>
+
+    <string-array name="mine_menu_ic">
+        <item>@drawable/ic_first</item>
+        <item>@drawable/ic_second</item>
+        <item>@drawable/ic_third</item>
+        <item>@drawable/ic_collection</item>
+        <item>@drawable/ic_logout</item>
+    </string-array>
+
+    <array name="mine_tint">
+        <item>@color/drawer_home_coclor</item>
+        <item>@color/drawer_draft_coclor</item>
+        <item>@color/drawer_question_coclor</item>
+        <item>@color/drawer_collect_coclor</item>
+        <item>@color/drawer_follow_coclor</item>
     </array>
 </resources>

@@ -35,6 +35,7 @@ import com.fcott.spadger.ui.fragment.MenuFragment;
 import com.fcott.spadger.utils.ACache;
 import com.fcott.spadger.utils.GeneralSettingUtil;
 import com.fcott.spadger.utils.JsoupUtil;
+import com.fcott.spadger.utils.LogUtil;
 import com.fcott.spadger.utils.glideutils.ImageLoader;
 import com.fcott.spadger.utils.netstatus.NetChangeObserver;
 import com.fcott.spadger.utils.netstatus.NetStateReceiver;
@@ -56,9 +57,8 @@ public class NovelExhibitionActivity extends BaseActivity implements NetChangeOb
     public static final String NOVEL_DETIAL_URL = "DETIAL_URL";
     public static final String NOVEL_DETIAL_TITLE = "DETIAL_TITLE";
 
-    private String title = "";//标题
     private String url = "";//地址URL
-    private String tyep = "";//用于区分 小说/图片
+    private String type = "";//用于区分 小说/图片
     private NovelListAdapter adapter = null;
     private NovelListBean novelListBean = null;
     private Subscription subscription;
@@ -124,9 +124,9 @@ public class NovelExhibitionActivity extends BaseActivity implements NetChangeOb
 
     @Override
     protected void getBundleExtras(Bundle bundle) {
-        title = bundle.getString(MenuFragment.TITLE);
         url = bundle.getString(MenuFragment.URL);
-        tyep = bundle.getString(MenuFragment.TYPE);
+        type = bundle.getString(MenuFragment.TYPE);
+        LogUtil.log(url+":"+ type);
     }
 
     @Override
@@ -157,7 +157,7 @@ public class NovelExhibitionActivity extends BaseActivity implements NetChangeOb
             public void onItemClick(ViewHolder viewHolder, NovelListItemBean data, int position) {
                 Intent intent = new Intent();
                 Bundle bundle = new Bundle();
-                if (tyep.equals(MenuFragment.NOVEL)) {
+                if (type.equals(MenuFragment.NOVEL)) {
                     intent = new Intent(NovelExhibitionActivity.this, NovelDetialActivity.class);
                 } else {
                     intent = new Intent(NovelExhibitionActivity.this, PictureDetailActivity.class);
@@ -172,7 +172,7 @@ public class NovelExhibitionActivity extends BaseActivity implements NetChangeOb
         adapter.setItemLongClickListener(new OnItemLongClickListener<NovelListItemBean>() {
             @Override
             public void onItemLongClick(ViewHolder viewHolder, NovelListItemBean data, int position) {
-                if (!tyep.equals(MenuFragment.PICTURE))
+                if (!type.equals(MenuFragment.PICTURE))
                     return;
                 ImageLoader.getInstance().perLoadImage(data.getUrl(),targetList);
                 Toast.makeText(mContext, "开始加载本图集", Toast.LENGTH_SHORT).show();
@@ -245,7 +245,7 @@ public class NovelExhibitionActivity extends BaseActivity implements NetChangeOb
 
     //请求数据，更新界面
     private void requestData(final String url) {
-        final boolean needPerLoad = GeneralSettingUtil.isPerLoad() && tyep.equals(MenuFragment.PICTURE) && NetUtils.isWifiConnected(NovelExhibitionActivity.this);
+        final boolean needPerLoad = GeneralSettingUtil.isPerLoad() && type.equals(MenuFragment.PICTURE) && NetUtils.isWifiConnected(NovelExhibitionActivity.this);
         if(subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
         for(Target target:targetList){
@@ -253,16 +253,20 @@ public class NovelExhibitionActivity extends BaseActivity implements NetChangeOb
         }
 
         ACache mCache = ACache.get(NovelExhibitionActivity.this.getApplicationContext());
-        final String value = mCache.getAsString(url);//取出缓存
+        final String value = mCache.getAsString(type+url);//取出缓存
 
         //显示缓存
         if (!TextUtils.isEmpty(value)) {
             novelListBean = JsoupUtil.parseNovelList(value);
-            ArrayList arrayList = novelListBean.getNovelList();
-            if (!arrayList.isEmpty()) {
-                adapter.setNewData(arrayList);
-                //设置当前页数
-                etPageNumber.setText(novelListBean.getPageControlBean().getCurrentPage());
+            if(novelListBean == null){
+                toggleShowLoading(true);
+            }else {
+                ArrayList arrayList = novelListBean.getNovelList();
+                if (!arrayList.isEmpty()) {
+                    adapter.setNewData(arrayList);
+                    //设置当前页数
+                    etPageNumber.setText(novelListBean.getPageControlBean().getCurrentPage());
+                }
             }
         } else {
             toggleShowLoading(true);
@@ -275,7 +279,7 @@ public class NovelExhibitionActivity extends BaseActivity implements NetChangeOb
                     public NovelListBean call(String s) {
                         //缓存
                         ACache aCache = ACache.get(getApplicationContext());
-                        aCache.put(url, s);
+                        aCache.put(type+url, s);
                         return JsoupUtil.parseNovelList(s);
                     }
                 })

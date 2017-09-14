@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -23,6 +24,9 @@ import com.fcott.spadger.ui.activity.look.MovieDetialActivity;
 import com.fcott.spadger.ui.adapter.CommentAdapter;
 import com.fcott.spadger.ui.adapter.baseadapter.OnItemClickListeners;
 import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
+import com.fcott.spadger.ui.widget.AlertDialogFragment;
+import com.fcott.spadger.utils.UserManager;
+import com.fcott.spadger.utils.glideutils.ImageLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +35,7 @@ import butterknife.Bind;
 import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.exception.BmobException;
 import cn.bmob.v3.listener.FindListener;
+import cn.bmob.v3.listener.UpdateListener;
 
 public class PostDetialActivity extends BaseActivity {
     private static final int PAGE_SIZE = 20;
@@ -38,6 +43,12 @@ public class PostDetialActivity extends BaseActivity {
     private Post post;
     private CommentAdapter commentAdapter;
 
+    @Bind(R.id.iv_delete)
+    ImageView ivDelete;
+    @Bind(R.id.cb_like)
+    CheckBox cbLike;
+    @Bind(R.id.iv_head)
+    ImageView ivHead;
     @Bind(R.id.tv_nick_name)
     TextView tvNickName;
     @Bind(R.id.rcy)
@@ -74,6 +85,7 @@ public class PostDetialActivity extends BaseActivity {
 
     @Override
     protected void initViews() {
+        ImageLoader.getInstance().loadCircle(PostDetialActivity.this,post.getAuthor().getHeadImage(),ivHead);
         tvNickName.setText(post.getAuthor().getNickName());
         tvTitle.setText(post.getTitle());
         tvContent.setText(post.getContent());
@@ -94,6 +106,33 @@ public class PostDetialActivity extends BaseActivity {
                     startActivity(intent);
                 }
             });
+        }
+        if(post.getAuthor().getObjectId().equals(UserManager.getCurrentUser().getObjectId())){
+            ivDelete.setVisibility(View.VISIBLE);
+            ivDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    new AlertDialogFragment().setMessage("确定删除该帖?").setSelectFromListener(new AlertDialogFragment.SelectFromListener() {
+                        @Override
+                        public void positiveClick() {
+                            post.delete(new UpdateListener() {
+                                @Override
+                                public void done(BmobException e) {
+                                    setResult(Config.SUCCESS_RESULT_CODE);
+                                    finish();
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void negativeClick() {
+
+                        }
+                    }).show(getFragmentManager(),"delete_post");
+                }
+            });
+        }else {
+            cbLike.setVisibility(View.VISIBLE);
         }
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override

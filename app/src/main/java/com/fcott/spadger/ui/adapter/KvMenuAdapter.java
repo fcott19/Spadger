@@ -7,7 +7,6 @@ import com.fcott.spadger.R;
 import com.fcott.spadger.model.bean.ItemBean;
 import com.fcott.spadger.ui.adapter.baseadapter.BaseAdapter;
 import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
-import com.fcott.spadger.utils.LogUtil;
 
 import java.util.List;
 
@@ -15,9 +14,9 @@ import java.util.List;
  * Created by Administrator on 2016/12/27.
  */
 
-public class MenuAdapter extends BaseAdapter<ItemBean> {
+public class KvMenuAdapter extends BaseAdapter<ItemBean> {
 
-    public MenuAdapter(Context context, List<ItemBean> datas, boolean isOpenLoadMore) {
+    public KvMenuAdapter(Context context, List<ItemBean> datas, boolean isOpenLoadMore) {
         super(context, datas, isOpenLoadMore);
     }
 

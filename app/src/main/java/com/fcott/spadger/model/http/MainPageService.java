@@ -9,7 +9,7 @@ import rx.Observable;
  * Created by Administrator on 2016/9/20.
  */
 public interface MainPageService {
-    public String BASE_URL = "http://www.37kvkv.com/";
+    public String BASE_URL = "http://www.12ckck.com/";
 
     @GET
     Observable<String> getMainPage(@Url String url);

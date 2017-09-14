@@ -34,7 +34,7 @@
 
                     <ImageView
                         android:padding="2dp"
-                        android:transitionName="headimg"
+                        android:transitionName="post_headimg"
                         android:id="@+id/iv_head"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
@@ -70,6 +70,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
                     <TextView
+                        android:transitionName="post_nick_name"
                         android:lines="1"
                         android:ellipsize="end"
                         android:textSize="10sp"
@@ -79,6 +80,21 @@
                         android:id="@+id/tv_nick_name"
                         android:layout_width="50dp"
                         android:layout_height="wrap_content" />
+                    <ImageView
+                        android:visibility="gone"
+                        android:id="@+id/iv_delete"
+                        android:layout_below="@+id/tv_content"
+                        android:layout_alignParentRight="true"
+                        android:src="@drawable/ic_logout"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp" />
+                    <CheckBox
+                        android:visibility="gone"
+                        android:id="@+id/cb_like"
+                        android:layout_below="@+id/tv_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp" />
 
                 </RelativeLayout>
             </android.support.v7.widget.CardView>

@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.fcott.spadger.Config;
 import com.fcott.spadger.R;
@@ -38,6 +39,7 @@ import com.fcott.spadger.utils.GsonUtil;
 import com.fcott.spadger.utils.LogUtil;
 import com.fcott.spadger.utils.UserManager;
 import com.fcott.spadger.utils.db.DBManager;
+import com.fcott.spadger.utils.db.DatabaseHelper;
 import com.fcott.spadger.utils.glideutils.ImageLoader;
 import com.fcott.spadger.utils.web.X5WebView;
 import com.tencent.smtt.sdk.TbsVideo;
@@ -50,6 +52,7 @@ import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.datatype.BmobRelation;
 import cn.bmob.v3.exception.BmobException;
 import cn.bmob.v3.listener.FindListener;
+import cn.bmob.v3.listener.SaveListener;
 import cn.bmob.v3.listener.UpdateListener;
 import okhttp3.FormBody;
 import okhttp3.RequestBody;
@@ -103,6 +106,12 @@ public class MovieDetialActivity extends BaseActivity {
     @Override
     protected void getBundleExtras(Bundle bundle) {
         moviesBean = (MovieBean.MessageBean.MoviesBean) bundle.getSerializable("DATA");
+        DBManager dbManager = new DBManager(MovieDetialActivity.this, DatabaseHelper.RECORD_TABLE);
+        if(dbManager.hasContainId(moviesBean.getMovieID())){
+            dbManager.deleteMovie(moviesBean.getMovieID());
+        }
+        dbManager.add(moviesBean);
+        dbManager.closeDB();
     }
 
     @Override
@@ -127,6 +136,7 @@ public class MovieDetialActivity extends BaseActivity {
         tvTitle.setText(moviesBean.getName());
         Glide.with(MovieDetialActivity.this)
                 .load(moviesBean.getCoverImg())
+                .priority(Priority.IMMEDIATE)
                 .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                 .into(ivPlay);
         ivActor.setOnClickListener(new View.OnClickListener() {
@@ -348,6 +358,13 @@ public class MovieDetialActivity extends BaseActivity {
                 if (e == null && list.size() != 0) {
                     moviesBean = list.get(0);
                     switchShop.setEnabled(true);
+                }else if(list != null && list.size() == 0){
+                    moviesBean.save(new SaveListener<String>() {
+                        @Override
+                        public void done(String s, BmobException e) {
+                            switchShop.setEnabled(true);
+                        }
+                    });
                 }
             }
         });

@@ -63,6 +63,15 @@ public class ImageLoader {
                 .into(iv);
     }
 
+    public void loadCircle(Context context, String url,ImageView iv){
+        Glide.with(context)
+                .load(url)
+                .transform(new GlideCircleTransform(context))
+                .priority(Priority.IMMEDIATE)
+                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                .into(iv);
+    }
+
     /**
      * 需要在子线程执行
      *
@@ -91,11 +100,6 @@ public class ImageLoader {
                 .priority(Priority.NORMAL)
                 .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                 .preload();
-    }
-    public void preDownLoad(Context context, String url) {
-         Glide.with(context)
-                .load(url)
-                .downloadOnly(Target.SIZE_ORIGINAL,Target.SIZE_ORIGINAL);
     }
 
     //设置错误监听

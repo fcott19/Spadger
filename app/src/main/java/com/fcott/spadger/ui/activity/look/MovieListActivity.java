@@ -24,6 +24,7 @@ import com.fcott.spadger.utils.GsonUtil;
 import com.fcott.spadger.utils.LogUtil;
 import com.fcott.spadger.utils.NativeUtil;
 import com.fcott.spadger.utils.db.DBManager;
+import com.fcott.spadger.utils.db.DatabaseHelper;
 import com.fcott.spadger.utils.glideutils.ImageLoader;
 
 import java.util.ArrayList;
@@ -129,16 +130,23 @@ public class MovieListActivity extends BaseActivity implements PageController.Ob
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == COLLECTION_CODE) {
-            requestDataFromDb(pageController.getCurrentPageIndex());
+            requestDataFromDb(pageController.getCurrentPageIndex(),Config.typeCollection);
         }
     }
 
-    private void requestDataFromDb(final int currentPage) {
+    private void requestDataFromDb(final int currentPage,final String type) {
         Observable.create(new Observable.OnSubscribe<List<MovieBean.MessageBean.MoviesBean>>() {
             @Override
             public void call(Subscriber<? super List<MovieBean.MessageBean.MoviesBean>> subscriber) {
-                DBManager dbManager = new DBManager(MovieListActivity.this);
-                List<MovieBean.MessageBean.MoviesBean> list = dbManager.query(currentPage);
+                DBManager dbManager;
+                List<MovieBean.MessageBean.MoviesBean> list;
+                if(type.equals(Config.typeCollection)){
+                    dbManager = new DBManager(MovieListActivity.this);
+                    list = dbManager.query(currentPage);
+                }else {
+                    dbManager = new DBManager(MovieListActivity.this, DatabaseHelper.RECORD_TABLE);
+                    list = dbManager.queryReverse(currentPage);
+                }
                 dbManager.closeDB();
                 subscriber.onNext(list);
             }
@@ -166,9 +174,12 @@ public class MovieListActivity extends BaseActivity implements PageController.Ob
             subscription.unsubscribe();
 
         if (type.equals(Config.typeCollection)) {
-            requestDataFromDb(currentPage);
+            requestDataFromDb(currentPage,Config.typeCollection);
             return;
-        } else if (type.equals(Config.typeChannel) && channelId != null) {
+        } else if(type.equals(Config.typeRecord)){
+            requestDataFromDb(currentPage,Config.typeRecord);
+            return;
+        }else if (type.equals(Config.typeChannel) && channelId != null) {
             moviceBody = new FormBody.Builder()
                     .add("PageIndex", String.valueOf(currentPage))
                     .add("PageSize", String.valueOf(Config.NOMOR_PAGE_SIZE))

@@ -2,22 +2,36 @@ package com.fcott.spadger.ui.activity;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
+import com.fcott.spadger.App;
 import com.fcott.spadger.Config;
 import com.fcott.spadger.R;
+import com.fcott.spadger.model.entity.MainMenu;
 import com.fcott.spadger.model.entity.User;
+import com.fcott.spadger.ui.activity.kv.KvMainActivity;
+import com.fcott.spadger.ui.activity.look.MovieListActivity;
+import com.fcott.spadger.ui.adapter.MineMenuAdapter;
+import com.fcott.spadger.ui.adapter.baseadapter.OnItemClickListeners;
+import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
+import com.fcott.spadger.ui.widget.AlertDialogFragment;
 import com.fcott.spadger.ui.widget.BottomSelectDialog;
 import com.fcott.spadger.utils.LogUtil;
 import com.fcott.spadger.utils.PermissionsChecker;
 import com.fcott.spadger.utils.UserManager;
-import com.fcott.spadger.utils.glideutils.GlideCircleTransform;
+import com.fcott.spadger.utils.db.DBManager;
+import com.fcott.spadger.utils.db.DatabaseHelper;
 import com.fcott.spadger.utils.glideutils.GlideImageLoader;
+import com.fcott.spadger.utils.glideutils.ImageLoader;
 import com.yancy.gallerypick.config.GalleryConfig;
 import com.yancy.gallerypick.config.GalleryPick;
 import com.yancy.gallerypick.inter.IHandlerCallBack;
@@ -28,6 +42,7 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.OnClick;
+import cn.bmob.v3.BmobUser;
 import cn.bmob.v3.datatype.BmobFile;
 import cn.bmob.v3.exception.BmobException;
 import cn.bmob.v3.listener.UpdateListener;
@@ -42,7 +57,16 @@ public class MineActivity extends BaseActivity {
     private GalleryConfig galleryConfig;
     private IHandlerCallBack iHandlerCallBack;
     private PermissionsChecker mPermissionsChecker = null;                                  // 权限检测器
+    private MineMenuAdapter adapter;
+    private String[] mNavMenuTitles;
+    private TypedArray mNavMenuIconsTypeArray;
+    private TypedArray mNavMenuIconTintTypeArray;
+    private ArrayList<MainMenu> mainMenus;
 
+    @Bind(R.id.tv_nick_name)
+    TextView tvNickName;
+    @Bind(R.id.rcy)
+    public RecyclerView recyclerView;
     @Bind(R.id.contain)
     View mContainer;
     @Bind(R.id.iv_head)
@@ -95,13 +119,81 @@ public class MineActivity extends BaseActivity {
 
         User user = UserManager.getCurrentUser();
         if(user.getHeadImage() != null){
-            Glide.with(MineActivity.this)
-                    .load(user.getHeadImage())
-                    .transform(new GlideCircleTransform(MineActivity.this))
-                    .centerCrop()
-                    .into(ivHead);
+            ImageLoader.getInstance().loadCircle(MineActivity.this,user.getHeadImage(),ivHead);
+            tvNickName.setText(user.getNickName());
         }
 
+        mNavMenuTitles = getResources().getStringArray(R.array.mine_menu);
+        mNavMenuIconsTypeArray = getResources()
+                .obtainTypedArray(R.array.mine_menu_ic);
+        mNavMenuIconTintTypeArray = getResources()
+                .obtainTypedArray(R.array.mine_tint);
+        mainMenus = new ArrayList<MainMenu>();
+        for (int i = 0; i < mNavMenuTitles.length; i++) {
+            mainMenus.add(new MainMenu(mNavMenuTitles[i], mNavMenuIconsTypeArray
+                    .getResourceId(i, -1), mNavMenuIconTintTypeArray.getResourceId(i, -1)));
+        }
+        mNavMenuIconsTypeArray.recycle();
+
+        adapter = new MineMenuAdapter(MineActivity.this, mainMenus, false);
+        adapter.setOnItemClickListener(new OnItemClickListeners<MainMenu>() {
+            @Override
+            public void onItemClick(ViewHolder viewHolder, MainMenu data, int position) {
+                Intent intent = new Intent(MineActivity.this, KvMainActivity.class);
+                Bundle bundle = new Bundle();
+                switch (position){
+                    case 0:
+                        intent.setClass(MineActivity.this, BbsActivity.class);
+                        bundle.putString(Config.DATA_FROM, Config.DATA_FROM_MY_POST);
+                        intent.putExtras(bundle);
+                        startActivity(intent);
+                        break;
+                    case 2:
+                        intent.setClass(MineActivity.this, MovieListActivity.class);
+                        bundle.putString("TYPE", Config.typeRecord);
+                        intent.putExtras(bundle);
+                        startActivity(intent);
+                        break;
+                    case 3:
+                        new AlertDialogFragment().setMessage("确定清除浏览历史?").setSelectFromListener(new AlertDialogFragment.SelectFromListener() {
+                            @Override
+                            public void positiveClick() {
+                                DBManager dbManager = new DBManager(MineActivity.this);
+                                dbManager.clearTable(DatabaseHelper.RECORD_TABLE);
+                                dbManager.closeDB();
+                                Toast.makeText(MineActivity.this,"浏览历史已清除",Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void negativeClick() {
+
+                            }
+                        }).show(getFragmentManager(),"record");
+                        break;
+                    case 4:
+                        new AlertDialogFragment().setMessage("确定退出?").setSelectFromListener(new AlertDialogFragment.SelectFromListener() {
+                            @Override
+                            public void positiveClick() {
+                                BmobUser.logOut();   //清除缓存用户对象
+                                startActivity(new Intent(MineActivity.this, LoginActivity.class));
+                                App.getInstance().cleanActivity(false);
+                            }
+
+                            @Override
+                            public void negativeClick() {
+
+                            }
+                        }).show(getFragmentManager(),"logout");
+                        break;
+                }
+            }
+        });
+
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(MineActivity.this);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        layoutManager.setAutoMeasureEnabled(true);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(adapter);
     }
 
     @Override
@@ -127,10 +219,6 @@ public class MineActivity extends BaseActivity {
                 Log.i(TAG, "onSuccess: 返回数据");
                 path.clear();
                 path.add(photoList.get(0));
-                Glide.with(MineActivity.this)
-                        .load(photoList.get(0))
-                        .centerCrop()
-                        .into(ivHead);
                 updateHeadUrl(photoList.get(0));
             }
 
@@ -184,6 +272,7 @@ public class MineActivity extends BaseActivity {
                         });
                     }
 
+                    ImageLoader.getInstance().loadCircle(MineActivity.this,bmobFile.getFileUrl(),ivHead);
                     User newUser = new User();
                     newUser.setHeadImage(bmobFile.getFileUrl());
                     newUser.update(user.getObjectId(), new UpdateListener() {
@@ -203,5 +292,7 @@ public class MineActivity extends BaseActivity {
             }
         });
     }
+
+
 
 }

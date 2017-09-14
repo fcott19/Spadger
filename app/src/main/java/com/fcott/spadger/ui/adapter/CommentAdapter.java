@@ -4,12 +4,11 @@ import android.content.Context;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.Priority;
 import com.fcott.spadger.R;
 import com.fcott.spadger.model.entity.Comment;
 import com.fcott.spadger.ui.adapter.baseadapter.BaseAdapter;
 import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
+import com.fcott.spadger.utils.glideutils.ImageLoader;
 
 import java.util.List;
 
@@ -33,10 +32,7 @@ public class CommentAdapter extends BaseAdapter<Comment> {
         TextView tvCreatTime = holder.getView(R.id.tv_creat_time);
 
         if(data.getAuthor().getHeadImage() != null){
-            Glide.with(context)
-                    .load(data.getAuthor().getHeadImage())
-                    .priority(Priority.IMMEDIATE)
-                    .into(imageView);
+            ImageLoader.getInstance().loadCircle(context,data.getAuthor().getHeadImage(),imageView);
         }
         tvNickName.setText(data.getAuthor().getNickName());
         content.setText(data.getContent());

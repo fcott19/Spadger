@@ -9,7 +9,7 @@ import com.fcott.spadger.R;
 import com.fcott.spadger.model.bean.ItemBean;
 import com.fcott.spadger.ui.activity.yiren.YirenExhibitionActivity;
 import com.fcott.spadger.ui.activity.yiren.YirenVideoActivity;
-import com.fcott.spadger.ui.adapter.MenuAdapter;
+import com.fcott.spadger.ui.adapter.KvMenuAdapter;
 import com.fcott.spadger.ui.adapter.baseadapter.OnItemClickListeners;
 import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
 
@@ -31,7 +31,7 @@ public class YirenMenuFragment extends BaseFragment{
     @Bind(R.id.type_item_menu)
     public RecyclerView mRvMenu;
 
-    MenuAdapter menuAdapter = null;//菜单选择Adapter
+    KvMenuAdapter menuAdapter = null;//菜单选择Adapter
     private ArrayList<ItemBean> menuData = new ArrayList<>();//菜单数据
     private String TAG = "";//类型标志
 
@@ -61,7 +61,7 @@ public class YirenMenuFragment extends BaseFragment{
         }
 
         //menu列表展示
-        menuAdapter = new MenuAdapter(baseActivity, menuData, false);
+        menuAdapter = new KvMenuAdapter(baseActivity, menuData, false);
         menuAdapter.setOnItemClickListener(new OnItemClickListeners<ItemBean>() {
             @Override
             public void onItemClick(ViewHolder viewHolder, ItemBean data, int position) {
