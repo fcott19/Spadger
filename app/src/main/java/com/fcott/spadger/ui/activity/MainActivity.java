@@ -23,6 +23,7 @@ import com.fcott.spadger.R;
 import com.fcott.spadger.model.bean.MenuBean;
 import com.fcott.spadger.model.bean.MovieBean;
 import com.fcott.spadger.model.entity.MainMenu;
+import com.fcott.spadger.model.entity.Post;
 import com.fcott.spadger.model.entity.User;
 import com.fcott.spadger.model.http.MainPageService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
@@ -41,6 +42,7 @@ import com.fcott.spadger.utils.LogUtil;
 import com.fcott.spadger.utils.NativeUtil;
 import com.fcott.spadger.utils.UserManager;
 import com.fcott.spadger.utils.db.DBManager;
+import com.fcott.spadger.utils.db.DatabaseHelper;
 import com.fcott.spadger.utils.glideutils.ImageLoader;
 import com.fcott.spadger.utils.netstatus.NetChangeObserver;
 import com.fcott.spadger.utils.netstatus.NetStateReceiver;
@@ -92,13 +94,15 @@ public class MainActivity extends BaseActivity implements NetChangeObserver {
         user = UserManager.getCurrentUser();
         //注册网络监听
         NetStateReceiver.registerObserver(this);
-        requestCollections();
+
         super.onCreate(savedInstanceState);
     }
 
     @Override
     protected void initViews() {
 
+        requestCollections();
+        requestLikePosts();
         if (user != null) {
             tvNickName.setText(user.getNickName());
             if (user.getHeadImage() != null) {
@@ -196,7 +200,7 @@ public class MainActivity extends BaseActivity implements NetChangeObserver {
 
     private void requestCollections() {
         BmobQuery<MovieBean.MessageBean.MoviesBean> query = new BmobQuery<>();
-        query.addWhereRelatedTo("avCollections", new BmobPointer(UserManager.getCurrentUser()));
+        query.addWhereRelatedTo("avCollections", new BmobPointer(user));
         query.findObjects(new FindListener<MovieBean.MessageBean.MoviesBean>() {
 
             @Override
@@ -206,6 +210,27 @@ public class MainActivity extends BaseActivity implements NetChangeObserver {
                     dbManager.clearTable();
                     for (MovieBean.MessageBean.MoviesBean moviesBean : object) {
                         dbManager.add(moviesBean);
+                    }
+                    dbManager.closeDB();
+                }
+                if (e != null)
+                    LogUtil.log(e.toString());
+            }
+        });
+    }
+
+    private void requestLikePosts(){
+        BmobQuery<Post> query = new BmobQuery<>();
+        query.addWhereRelatedTo("likePosts", new BmobPointer(user));
+        query.findObjects(new FindListener<Post>() {
+
+            @Override
+            public void done(List<Post> object, BmobException e) {
+                if (e == null && object.size() != 0) {
+                    DBManager dbManager = new DBManager(MainActivity.this, DatabaseHelper.LIKE_POST_TABLE);
+                    dbManager.clearTable();
+                    for (Post post : object) {
+                        dbManager.add(post);
                     }
                     dbManager.closeDB();
                 }

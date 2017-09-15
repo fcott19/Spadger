@@ -12,11 +12,13 @@ import com.fcott.spadger.R;
 import com.fcott.spadger.model.bean.MovieBean;
 import com.fcott.spadger.model.entity.Comment;
 import com.fcott.spadger.model.entity.Post;
+import com.fcott.spadger.ui.widget.MaterialProgressBar;
 import com.fcott.spadger.utils.LogUtil;
 
 import butterknife.Bind;
 import cn.bmob.v3.exception.BmobException;
 import cn.bmob.v3.listener.SaveListener;
+import rx.Subscription;
 
 import static com.fcott.spadger.utils.UserManager.getCurrentUser;
 
@@ -25,6 +27,7 @@ public class MakePostActivity extends BaseActivity {
     private MovieBean.MessageBean.MoviesBean moviesBean;
     private String dataFrom = null;
     private Post post;
+    private Subscription subscription1,subscription2;
 
     @Bind(R.id.fab)
     FloatingActionButton floatingActionButton;
@@ -32,6 +35,8 @@ public class MakePostActivity extends BaseActivity {
     EditText etTitle;
     @Bind(R.id.et_content)
     EditText etContent;
+    @Bind(R.id.login_progress)
+    MaterialProgressBar mProgressView;
 
     @Override
     protected int getContentViewLayoutID() {
@@ -80,7 +85,7 @@ public class MakePostActivity extends BaseActivity {
     }
 
     public void newPost(final String title, final String content, final MovieBean.MessageBean.MoviesBean moviesBean){
-        floatingActionButton.setEnabled(false);
+        setOnTask(true);
         Post post = new Post();
         post.setTitle(title);
         post.setAuthor(getCurrentUser());
@@ -88,10 +93,10 @@ public class MakePostActivity extends BaseActivity {
         if(moviesBean != null && moviesBean.getObjectId() != null) {
             post.setMoviesBean(moviesBean);
         }
-        post.save(new SaveListener<String>() {
+        subscription2 = post.save(new SaveListener<String>() {
             @Override
             public void done(String objectId, BmobException e) {
-                floatingActionButton.setEnabled(true);
+                setOnTask(false);
                 if(e==null){
                     Toast.makeText(MakePostActivity.this,"发帖成功",Toast.LENGTH_SHORT).show();
                     setResult(Config.SUCCESS_RESULT_CODE);
@@ -109,16 +114,16 @@ public class MakePostActivity extends BaseActivity {
     }
 
     public void addComment(final Post post,final String content){
+        setOnTask(true);
         Post tempPost = post;
-        floatingActionButton.setEnabled(false);
         Comment comment = new Comment();
         comment.setContent(content);
         comment.setAuthor(getCurrentUser());
         comment.setPost(tempPost);
-        comment.save(new SaveListener<String>() {
+        subscription1 = comment.save(new SaveListener<String>() {
             @Override
             public void done(String objectId, BmobException e) {
-                floatingActionButton.setEnabled(true);
+                setOnTask(false);
                 if(e==null){
                     Toast.makeText(MakePostActivity.this,"回复成功",Toast.LENGTH_SHORT).show();
                     setResult(Config.SUCCESS_RESULT_CODE);
@@ -129,5 +134,28 @@ public class MakePostActivity extends BaseActivity {
                 }
             }
         });
+    }
+
+    private void setOnTask(boolean onTask){
+        if(onTask){
+            mProgressView.setVisibility(View.VISIBLE);
+            floatingActionButton.setEnabled(false);
+        }else {
+            mProgressView.setVisibility(View.INVISIBLE);
+            floatingActionButton.setEnabled(true);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(subscription1 != null && subscription1.isUnsubscribed()){
+            subscription1.unsubscribe();
+            subscription1 = null;
+        }
+        if(subscription2 != null && subscription2.isUnsubscribed()){
+            subscription2.unsubscribe();
+            subscription2 = null;
+        }
     }
 }

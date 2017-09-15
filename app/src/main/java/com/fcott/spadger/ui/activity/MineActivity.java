@@ -148,6 +148,12 @@ public class MineActivity extends BaseActivity {
                         intent.putExtras(bundle);
                         startActivity(intent);
                         break;
+                    case 1:
+                        intent.setClass(MineActivity.this, BbsActivity.class);
+                        bundle.putString(Config.DATA_FROM, Config.DATA_FROM_LIKE_POST);
+                        intent.putExtras(bundle);
+                        startActivity(intent);
+                        break;
                     case 2:
                         intent.setClass(MineActivity.this, MovieListActivity.class);
                         bundle.putString("TYPE", Config.typeRecord);

@@ -49,7 +49,7 @@ public class SearchActivity extends BaseActivity implements SearchView.OnQueryTe
     //自动完成的列表
     private ArrayAdapter arrayAdapter;
     private ArrayList<String> tipList = new ArrayList();
-    private Subscription subscription;
+    private Subscription subscription,subscription2,subscription3,subscription4;
     private Map<String, ActorBean.MessageBean.DataBean> actorBeanMap;
     private Map<String, MovieClassBean.MessageBean.DataBean> movieClassBeanMap;
 
@@ -121,7 +121,7 @@ public class SearchActivity extends BaseActivity implements SearchView.OnQueryTe
         //显示缓存
         if (!TextUtils.isEmpty(valueActor) && !TextUtils.isEmpty(valueClass)) {
 
-            Observable.create(new Observable.OnSubscribe<Void>() {
+            subscription4 = Observable.create(new Observable.OnSubscribe<Void>() {
                 @Override
                 public void call(Subscriber<? super Void> subscriber) {
                     makeDataMap(GsonUtil.fromJson(valueActor, ActorBean.class));
@@ -194,7 +194,7 @@ public class SearchActivity extends BaseActivity implements SearchView.OnQueryTe
     }
 
     private void makeDataMap(final ActorBean actorBean){
-        Observable.from(actorBean.getMessage().getData())
+        subscription2 = Observable.from(actorBean.getMessage().getData())
                 .toMap(new Func1<ActorBean.MessageBean.DataBean, String>() {
                     @Override
                     public String call(ActorBean.MessageBean.DataBean dataBean) {
@@ -211,7 +211,7 @@ public class SearchActivity extends BaseActivity implements SearchView.OnQueryTe
         });
     }
     private void makeDataMap(final MovieClassBean movieClassBean){
-        Observable.from(movieClassBean.getMessage().getData())
+        subscription2 = Observable.from(movieClassBean.getMessage().getData())
                 .toMap(new Func1<MovieClassBean.MessageBean.DataBean, String>() {
                     @Override
                     public String call(MovieClassBean.MessageBean.DataBean dataBean) {
@@ -254,7 +254,21 @@ public class SearchActivity extends BaseActivity implements SearchView.OnQueryTe
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (subscription != null && !subscription.isUnsubscribed())
+        if (subscription != null && !subscription.isUnsubscribed()) {
             subscription.unsubscribe();
+            subscription = null;
+        }
+        if (subscription2 != null && !subscription2.isUnsubscribed()) {
+            subscription2.unsubscribe();
+            subscription2 = null;
+        }
+        if (subscription3 != null && !subscription3.isUnsubscribed()) {
+            subscription3.unsubscribe();
+            subscription3 = null;
+        }
+        if (subscription4 != null && !subscription4.isUnsubscribed()) {
+            subscription4.unsubscribe();
+            subscription4 = null;
+        }
     }
 }

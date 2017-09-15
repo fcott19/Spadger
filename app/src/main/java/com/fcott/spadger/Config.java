@@ -6,6 +6,7 @@ public class Config {
     public static final int NORMAL_RESULT_CODE = 101;
     public static final int SUCCESS_RESULT_CODE = 102;
     public static final int HEAD_CHANGE_RESULT_CODE = 103;
+    public static final int UNLIKE_RESULT_CODE = 104;
 
     public static final String VIDEO_CACHE_PATH = "/storage/emulated/0/Android/data/com.fcott.spadger/files/VideoCache/main";
     public static final int NOMOR_PAGE_SIZE = 20;
@@ -38,4 +39,5 @@ public class Config {
     public static final String DATA_FROM_ADDASK = "DATA_FROM_ADDASK";
     public static final String DATA_FROM_SHARE_AV = "DATA_FROM_SHARE_AV";
     public static final String DATA_FROM_MY_POST = "DATA_FROM_MY_POST";
+    public static final String DATA_FROM_LIKE_POST = "DATA_FROM_LIKE_POST";
 }

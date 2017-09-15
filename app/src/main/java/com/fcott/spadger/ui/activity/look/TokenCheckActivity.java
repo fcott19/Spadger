@@ -17,7 +17,6 @@ import com.fcott.spadger.model.http.RequestTokenService;
 import com.fcott.spadger.model.http.utils.RetrofitUtils;
 import com.fcott.spadger.ui.activity.BaseActivity;
 import com.fcott.spadger.ui.activity.MainActivity;
-import com.fcott.spadger.utils.GsonUtil;
 import com.fcott.spadger.utils.LogUtil;
 import com.fcott.spadger.utils.NativeUtil;
 
@@ -67,6 +66,7 @@ public class TokenCheckActivity extends BaseActivity {
     }
 
     public void login(String token) {
+        LogUtil.log("login");
         toggleShowLoading(true);
         loginBody = new FormBody.Builder()
                 .add("Token", token)
@@ -93,9 +93,8 @@ public class TokenCheckActivity extends BaseActivity {
 
                     @Override
                     public void onNext(LoginBean loginBean) {
-
-                        LogUtil.log(TAG, GsonUtil.toJson(loginBean));
                         if (loginBean.getResult() == 1) {
+                            toggleShowLoading(false);
                             startActivity(new Intent(TokenCheckActivity.this, MainActivity.class));
                             finish();
                         } else {

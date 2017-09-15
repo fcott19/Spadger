@@ -17,6 +17,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // 数据表名，一个数据库中可以有多个表（虽然本例中只建立了一个表）
     public static final String COLLECTION_TABLE = "CollectionMovies";
     public static final String RECORD_TABLE = "RecordMovies";
+    public static final String LIKE_POST_TABLE = "LikePosts";
 
     // 构造函数，调用父类SQLiteOpenHelper的构造函数
     public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory,
@@ -61,6 +62,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         sBuffer.append("[Img] TEXT,");
         sBuffer.append("[CoverImg] TEXT)");
         db.execSQL(sBuffer.toString());
+
+        sBuffer.setLength(0);
+        sBuffer.append("CREATE TABLE [" + LIKE_POST_TABLE + "] (");
+        sBuffer.append("[_id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ");
+        sBuffer.append("[ObjectId] TEXT)");
+        db.execSQL(sBuffer.toString());
         // 即便程序修改重新运行，只要数据库已经创建过，就不会再进入这个onCreate方法
     }
 
@@ -68,6 +75,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + COLLECTION_TABLE);
         db.execSQL("DROP TABLE IF EXISTS " + RECORD_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS " + LIKE_POST_TABLE);
         onCreate(db);
     }
 

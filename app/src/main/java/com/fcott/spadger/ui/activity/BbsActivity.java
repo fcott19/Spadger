@@ -20,8 +20,6 @@ import com.fcott.spadger.ui.adapter.baseadapter.BaseAdapter;
 import com.fcott.spadger.ui.adapter.baseadapter.OnItemClickListeners;
 import com.fcott.spadger.ui.adapter.baseadapter.OnLoadMoreListener;
 import com.fcott.spadger.ui.adapter.baseadapter.ViewHolder;
-import com.fcott.spadger.utils.GsonUtil;
-import com.fcott.spadger.utils.LogUtil;
 import com.fcott.spadger.utils.UserManager;
 
 import java.util.ArrayList;
@@ -29,8 +27,10 @@ import java.util.List;
 
 import butterknife.Bind;
 import cn.bmob.v3.BmobQuery;
+import cn.bmob.v3.datatype.BmobPointer;
 import cn.bmob.v3.exception.BmobException;
 import cn.bmob.v3.listener.FindListener;
+import rx.Subscription;
 
 public class BbsActivity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener {
     private static final int PAGE_SIZE = 20;
@@ -38,6 +38,7 @@ public class BbsActivity extends BaseActivity implements SwipeRefreshLayout.OnRe
     private int currentPage = 1;
     private String dataFrom;
     private boolean hasInLoad = false;//是否加载中
+    private Subscription subscription;
 
     @Bind(R.id.srl_bbs)
     SwipeRefreshLayout mSwipeRefreshLayout;
@@ -71,13 +72,13 @@ public class BbsActivity extends BaseActivity implements SwipeRefreshLayout.OnRe
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(BbsActivity.this,MakePostActivity.class);
+                Intent intent = new Intent(BbsActivity.this, MakePostActivity.class);
                 Bundle bundle = new Bundle();
-                bundle.putString(Config.DATA_FROM,Config.DATA_FROM_NEWPOST);
+                bundle.putString(Config.DATA_FROM, Config.DATA_FROM_NEWPOST);
                 intent.putExtras(bundle);
                 ActivityOptionsCompat activityOptionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(BbsActivity.this, floatingActionButton, "fab");
                 ActivityCompat.startActivityForResult(BbsActivity.this,
-                        intent,Config.NORMAL_REQUEST_CODE, activityOptionsCompat.toBundle());
+                        intent, Config.NORMAL_REQUEST_CODE, activityOptionsCompat.toBundle());
             }
         });
 
@@ -85,27 +86,27 @@ public class BbsActivity extends BaseActivity implements SwipeRefreshLayout.OnRe
         postAdapter.setOnItemClickListener(new OnItemClickListeners<Post>() {
             @Override
             public void onItemClick(ViewHolder viewHolder, Post data, int position) {
-                LogUtil.log(GsonUtil.toJson(data));
-                Intent intent = new Intent(BbsActivity.this,PostDetialActivity.class);
+                Intent intent = new Intent(BbsActivity.this, PostDetialActivity.class);
                 Bundle bundle = new Bundle();
-                bundle.putSerializable("post",data);
+                bundle.putSerializable("post", data);
+                bundle.putString(Config.DATA_FROM,dataFrom);
                 intent.putExtras(bundle);
-                Pair<View,String> [] p = new Pair[]{
+                Pair<View, String>[] p = new Pair[]{
                         Pair.create(viewHolder.getView(R.id.iv_head), "post_headimg"),
                         Pair.create(viewHolder.getView(R.id.tv_nick_name), "post_nick_name")};
-                ActivityOptionsCompat activityOptionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(BbsActivity.this,p);
+                ActivityOptionsCompat activityOptionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(BbsActivity.this, p);
                 ActivityCompat.startActivityForResult(BbsActivity.this,
-                        intent,Config.NORMAL_REQUEST_CODE,activityOptionsCompat.toBundle());
+                        intent, Config.NORMAL_REQUEST_CODE, activityOptionsCompat.toBundle());
             }
         });
         postAdapter.setLoadingView(R.layout.load_loading_foot);//加载中 提示view
         postAdapter.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore(BaseAdapter.LoadMode loadMode) {
-                if(hasInLoad)
+                if (hasInLoad)
                     return;
                 currentPage++;
-                queryPost(currentPage,true);
+                queryPost(currentPage, true);
             }
         });
 
@@ -115,7 +116,7 @@ public class BbsActivity extends BaseActivity implements SwipeRefreshLayout.OnRe
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(postAdapter);
 
-        if(dataFrom != null && dataFrom.equals(Config.DATA_FROM_MY_POST)){
+        if (dataFrom != null) {
             floatingActionButton.setVisibility(View.GONE);
         }
         postRefresh();
@@ -124,39 +125,47 @@ public class BbsActivity extends BaseActivity implements SwipeRefreshLayout.OnRe
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode == Config.SUCCESS_RESULT_CODE){
+        if (resultCode == Config.SUCCESS_RESULT_CODE) {
             postRefresh();
         }
     }
 
-    public void queryPost(final int page,final boolean isLoadmore){
+    public void queryPost(final int page, final boolean isLoadmore) {
         hasInLoad = true;//是否加载中
         BmobQuery<Post> query = new BmobQuery<Post>();
         query.setLimit(PAGE_SIZE);
         query.setSkip(PAGE_SIZE * (page - 1));
         query.order("-createdAt");
         query.include("author,moviesBean");
-        if(dataFrom != null && dataFrom.equals(Config.DATA_FROM_MY_POST)){
+        if (dataFrom != null && dataFrom.equals(Config.DATA_FROM_MY_POST)) {
             query.addWhereEqualTo("author", UserManager.getCurrentUser());
+        }else if(dataFrom != null && dataFrom.equals(Config.DATA_FROM_LIKE_POST)){
+            query.addWhereRelatedTo("likePosts", new BmobPointer(UserManager.getCurrentUser()));
         }
         //执行查询方法
-        query.findObjects(new FindListener<Post>() {
+        subscription = query.findObjects(new FindListener<Post>() {
             @Override
             public void done(List<Post> object, BmobException e) {
                 cancleRefresh();//取消刷新
                 hasInLoad = false;//是否加载中
-                if(e==null){
-                    if(object.size() != 0){
-                        if(isLoadmore)
+                if (e == null) {
+                    if (object.size() != 0) {
+                        if (isLoadmore)
                             postAdapter.setLoadMoreData(object);
                         else
                             postAdapter.setNewData(object);
-                    }else {
+                        if (object.size() != PAGE_SIZE)
+                            postAdapter.setLoadEndView(R.layout.load_end_foot);
+                    } else {
+                        if(currentPage == 1) {
+                            postAdapter.setNewData(object);
+                            toggleShowError(getString(R.string.no_collection));
+                        }
                         postAdapter.setLoadEndView(R.layout.load_end_foot);
                     }
-                }else{
+                } else {
                     toggleShowError(e.getMessage());
-                    Log.i("bmob","失败："+e.getMessage()+","+e.getErrorCode());
+                    Log.i("bmob", "失败：" + e.getMessage() + "," + e.getErrorCode());
                 }
             }
         });
@@ -165,13 +174,13 @@ public class BbsActivity extends BaseActivity implements SwipeRefreshLayout.OnRe
     @Override
     public void onRefresh() {
         currentPage = 1;
-        queryPost(currentPage,false);
+        queryPost(currentPage, false);
     }
 
     /**
      * 自动刷新
      */
-    private void postRefresh(){
+    private void postRefresh() {
         mSwipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
@@ -184,12 +193,21 @@ public class BbsActivity extends BaseActivity implements SwipeRefreshLayout.OnRe
     /**
      * 取消刷新
      */
-    private void cancleRefresh(){
+    private void cancleRefresh() {
         mSwipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
                 mSwipeRefreshLayout.setRefreshing(false);
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(subscription != null && subscription.isUnsubscribed()){
+            subscription.unsubscribe();
+            subscription = null;
+        }
     }
 }

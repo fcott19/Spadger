@@ -14,6 +14,7 @@ public class User extends BmobUser implements Serializable{
     private String headImage;
     private String nickName;
     private BmobRelation avCollections;
+    private BmobRelation likePosts;
 
     public String getHeadImage() {
         return headImage;
@@ -37,5 +38,13 @@ public class User extends BmobUser implements Serializable{
 
     public void setAvCollections(BmobRelation avCollections) {
         this.avCollections = avCollections;
+    }
+
+    public BmobRelation getLikePosts() {
+        return likePosts;
+    }
+
+    public void setLikePosts(BmobRelation likePosts) {
+        this.likePosts = likePosts;
     }
 }

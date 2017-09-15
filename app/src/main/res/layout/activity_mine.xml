@@ -15,7 +15,7 @@
             android:focusable="true"
             android:focusableInTouchMode="true"
             android:transitionName="share_bg"
-            android:background="@drawable/ic_md1"
+            android:background="@drawable/ic_md3"
             android:layout_width="match_parent"
             android:layout_height="190dp">
             <ImageView

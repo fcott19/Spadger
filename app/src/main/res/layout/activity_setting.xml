@@ -5,36 +5,37 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:padding="16dp"
     tools:context="com.fcott.spadger.ui.activity.SettingActivity">
     <Switch
         android:id="@+id/switch_movie_mode"
         android:padding="10dp"
         android:text="启用web视频"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="48dp" />
     <Switch
         android:id="@+id/switch_window_movie"
         android:padding="10dp"
         android:text="开启小窗功能"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="48dp" />
     <Switch
         android:id="@+id/switch_prohibit_no_wifi"
         android:padding="10dp"
         android:text="非wifi环境下自动退出APP"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="48dp" />
     <Switch
         android:id="@+id/switch_perload"
         android:padding="10dp"
         android:text="wifi环境自动预加载图片"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="48dp" />
     <Button
         android:visibility="gone"
         android:onClick="clearVideoCache"
         android:text="清除视频缓存"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="48dp" />
 
 </LinearLayout>

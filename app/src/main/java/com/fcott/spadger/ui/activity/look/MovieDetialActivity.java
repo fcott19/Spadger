@@ -58,6 +58,7 @@ import okhttp3.FormBody;
 import okhttp3.RequestBody;
 import rx.Observable;
 import rx.Subscriber;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
@@ -67,6 +68,7 @@ public class MovieDetialActivity extends BaseActivity {
 
     private MovieBean.MessageBean.MoviesBean moviesBean;
     private MoviePlayBean moviePlayBean;
+    private Subscription subscription1,subscription2,subscription3;
 
     @Bind(R.id.web_filechooser)
     public X5WebView webView;
@@ -337,22 +339,18 @@ public class MovieDetialActivity extends BaseActivity {
         switchShop.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton btn, boolean isChecked) {
-                DBManager dbManager = new DBManager(MovieDetialActivity.this);
                 if (isChecked) {
                     setCollection(moviesBean, true);
                     switchShop.setText(getResources().getString(R.string.cancel_collection));
-                    dbManager.add(moviesBean);
                 } else {
                     setCollection(moviesBean, false);
                     switchShop.setText(getResources().getString(R.string.collection));
-                    dbManager.deleteMovie(moviesBean.getMovieID());
                 }
-                dbManager.closeDB();
             }
         });
         BmobQuery<MovieBean.MessageBean.MoviesBean> query = new BmobQuery<>();
         query.addWhereEqualTo("MovieID", moviesBean.getMovieID());
-        query.findObjects(new FindListener<MovieBean.MessageBean.MoviesBean>() {
+        subscription1 = query.findObjects(new FindListener<MovieBean.MessageBean.MoviesBean>() {
             @Override
             public void done(List<MovieBean.MessageBean.MoviesBean> list, BmobException e) {
                 if (e == null && list.size() != 0) {
@@ -391,17 +389,20 @@ public class MovieDetialActivity extends BaseActivity {
         }
     }
 
-    private void setCollection(MovieBean.MessageBean.MoviesBean moviesBean, boolean isCollection) {
+    private void setCollection(final MovieBean.MessageBean.MoviesBean moviesBean, boolean isCollection) {
         User user = UserManager.getCurrentUser();
         BmobRelation relation = new BmobRelation();
         if (isCollection) {
             relation.add(moviesBean);
             user.setAvCollections(relation);
-            user.update(new UpdateListener() {
+            subscription2 = user.update(new UpdateListener() {
                 @Override
                 public void done(BmobException e) {
                     if (e == null) {
                         Log.i("bmob", "多对多关联添加成功");
+                        DBManager dbManager = new DBManager(MovieDetialActivity.this);
+                        dbManager.add(moviesBean);
+                        dbManager.closeDB();
                     } else {
                         Log.i("bmob", "失败：" + e.getMessage());
                     }
@@ -411,12 +412,15 @@ public class MovieDetialActivity extends BaseActivity {
         } else {
             relation.remove(moviesBean);
             user.setAvCollections(relation);
-            user.update(new UpdateListener() {
+            subscription3 = user.update(new UpdateListener() {
 
                 @Override
                 public void done(BmobException e) {
                     if (e == null) {
                         Log.i("bmob", "关联关系删除成功");
+                        DBManager dbManager = new DBManager(MovieDetialActivity.this);
+                        dbManager.deleteMovie(moviesBean.getMovieID());
+                        dbManager.closeDB();
                     } else {
                         Log.i("bmob", "失败：" + e.getMessage());
                     }
@@ -452,6 +456,18 @@ public class MovieDetialActivity extends BaseActivity {
         if (webView != null) {
             webView.destroy();
             webView = null;
+        }
+        if(subscription1 != null && subscription1.isUnsubscribed()){
+            subscription1.unsubscribe();
+            subscription1 = null;
+        }
+        if(subscription2 != null && subscription2.isUnsubscribed()){
+            subscription2.unsubscribe();
+            subscription2 = null;
+        }
+        if(subscription3 != null && subscription3.isUnsubscribed()){
+            subscription3.unsubscribe();
+            subscription3 = null;
         }
     }
 

@@ -11,6 +11,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.fcott.spadger.Config;
 import com.fcott.spadger.model.bean.MovieBean;
+import com.fcott.spadger.model.entity.Post;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +48,20 @@ public class DBManager {
         }
     }
     /**
+     * add RowsBean
+     */
+    public void add(Post post) {
+        // 采用事务处理，确保数据完整性
+        db.beginTransaction(); // 开始事务
+        try {
+            db.execSQL("INSERT INTO " + tableName
+                    + " VALUES(null,?)", new Object[] { post.getObjectId()});
+            db.setTransactionSuccessful(); // 设置事务成功完成
+        } finally {
+            db.endTransaction(); // 结束事务
+        }
+    }
+    /**
      * update Movie
      *
      * @param moviesBean
@@ -69,6 +84,11 @@ public class DBManager {
      */
     public void deleteMovie(String movieId) {
         db.delete(tableName, "MovieID == ?",
+                new String[]{movieId});
+    }
+
+    public void deletePost(String movieId) {
+        db.delete(tableName, "ObjectId == ?",
                 new String[]{movieId});
     }
 
@@ -133,6 +153,19 @@ public class DBManager {
         return beanList;
     }
 
+    public List<String> queryPostReverse(int pageIndex) {
+        ArrayList<String> beanList = new ArrayList<>();
+        Cursor c = queryTheCursor();
+        c.move(c.getCount()-((pageIndex - 1) * Config.NOMOR_PAGE_SIZE)+1);
+        while (c.moveToPrevious()) {
+            beanList.add(c.getString(c.getColumnIndex("ObjectId")));
+            if(beanList.size()==Config.NOMOR_PAGE_SIZE)
+                break;
+        }
+        c.close();
+        return beanList;
+    }
+
     /**
      * query all Movie, return cursor
      *
@@ -154,6 +187,19 @@ public class DBManager {
         Cursor c = queryTheCursor();
         while (c.moveToNext()) {
             if(c.getString(c.getColumnIndex("MovieID")).equals(movieId)){
+                hasContain = true;
+                break;
+            }
+        }
+        c.close();
+        return hasContain;
+    }
+
+    public boolean hasContainPostId(String postId){
+        boolean hasContain = false;
+        Cursor c = queryTheCursor();
+        while (c.moveToNext()) {
+            if(c.getString(c.getColumnIndex("ObjectId")).equals(postId)){
                 hasContain = true;
                 break;
             }
