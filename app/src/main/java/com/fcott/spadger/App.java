@@ -4,11 +4,9 @@ import android.app.Activity;
 import android.app.Application;
 import android.os.Environment;
 import android.os.Process;
-import android.os.StrictMode;
 import android.util.Log;
 
 import com.fcott.spadger.utils.netstatus.NetStateReceiver;
-import com.squareup.leakcanary.LeakCanary;
 import com.tencent.bugly.Bugly;
 import com.tencent.bugly.beta.Beta;
 import com.tencent.smtt.sdk.QbSdk;
@@ -70,24 +68,6 @@ public class App extends Application {
     }
     public void cleanActivity() {
         cleanActivity(true);
-    }
-
-    protected void setupLeakCanary() {
-        if (LeakCanary.isInAnalyzerProcess(this)) {
-            // This process is dedicated to LeakCanary for heap analysis.
-            // You should not init your app in this process.
-            return;
-        }
-        enabledStrictMode();
-        LeakCanary.install(this);
-    }
-
-    private static void enabledStrictMode() {
-        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder() //
-                .detectAll() //
-                .penaltyLog() //
-                .penaltyDeath() //
-                .build());
     }
 
     private void initBugly() {
